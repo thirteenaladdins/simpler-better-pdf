@@ -87,7 +87,8 @@ def allowed_file(filename):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    return ('', 204)
+    # return ('', 204)
+    return 'Luxury goods api deployed'
 
 # TODO add all the checks and balances here
 # so pass the file to this route on the backend
