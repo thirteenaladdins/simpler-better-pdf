@@ -24,7 +24,9 @@ const Extractor = () => {
   const [state, setState] = useState(initialState)
 
   const uploadFile = async (file) => {
-    let url = 'http://localhost:8080/api/processfile'
+    // let url = 'http://localhost:8080/api/processfile'
+    // for production
+    let url = 'https://luxury-goods-backend.herokuapp.com/api/processfile'
     let formData = new FormData()
 
     formData.append('file', file)
