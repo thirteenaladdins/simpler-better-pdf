@@ -236,10 +236,19 @@ const Extractor = () => {
       // handleDrop(e)
     }
 
+    // responsive window width - if it's less than 640px change width
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        // setState({ ...state, width: '100%' })
+      } else {
+        // setState({ ...state, width: '50%' })
+      }
+    }
+
     return (
       <div
         ref={ref}
-        className="drop-area flex w-8/12
+        className="drop-area-full flex
         cursor-pointer flex-col items-center justify-center break-normal
         border-2 border-dashed border-indigo-300 text-center
         font-sans"
@@ -403,7 +412,7 @@ const Extractor = () => {
           <a
             // tabIndex="0"
             className="mb-4 mt-4 box-border inline-block rounded bg-indigo-500 
-            py-2 px-4 text-center text-sm
+            px-4 text-center text-sm
             font-normal uppercase leading-5 text-white 
             no-underline hover:bg-indigo-300 "
             // generate name file
@@ -438,9 +447,9 @@ const Extractor = () => {
   return (
     <div
       className="main-container flex 
-      h-72 w-full justify-center
-      break-normal font-sans
-      "
+  h-72 w-full justify-center
+  break-normal font-sans
+  "
     >
       {renderSwitch(state.fileSelection)}
     </div>
