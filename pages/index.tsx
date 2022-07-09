@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import Extractor from '../components/Extractor'
 
 const Home: NextPage = () => {
@@ -11,8 +10,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="mx-auto pt-8 font-sans">Luxury Goods Extractor</div>
-      <main className="flex flex-1 flex-col justify-center px-10 pt-20">
-        {/* <main className="flex items-center justify-center"> */}
+      <main className="mx-auto flex flex-1 flex-col justify-center px-10 pt-20">
         <Extractor />
       </main>
     </div>

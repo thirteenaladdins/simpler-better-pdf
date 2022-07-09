@@ -444,14 +444,43 @@ const Extractor = () => {
     )
   }
 
+  //   for mobile
+  const [windowDimension, setWindowDimension] = useState(null)
+
+  useEffect(() => {
+    setWindowDimension(window.innerWidth)
+  }, [])
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimension(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const isMobile = windowDimension <= 640
+
   return (
-    <div
-      className="main-container flex 
-  h-72 w-full justify-center
-  break-normal font-sans
-  "
-    >
-      {renderSwitch(state.fileSelection)}
+    // ternary operator
+    <div>
+      {isMobile ? (
+        <div
+          className="mobile-container 
+        flex h-72 items-center justify-center font-sans"
+        >
+          {renderSwitch(state.fileSelection)}
+        </div>
+      ) : (
+        <div
+          className="main-container flex 
+          h-72 w-full justify-center
+          break-normal font-sans"
+        >
+          {renderSwitch(state.fileSelection)}
+        </div>
+      )}
     </div>
   )
 }

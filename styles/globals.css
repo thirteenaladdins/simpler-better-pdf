@@ -67,3 +67,8 @@ html {
 .main-container {
   height: 100%;
 }
+
+.mobile-container {
+  height: 100%;
+  width: 400px;
+}
