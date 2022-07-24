@@ -52,8 +52,10 @@ app = Flask(
     # template_folder="frontend/build",
 )
 
+# app.run(debug=True)
+
 # comment out in production
-# CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 CORS(app)
 
 # app.config["CORS_HEADERS"] = "Content-Type"

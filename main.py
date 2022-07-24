@@ -50,8 +50,6 @@ def extract_invoice_no(path_to_pdf):
     
 
 # search the tariff section here instead?
-# or am I overcomplicating it?
-
 def extract_net_weight(full_text):
     # 'TOTAL NW'
 
@@ -79,8 +77,9 @@ def extract_net_weight(full_text):
 
 # only two values should be passed in here - they are the ones with the commas
 # I just realised I don't need all that other complicated code - 
-# 
-# 
+# at each point we can either try to find the item - if it doesn't exist 
+# at a blank space to the list in it's place
+
 def calculate_value(items_list):
     # print(items_list, flush=True)
     find_value = []
@@ -94,7 +93,7 @@ def calculate_value(items_list):
     max_value = max(find_value)
     min_value = min(find_value)
 
-    print(max_value, min_value, flush=True)
+    # print(max_value, min_value, flush=True)
     if (max_value / min_value < 1.5):
         # print('MIN VALUE', flush=True)
         value = min_value
@@ -196,14 +195,20 @@ def extract_descriptions(full_text):
 
     description_list = []
 
-    all_items = re.findall(r'\d{8} .*?Kg', rejoined_text)
+    all_items = re.findall(r'\d{8} .*?GBP .*?Kg', rejoined_text)
+    # all_items = re.findall(r'\d{8} .*?Kg', rejoined_text)
     for item in all_items:
         split = item.split(' ')
 
-        GBP_index = split.index("GBP")
+        print(split)
 
-        description_list.append(split[:GBP_index-1])
+        try:
+            GBP_index = split.index("GBP")
+            description_list.append(split[:GBP_index-1])
+        except:
+            continue
 
+        
 
     return description_list
 
