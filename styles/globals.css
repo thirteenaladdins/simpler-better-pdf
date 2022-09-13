@@ -34,13 +34,13 @@ html {
 }
 
 .download-button {
-  background-color: rgb(165 180 252);
+  /* background-color: rgb(165 180 252); */
   color: white;
   font-family: arial;
 
   font-size: 0.875rem; /* 14px */
   line-height: 1.25rem; /* 20px */
-  display: inline-block;
+  /* display: inline-block;
   padding: 0.5em 3em;
   border: 0.16em solid #ffffff;
   margin: 0 0.3em 0.3em 0;
@@ -51,7 +51,43 @@ html {
   font-weight: 400;
   color: #ffffff;
   text-align: center;
-  transition: all 0.15s;
+  transition: all 0.15s; */
+}
+
+.refresh-button {
+  box-sizing: border-box; 
+display: inline-block; 
+padding-top: 0.5rem;
+padding-bottom: 0.5rem; 
+padding-left: 1rem;
+padding-right: 1rem; 
+background-color: #6366F1; 
+color: #ffffff; 
+font-size: 0.875rem;
+line-height: 1.25rem; 
+font-weight: 400; 
+line-height: 1.25rem; 
+text-align: center; 
+text-decoration: none; 
+text-transform: uppercase; 
+border-radius: 0.25rem; 
+border-style: none; 
+cursor: pointer; 
+}
+
+.refresh-button:hover {
+  background-color: #A5B4FC; 
+} 
+
+/* .home-page {
+  display: flex;
+  flex-direction: row;
+} */
+
+.sidebar {
+  display: flex;
+  height: 100%;
+  border: 1px solid red;
 }
 
 .drop-area-full {
