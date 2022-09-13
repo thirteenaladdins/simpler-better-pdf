@@ -1,11 +1,13 @@
-import { React, useRef, useEffect, useState, Fragment } from 'react'
-import { useFilePicker } from 'use-file-picker'
-import ListItem from '../components/ListItem'
-import DownloadIcon from '../public/download.svg'
-import FrownIcon from '../public/frown.svg'
-import Spinner from '../public/tail-spin.svg'
-import Image from 'next/image'
-import axios from 'axios'
+import {
+  React, useRef, useEffect, useState,
+} from 'react';
+// import { useFilePicker } from 'use-file-picker';
+import Image from 'next/image';
+import axios from 'axios';
+import ListItem from './ListItem';
+import DownloadIcon from '../public/download.svg';
+import FrownIcon from '../public/frown.svg';
+import Spinner from '../public/tail-spin.svg';
 
 // come back and sort out all the design
 
@@ -15,101 +17,170 @@ const initialState = {
   returnedData: false,
   loading: false,
   downloadFile: false,
-}
+};
 
-const count = 50
-const formats = ['pdf']
+const count = 50;
+const formats = ['pdf'];
 
-const Extractor = () => {
-  const [state, setState] = useState(initialState)
+function Extractor() {
+  const [state, setState] = useState(initialState);
+
+  function Download() {
+    useEffect(() => {}, []);
+
+    if (typeof window !== 'undefined') {
+      // browser code
+    }
+    function refreshPage() {
+      window.location.reload(false);
+    }
+
+    return (
+      <div className="w-64 items-center shadow">
+        <div className="download-button">
+          <a
+            // tabIndex="0"
+            className="mb-4 mt-4 box-border inline-block rounded bg-indigo-500
+            px-4 text-center text-sm
+            font-normal uppercase leading-5 text-white
+            no-underline hover:bg-indigo-300 "
+            // generate name file
+            download="export.csv"
+            // here we're passing the json data returned from the function
+            // encode uri component
+            href={
+              `data:text/csv;charset=utf-8,%EF%BB%BF${
+                encodeURIComponent(state.returnedData)}`
+            }
+          >
+            {/* <img src={DownloadIcon} className="download-icon" /> */}
+            <i className="fas fa-arrow-down" />
+            {' '}
+            Download
+          </a>
+        </div>
+
+        {/* instead of resetting page - refresh */}
+        <button
+          type="submit"
+          className="refresh-button"
+          onClick={refreshPage}
+        >
+          Convert another?
+        </button>
+      </div>
+    );
+  }
+
+  const parseJsonData = (jsonData) => {
+    try {
+      console.log(jsonData);
+      const replacer = (key, value) => (value === null ? '' : value); // specify how you want to handle null values here
+      const headers = Object.keys(jsonData[0]);
+      // console.log(headers)
+
+      let csv = jsonData.map((row) => headers
+        .map((fieldName) => JSON.stringify(row[fieldName], replacer))
+        .join(','));
+      csv.unshift(headers);
+      csv = csv.join('\r\n');
+      // console.log(csv)
+      return csv;
+    } catch {
+      // add file name here?
+      // TODO - add error message to screen
+      console.log('Something went wrong with a file.');
+    }
+
+    // return <Download fileName={filename} csv={csv} />
+  };
 
   const uploadFile = async (file) => {
     // let url = 'http://localhost:8080/api/processfile'
     // for production
-    let url = 'https://luxury-goods-backend.herokuapp.com/api/processfile'
-    let formData = new FormData()
+    const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
+    // eslint-disable-next-line no-undef
+    const formData = new FormData();
 
-    formData.append('file', file)
+    formData.append('file', file);
 
-    let response = await axios.post(url, formData, {
+    const response = await axios.post(url, formData, {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-    })
+    });
     // .catch((err) => {
     //   if (err.response.status === 500) {
     //     console.log('Something went wrong')
     //   }
     // })
 
-    return response
-  }
+    return response;
+  };
 
   // instead of dealing with json we're using json array
   const processAllFiles = async (files) => {
-    var responses = []
+    const responses = [];
 
     for (const file of files) {
       try {
-        const responseData = await uploadFile(file).catch((err) => {})
-        responses.push(responseData.data)
+        const responseData = await uploadFile(file).catch((err) => {});
+        responses.push(responseData.data);
       } catch {
-        ;(error) => {
+        (error) => {
           if (error.response.status === 500) {
-            console.log(err)
-            return error
+            console.log(err);
+            return error;
           }
-        }
+        };
       }
     }
 
-    const combinedResponses = [].concat.apply([], responses)
+    const combinedResponses = [...responses];
     // console.log(responses)
     // setState({ ...state, returnedData: true })
-    const csvFormattedData = parseJsonData(combinedResponses)
+    const csvFormattedData = parseJsonData(combinedResponses);
     // console.log(csvFormattedData)
-    return csvFormattedData
-  }
+    return csvFormattedData;
+  };
 
   function handleDrop(e) {
-    let files = e.dataTransfer.files
-    const fileList = [...e.dataTransfer.files]
+    const { files } = e.dataTransfer;
+    const fileList = [...e.dataTransfer.files];
 
+    // Add this count to the screen
     if (count && count < files.length) {
       console.log(
-        `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`
-      )
-      return
+        `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
+      );
+      return;
     }
 
     if (
-      formats &&
-      fileList.some(
-        (file) =>
-          !formats.some((format) =>
-            file.name.toLowerCase().endsWith(format.toLowerCase())
-          )
+      formats
+      && fileList.some(
+        (file) => !formats.some((format) => file.name.toLowerCase().endsWith(format.toLowerCase())),
       )
     ) {
       console.log(
-        `Only the following file formats are acceptable: ${formats.join(', ')}`
-      )
-      setState({ ...state, fileSelection: 'invalid_file_component' })
-      return
+        `Only the following file formats are acceptable: ${formats.join(', ')}`,
+      );
+      setState({ ...state, fileSelection: 'invalid_file_component' });
+      return;
     }
 
     setState({
       ...state,
       selectedFile: files,
       fileSelection: 'list_component',
-    })
-    return files
+    });
+    return files;
   }
 
   function handleFiles(e) {
-    console.log(e)
+    console.log(e);
     // let files = e.files
-    const files = [...e]
+    const files = [...e];
     // console.log(files)
 
     // How do I display this message?
@@ -142,8 +213,8 @@ const Extractor = () => {
       ...state,
       selectedFile: files,
       fileSelection: 'list_component',
-    })
-    return files
+    });
+    return files;
   }
 
   // for each of these -
@@ -151,27 +222,27 @@ const Extractor = () => {
   const renderSwitch = (currentState) => {
     switch (currentState) {
       case 'download_component':
-        return <Download />
+        return <Download />;
       case 'list_component':
-        return <ListView />
+        return <ListView />;
       case 'loading_component':
-        return <LoadingView />
+        return <LoadingView />;
       case 'invalid_file_component':
-        return <WrongFileMessage />
+        return <WrongFileMessage />;
       case 'default_component':
-        return <DropArea />
+        return <DropArea />;
       default:
-        return <DropArea />
+        return <DropArea />;
     }
-  }
+  };
 
   // const DropSwitcher = () => {
   //   return state.validFile ? <DropArea /> : <WrongFileMessage />
   // }
 
   function DropArea() {
-    const ref = useRef(null)
-    const inputFile = useRef(null)
+    const ref = useRef(null);
+    const inputFile = useRef(null);
 
     // const [files, errors, openFileSelector] = useFilePicker({
     //   multiple: true,
@@ -179,33 +250,33 @@ const Extractor = () => {
     // })
 
     useEffect(() => {
-      const dropArea = ref.current
-      ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-        dropArea.addEventListener(eventName, preventDefaults, false)
-      })
+      const dropArea = ref.current;
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+      });
 
-      dropArea.addEventListener('drop', handleDrop, false)
-      ;['dragenter', 'dragover'].forEach((eventName) => {
-        dropArea.addEventListener(eventName, highlight, false)
-      })
-      ;['dragleave', 'drop'].forEach((eventName) => {
-        dropArea.addEventListener(eventName, unhighlight, false)
-      })
+      dropArea.addEventListener('drop', handleDrop, false);
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        dropArea.addEventListener(eventName, highlight, false);
+      });
+      ['dragleave', 'drop'].forEach((eventName) => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+      });
 
       // dropArea.addEventListener('click', chooseFiles, false)
 
       function preventDefaults(e) {
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopPropagation();
         // console.log('Dragged')
       }
       // I want to add this class to the drop area only
       function highlight(e) {
-        dropArea.classList.add('bg-indigo-300')
+        dropArea.classList.add('bg-indigo-300');
       }
 
       function unhighlight(e) {
-        dropArea.classList.remove('bg-indigo-300')
+        dropArea.classList.remove('bg-indigo-300');
       }
 
       // function chooseFiles() {
@@ -227,14 +298,14 @@ const Extractor = () => {
         // dropArea.removeEventListener('dragleave', handleDrag)
         // dropArea.removeEventListener('dragover', handleDrag)
         // dropArea.removeEventListener('drop', handleDrag)
-        dropArea.removeEventListener('drop', handleDrop, false)
-      }
-    }, [])
+        dropArea.removeEventListener('drop', handleDrop, false);
+      };
+    }, []);
 
     const onClickHandler = () => {
-      inputFile.current.click()
+      inputFile.current.click();
       // handleDrop(e)
-    }
+    };
 
     // responsive window width - if it's less than 640px change width
     const handleResize = () => {
@@ -243,7 +314,7 @@ const Extractor = () => {
       } else {
         // setState({ ...state, width: '50%' })
       }
-    }
+    };
 
     return (
       <div
@@ -276,31 +347,31 @@ const Extractor = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   function WrongFileMessage() {
-    const ref = useRef(null)
+    const ref = useRef(null);
 
     function startAgain() {
-      setState({ ...state, fileSelection: 'default_component' })
+      setState({ ...state, fileSelection: 'default_component' });
     }
 
     useEffect(() => {
-      const wrongFileBox = ref.current
+      const wrongFileBox = ref.current;
 
-      wrongFileBox.addEventListener('click', preventDefaults, false)
+      wrongFileBox.addEventListener('click', preventDefaults, false);
 
       function preventDefaults(e) {
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopPropagation();
         // console.log('Dragged')
       }
 
-      wrongFileBox.addEventListener('click', startAgain, false)
+      wrongFileBox.addEventListener('click', startAgain, false);
 
       // remove listeners
-    })
+    });
 
     return (
       <div
@@ -321,7 +392,7 @@ const Extractor = () => {
           Pdf files only. Try again.
         </div>
       </div>
-    )
+    );
   }
   // I want this to last for a couple of seconds
   // and should it be ternary operator?
@@ -336,145 +407,75 @@ const Extractor = () => {
           alt="Loading..."
         />
       </div>
-    )
+    );
   }
 
   function ListView() {
     return (
-      <Fragment>
-        <div className="flex w-64 flex-col items-center rounded-lg shadow">
-          <div className="scrollbar overflow-auto border border-2">
-            <ul className="p-0">
-              {[...state.selectedFile].map((file, index) => (
-                // here we should import the custom style component
-                <ListItem key={index} fileName={file.name} />
-              ))}
-            </ul>
-          </div>
-          <div>
-            <button
-              className="bottom-0 mt-auto rounded border-none 
+      <div className="flex w-64 flex-col items-center rounded-lg shadow">
+        <div className="scrollbar overflow-auto border border-2">
+          <ul className="p-0">
+            {[...state.selectedFile].map((file, index) => (
+              // here we should import the custom style component
+              <ListItem key={index} fileName={file.name} />
+            ))}
+          </ul>
+        </div>
+        <div>
+          <button
+            className="bottom-0 mt-auto rounded border-none
               bg-indigo-500 py-2 px-4 font-bold
               text-white hover:bg-indigo-300"
-              onClick={async () => {
-                setState({ ...state, fileSelection: 'loading_component' })
-                const processFiles = await processAllFiles([
-                  ...state.selectedFile,
-                ])
-                setState({
-                  ...state,
-                  fileSelection: 'download_component',
-                  returnedData: processFiles,
-                })
-              }}
-            >
-              Extract
-            </button>
-          </div>
-        </div>
-      </Fragment>
-    )
-  }
-
-  const parseJsonData = (json_data) => {
-    try {
-      console.log(json_data)
-      const replacer = (key, value) => (value === null ? '' : value) // specify how you want to handle null values here
-      const headers = Object.keys(json_data[0])
-      // console.log(headers)
-
-      let csv = json_data.map((row) =>
-        headers
-          .map((fieldName) => JSON.stringify(row[fieldName], replacer))
-          .join(',')
-      )
-      csv.unshift(headers)
-      csv = csv.join('\r\n')
-      // console.log(csv)
-      return csv
-    } catch {
-      // add file name here?
-      console.log('Something went wrong with a file.')
-      // this doesn't break now - but instead returns undefined
-    }
-
-    // return <Download fileName={filename} csv={csv} />
-  }
-
-  function Download() {
-    function refreshPage() {
-      window.location.reload(false)
-    }
-
-    return (
-      <div className="w-64 items-center shadow">
-        <div className="">
-          <a
-            // tabIndex="0"
-            className="mb-4 mt-4 box-border inline-block rounded bg-indigo-500 
-            px-4 text-center text-sm
-            font-normal uppercase leading-5 text-white 
-            no-underline hover:bg-indigo-300 "
-            // generate name file
-            download={'export.csv'}
-            // here we're passing the json data returned from the function
-            // encode uri component
-            href={
-              'data:text/csv;charset=utf-8,%EF%BB%BF' +
-              encodeURIComponent(state.returnedData)
-            }
+            onClick={async () => {
+              setState({ ...state, fileSelection: 'loading_component' });
+              const processFiles = await processAllFiles([
+                ...state.selectedFile,
+              ]);
+              setState({
+                ...state,
+                fileSelection: 'download_component',
+                returnedData: processFiles,
+              });
+            }}
           >
-            {/* <img src={DownloadIcon} className="download-icon" /> */}
-            <i className="fas fa-arrow-down" /> Download
-          </a>
+            Extract
+          </button>
         </div>
-
-        {/* instead of resetting page - refresh */}
-        <button
-          className="box-border inline-block 
-          cursor-pointer rounded border-none bg-indigo-500
-          py-2 px-4 text-center text-sm
-          font-normal uppercase leading-5 
-          text-white no-underline hover:bg-indigo-300"
-          onClick={refreshPage}
-        >
-          Convert another?
-        </button>
       </div>
-    )
+    );
   }
 
   //   for mobile
-  const [windowDimension, setWindowDimension] = useState(null)
+  const [windowDimension, setWindowDimension] = useState(null);
 
   useEffect(() => {
-    setWindowDimension(window.innerWidth)
-  }, [])
+    setWindowDimension(window.innerWidth);
+  }, []);
 
   useEffect(() => {
     function handleResize() {
-      setWindowDimension(window.innerWidth)
+      setWindowDimension(window.innerWidth);
     }
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const isMobile = windowDimension <= 640
+  const isMobile = windowDimension <= 640;
 
   return (
     // ternary operator
     <div>
       {isMobile ? (
         <div
-          className="mobile-container 
+          className="mobile-container
         flex h-72 items-center justify-center font-sans"
         >
           {renderSwitch(state.fileSelection)}
         </div>
       ) : (
         <div
-          className="main-container flex 
+          className="main-container flex
           h-72 w-full justify-center
           break-normal font-sans"
         >
@@ -482,10 +483,10 @@ const Extractor = () => {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default Extractor
+export default Extractor;
 
 {
   /* #### Come back to this #### */
