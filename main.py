@@ -19,6 +19,7 @@ alpha = re.compile('[a-zA-Z]')
 num = re.compile('\d')
 tariff = re.compile('\d{8}')
 
+# TODO: put this function somewhere else 
 def load_pdf(path_to_pdf):
     doc = fitz.open(stream=path_to_pdf, filetype="pdf")
     

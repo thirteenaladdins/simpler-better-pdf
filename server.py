@@ -1,5 +1,6 @@
 import os
 from main import extract_luxury_goods_data
+from siemens import Siemens
 
 # create a route that sends the information over from flask
 
@@ -90,10 +91,12 @@ def allowed_file(filename):
 @app.route("/", methods=["GET", "POST"])
 def index():
     # return ('', 204)
-    return 'Luxury goods api deployed'
+    return 'Magic Extractor api deployed'
 
-# TODO add all the checks and balances here
+# TODO: add all the checks and balances here
 # so pass the file to this route on the backend
+
+# we ping the api once per file and wait until each file has been processed
 
 @app.route("/api/processfile", methods=["POST"])
 def process():
@@ -106,19 +109,20 @@ def process():
             print("No file attached in request")
             # return redirect(request.url)
 
-            # TODO fix this later - what is there to fix?
-            
             return redirect("/")
-        # TODO for multiple files what do we do here? 
         """From the immutablemultidict we can read the file data"""
-
         file = request.files["file"].read()
-        # doc = fitz.open(stream=file, filetype="pdf")
 
         """ Process the file here - return the dataframe """
-        processed_file = None
-        processed_file = extract_luxury_goods_data(file)
-        
+        if request.form["option"] == "Siemens":
+            processed_file = None
+            processed_file = Siemens.extract_siemens(file)
+
+        elif request.form["option"] == "Luxury Goods":
+            processed_file = None
+            processed_file = extract_luxury_goods_data(file)
+
+
         return processed_file.to_json(orient="records")
         
 
