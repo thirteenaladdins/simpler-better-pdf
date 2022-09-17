@@ -1,0 +1,24 @@
+const parseJsonData = (jsonData) => {
+  try {
+    console.log(jsonData);
+    const replacer = (key, value) => (value === null ? '' : value); // specify how you want to handle null values here
+    const headers = Object.keys(jsonData[0]);
+    // console.log(headers)
+
+    let csv = jsonData.map((row) => headers
+      .map((fieldName) => JSON.stringify(row[fieldName], replacer))
+      .join(','));
+    csv.unshift(headers);
+    csv = csv.join('\r\n');
+    // console.log(csv)
+    return csv;
+  } catch {
+    // add file name here?
+    // TODO - add error message to screen
+    console.log('Something went wrong with a file.');
+  }
+
+  // return <Download fileName={filename} csv={csv} />
+};
+
+export default parseJsonData;

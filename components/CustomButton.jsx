@@ -1,7 +1,8 @@
 import React from 'react';
 
 function CustomButton(props) {
-  return <div>{props.text}</div>;
+  const { text } = props;
+  return <div>{text}</div>;
 }
 
 export default CustomButton;

@@ -1,18 +1,16 @@
 import {
   React, useRef, useEffect, useState,
 } from 'react';
-// import { useFilePicker } from 'use-file-picker';
+import { string, objectOf } from 'prop-types';
 import Image from 'next/image';
 import axios from 'axios';
+
 import ListItem from './ListItem';
 import DownloadButton from './DownloadButton';
 import DownloadIcon from '../public/download.svg';
 import FrownIcon from '../public/frown.svg';
 import Spinner from '../public/tail-spin.svg';
-
-// const { Parser } = require('json2csv');
-
-// come back and sort out all the design
+import parseJsonData from '../utils/parseJsonData';
 
 const initialState = {
   displayComponent: null,
@@ -20,7 +18,7 @@ const initialState = {
   returnedData: false,
   loading: false,
   downloadFile: false,
-  // option: 'Siemens',
+  option: 'Siemens',
 };
 
 const count = 50;
@@ -39,12 +37,23 @@ function DropArea(props) {
       const { files } = e.dataTransfer;
       const fileList = [...e.dataTransfer.files];
 
-      // Add this count to the screen
+      // TODO: Add this count to the screen
       if (count && count < files.length) {
         console.log(
           `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
         );
-        return;
+        return (
+          <div>
+            {' '}
+            `Only $
+            {count}
+            {' '}
+            file$
+            {count !== 1 ? 's' : ''}
+            {' '}
+            can be uploaded at a time`
+          </div>
+        );
       }
 
       if (
@@ -58,7 +67,7 @@ function DropArea(props) {
           `Only the following file formats are acceptable: ${formats.join(', ')}`,
         );
         setState({ ...state, displayComponent: 'invalid_file_component' });
-        return;
+        return null;
       }
 
       setState({
@@ -151,6 +160,9 @@ function DropArea(props) {
     }
   };
 
+  // TODO: add keyboard listener for enter key
+  // think about tab order for buttons
+
   return (
     <div
       ref={ref}
@@ -242,30 +254,97 @@ function LoadingView() {
   );
 }
 
-// TODO: what difference does this make?
+// instead of dealing with json we're using json array
+const processAllFiles = async (files, option) => {
+  const responses = [];
 
-const parseJsonData = (jsonData) => {
-  try {
-    console.log(jsonData);
-    const replacer = (key, value) => (value === null ? '' : value); // specify how you want to handle null values here
-    const headers = Object.keys(jsonData[0]);
-    // console.log(headers)
-
-    let csv = jsonData.map((row) => headers
-      .map((fieldName) => JSON.stringify(row[fieldName], replacer))
-      .join(','));
-    csv.unshift(headers);
-    csv = csv.join('\r\n');
-    // console.log(csv)
-    return csv;
-  } catch {
-    // add file name here?
-    // TODO - add error message to screen
-    console.log('Something went wrong with a file.');
+  // TODO: does this need to be fixed?
+  for (const file of files) {
+    try {
+      console.log(option);
+      const responseData = await uploadFile(file, option).catch((err) => {});
+      responses.push(responseData.data);
+    } catch {
+      (error) => {
+        if (error.response.status === 500) {
+          console.log(err);
+          return error;
+        }
+      };
+    }
   }
 
-  // return <Download fileName={filename} csv={csv} />
+  const combinedResponses = [...responses][0];
+  const csvFormattedData = parseJsonData(combinedResponses);
+
+  return csvFormattedData;
 };
+
+const uploadFile = async (file, option) => {
+  const url = 'http://localhost:8080/api/processfile';
+  // for production
+  // const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
+  // eslint-disable-next-line no-undef
+  const formData = new FormData();
+  console.log('formdata', option);
+  formData.append('file', file);
+  formData.append('option', option);
+
+  const response = await axios.post(url, formData, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+  // .catch((err) => {
+  //   if (err.response.status === 500) {
+  //     console.log('Something went wrong')
+  //   }
+  // })
+
+  return response;
+};
+
+function ListView(props) {
+  const { state, setState, selectedOption } = props;
+  console.log('selected', selectedOption);
+  return (
+    <div className="flex w-64 flex-col items-center rounded-lg shadow">
+      <div className="scrollbar overflow-auto border border-2">
+        <ul className="p-0">
+          {[...state.selectedFile].map((file, index) => (
+            // here we should import the custom style component
+            <ListItem key={index} fileName={file.name} />
+          ))}
+        </ul>
+      </div>
+      <div>
+        <button
+          type="button"
+          className="bottom-0 mt-auto rounded border-none
+            bg-indigo-500 py-2 px-4 font-bold
+            text-white hover:bg-indigo-300"
+          onClick={async () => {
+            console.log('second', selectedOption);
+            setState({ ...state, displayComponent: 'loading_component' });
+            const processedFiles = await processAllFiles([
+              ...state.selectedFile,
+            ], selectedOption);
+
+            setState({
+              ...state,
+              displayComponent: 'download_component',
+              returnedData: processedFiles,
+            });
+          }}
+        >
+          Extract
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// TODO: what difference does this make?
 
 function Extractor(props) {
   const [state, setState] = useState(initialState);
@@ -274,70 +353,6 @@ function Extractor(props) {
   // setState({ ...state, option });
   // console.log(option);
 
-  const uploadFile = async (file) => {
-    const url = 'http://localhost:8080/api/processfile';
-    // for production
-    // const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
-    // eslint-disable-next-line no-undef
-    const formData = new FormData();
-
-    formData.append('file', file);
-    formData.append('option', option);
-
-    const response = await axios.post(url, formData, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-    // .catch((err) => {
-    //   if (err.response.status === 500) {
-    //     console.log('Something went wrong')
-    //   }
-    // })
-
-    return response;
-  };
-
-  // instead of dealing with json we're using json array
-  const processAllFiles = async (files) => {
-    const responses = [];
-
-    // files.map(async (file) => {
-    //   try {
-    //     const responseData = await uploadFile(file).catch((err) => console.log(err));
-    //     responses.push(responseData);
-    //   } catch {
-    //     // console.log('Something went wrong');
-    //     (error) => {
-    //       if (error.response.status === 500) {
-    //         console.log(err);
-    //         return error;
-    //       }
-    //     };
-    //   }
-    // });
-
-    // TODO: does this need to be fixed?
-    for (const file of files) {
-      try {
-        const responseData = await uploadFile(file).catch((err) => {});
-        responses.push(responseData.data);
-      } catch {
-        (error) => {
-          if (error.response.status === 500) {
-            console.log(err);
-            return error;
-          }
-        };
-      }
-    }
-
-    const combinedResponses = [...responses][0];
-    const csvFormattedData = parseJsonData(combinedResponses);
-
-    return csvFormattedData;
-  };
-
   // FIXME: methods for rendering state shoud be reworked
   // also looks a bit confusing
   const renderSwitch = (currentState) => {
@@ -345,7 +360,7 @@ function Extractor(props) {
       case 'download_component':
         return <DownloadButton data={state.returnedData} />;
       case 'list_component':
-        return <ListView state={currentState} setState={setState} />;
+        return <ListView state={currentState} setState={setState} selectedOption={option} />;
       case 'loading_component':
         return <LoadingView state={currentState} setState={setState} />;
       case 'invalid_file_component':
@@ -363,41 +378,6 @@ function Extractor(props) {
 
   // I want this to last for a couple of seconds
   // and should it be ternary operator?
-
-  function ListView() {
-    return (
-      <div className="flex w-64 flex-col items-center rounded-lg shadow">
-        <div className="scrollbar overflow-auto border border-2">
-          <ul className="p-0">
-            {[...state.selectedFile].map((file, index) => (
-              // here we should import the custom style component
-              <ListItem key={index} fileName={file.name} />
-            ))}
-          </ul>
-        </div>
-        <div>
-          <button
-            className="bottom-0 mt-auto rounded border-none
-              bg-indigo-500 py-2 px-4 font-bold
-              text-white hover:bg-indigo-300"
-            onClick={async () => {
-              setState({ ...state, displayComponent: 'loading_component' });
-              const processFiles = await processAllFiles([
-                ...state.selectedFile,
-              ]);
-              setState({
-                ...state,
-                displayComponent: 'download_component',
-                returnedData: processFiles,
-              });
-            }}
-          >
-            Extract
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   //   for mobile
   const [windowDimension, setWindowDimension] = useState(null);
@@ -439,5 +419,9 @@ function Extractor(props) {
     </div>
   );
 }
+
+Extractor.propTypes = {
+  option: string.isRequired,
+};
 
 export default Extractor;
