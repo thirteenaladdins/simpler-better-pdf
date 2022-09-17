@@ -5,104 +5,284 @@ import {
 import Image from 'next/image';
 import axios from 'axios';
 import ListItem from './ListItem';
+import DownloadButton from './DownloadButton';
 import DownloadIcon from '../public/download.svg';
 import FrownIcon from '../public/frown.svg';
 import Spinner from '../public/tail-spin.svg';
 
+// const { Parser } = require('json2csv');
+
 // come back and sort out all the design
 
 const initialState = {
-  fileSelection: null,
+  displayComponent: null,
   selectedFile: 'default_component',
   returnedData: false,
   loading: false,
   downloadFile: false,
+  // option: 'Siemens',
 };
 
 const count = 50;
 const formats = ['pdf'];
 
-function Extractor() {
-  const [state, setState] = useState(initialState);
+function DropArea(props) {
+  const ref = useRef(null);
+  const inputFile = useRef(null);
 
-  function Download() {
-    useEffect(() => {}, []);
+  const { state, setState } = props;
 
-    if (typeof window !== 'undefined') {
-      // browser code
+  useEffect(() => {
+    const dropArea = ref.current;
+
+    function handleDrop(e) {
+      const { files } = e.dataTransfer;
+      const fileList = [...e.dataTransfer.files];
+
+      // Add this count to the screen
+      if (count && count < files.length) {
+        console.log(
+          `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
+        );
+        return;
+      }
+
+      if (
+        formats
+        && fileList.some(
+          (file) => !formats.some((format) => file.name
+            .toLowerCase().endsWith(format.toLowerCase())),
+        )
+      ) {
+        console.log(
+          `Only the following file formats are acceptable: ${formats.join(', ')}`,
+        );
+        setState({ ...state, displayComponent: 'invalid_file_component' });
+        return;
+      }
+
+      setState({
+        ...state,
+        selectedFile: files,
+        displayComponent: 'list_component',
+      });
+      return files;
     }
-    function refreshPage() {
-      window.location.reload(false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      // console.log('Dragged')
+    }
+    // I want to add this class to the drop area only
+    function highlight() {
+      dropArea.classList.add('bg-indigo-300');
     }
 
-    return (
-      <div className="w-64 items-center shadow">
-        <div className="download-button">
-          <a
-            // tabIndex="0"
-            className="mb-4 mt-4 box-border inline-block rounded bg-indigo-500
-            px-4 text-center text-sm
-            font-normal uppercase leading-5 text-white
-            no-underline hover:bg-indigo-300 "
-            // generate name file
-            download="export.csv"
-            // here we're passing the json data returned from the function
-            // encode uri component
-            href={
-              `data:text/csv;charset=utf-8,%EF%BB%BF${
-                encodeURIComponent(state.returnedData)}`
-            }
-          >
-            {/* <img src={DownloadIcon} className="download-icon" /> */}
-            <i className="fas fa-arrow-down" />
-            {' '}
-            Download
-          </a>
-        </div>
+    function unhighlight() {
+      dropArea.classList.remove('bg-indigo-300');
+    }
 
-        {/* instead of resetting page - refresh */}
-        <button
-          type="submit"
-          className="refresh-button"
-          onClick={refreshPage}
-        >
-          Convert another?
-        </button>
-      </div>
-    );
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    dropArea.addEventListener('drop', handleDrop, false);
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+    ['dragleave', 'drop'].forEach((eventName) => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    // dropArea.addEventListener('click', chooseFiles, false)
+
+    // function chooseFiles() {
+    //   ref.current.click()
+    // }
+
+    // const onChangeFile = (event) => {
+    //   event.stopPropagation()
+    //   event.preventDefault()
+    //   var file = event.target.files[0]
+    //   console.log(file)
+    //   // this.setState({ file }) /// if you want to upload latter
+    // }
+
+    // what does this mean and how does it work?
+    // TODO: when should I remove listener?
+    return () => {
+      // dropArea.removeEventListener('dragenter', handleDrag)
+      // dropArea.removeEventListener('dragleave', handleDrag)
+      // dropArea.removeEventListener('dragover', handleDrag)
+      // dropArea.removeEventListener('drop', handleDrag)
+      dropArea.removeEventListener('drop', handleDrop, false);
+    };
+  }, []);
+
+  function handleFiles(e) {
+    console.log(e);
+    // let files = e.files
+    const files = [...e];
+    setState({
+      ...state,
+      selectedFile: files,
+      displayComponent: 'list_component',
+    });
+    return files;
   }
 
-  const parseJsonData = (jsonData) => {
-    try {
-      console.log(jsonData);
-      const replacer = (key, value) => (value === null ? '' : value); // specify how you want to handle null values here
-      const headers = Object.keys(jsonData[0]);
-      // console.log(headers)
+  // const [files, errors, openFileSelector] = useFilePicker({
+  //   multiple: true,
+  //   accept: '.ics,.pdf',
+  // })
 
-      let csv = jsonData.map((row) => headers
-        .map((fieldName) => JSON.stringify(row[fieldName], replacer))
-        .join(','));
-      csv.unshift(headers);
-      csv = csv.join('\r\n');
-      // console.log(csv)
-      return csv;
-    } catch {
-      // add file name here?
-      // TODO - add error message to screen
-      console.log('Something went wrong with a file.');
-    }
-
-    // return <Download fileName={filename} csv={csv} />
+  const onClickHandler = () => {
+    inputFile.current.click();
+    // handleDrop(e)
   };
 
+  // responsive window width - if it's less than 640px change width
+  const handleResize = () => {
+    if (window.innerWidth < 640) {
+      // setState({ ...state, width: '100%' })
+    } else {
+      // setState({ ...state, width: '50%' })
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="drop-area-full"
+      onClick={onClickHandler}
+    >
+      <input
+        multiple
+        type="file"
+        id="file"
+        ref={inputFile}
+        accept="application/pdf"
+        style={{ display: 'none' }}
+        onChange={(e) => handleFiles(e.target.files)}
+      />
+      <div>
+        <Image
+          className="pointer-events-none select-none"
+          src={DownloadIcon}
+          priority
+          alt="Drop your files here"
+          layout="raw"
+        />
+        <div className="pointer-events-none select-none text-sm">
+          Click to choose a file or drag it here
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WrongFileMessage(props) {
+  const ref = useRef(null);
+
+  const { state, setState } = props;
+
+  function startAgain() {
+    setState({ ...state, displayComponent: 'default_component' });
+  }
+
+  useEffect(() => {
+    const wrongFileBox = ref.current;
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      // console.log('Dragged')
+    }
+
+    wrongFileBox.addEventListener('click', preventDefaults, false);
+
+    wrongFileBox.addEventListener('click', startAgain, false);
+
+    // remove listeners
+  });
+
+  return (
+    <div
+      ref={ref}
+      className="drop-area flex w-8/12
+      cursor-pointer flex-col items-center justify-center break-normal
+      border-2 border-dashed border-red-300 bg-red-300
+      text-center font-sans"
+    >
+      <Image
+        className="pointer-events-none select-none"
+        src={FrownIcon}
+        priority
+        alt="Not a pdf file"
+        layout="raw"
+      />
+      <div className="pointer-events-none select-none text-sm">
+        Pdf files only. Try again.
+      </div>
+    </div>
+  );
+}
+
+function LoadingView() {
+  return (
+    <div className="indigo-300">
+      <Image
+        className="fill-indigo-300"
+        src={Spinner}
+        priority
+        alt="Loading..."
+      />
+    </div>
+  );
+}
+
+// TODO: what difference does this make?
+
+const parseJsonData = (jsonData) => {
+  try {
+    console.log(jsonData);
+    const replacer = (key, value) => (value === null ? '' : value); // specify how you want to handle null values here
+    const headers = Object.keys(jsonData[0]);
+    // console.log(headers)
+
+    let csv = jsonData.map((row) => headers
+      .map((fieldName) => JSON.stringify(row[fieldName], replacer))
+      .join(','));
+    csv.unshift(headers);
+    csv = csv.join('\r\n');
+    // console.log(csv)
+    return csv;
+  } catch {
+    // add file name here?
+    // TODO - add error message to screen
+    console.log('Something went wrong with a file.');
+  }
+
+  // return <Download fileName={filename} csv={csv} />
+};
+
+function Extractor(props) {
+  const [state, setState] = useState(initialState);
+
+  const { option } = props;
+  // setState({ ...state, option });
+  // console.log(option);
+
   const uploadFile = async (file) => {
-    // let url = 'http://localhost:8080/api/processfile'
+    const url = 'http://localhost:8080/api/processfile';
     // for production
-    const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
+    // const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
     // eslint-disable-next-line no-undef
     const formData = new FormData();
 
     formData.append('file', file);
+    formData.append('option', option);
 
     const response = await axios.post(url, formData, {
       headers: {
@@ -122,6 +302,22 @@ function Extractor() {
   const processAllFiles = async (files) => {
     const responses = [];
 
+    // files.map(async (file) => {
+    //   try {
+    //     const responseData = await uploadFile(file).catch((err) => console.log(err));
+    //     responses.push(responseData);
+    //   } catch {
+    //     // console.log('Something went wrong');
+    //     (error) => {
+    //       if (error.response.status === 500) {
+    //         console.log(err);
+    //         return error;
+    //       }
+    //     };
+    //   }
+    // });
+
+    // TODO: does this need to be fixed?
     for (const file of files) {
       try {
         const responseData = await uploadFile(file).catch((err) => {});
@@ -136,103 +332,28 @@ function Extractor() {
       }
     }
 
-    const combinedResponses = [...responses];
-    // console.log(responses)
-    // setState({ ...state, returnedData: true })
+    const combinedResponses = [...responses][0];
     const csvFormattedData = parseJsonData(combinedResponses);
-    // console.log(csvFormattedData)
+
     return csvFormattedData;
   };
 
-  function handleDrop(e) {
-    const { files } = e.dataTransfer;
-    const fileList = [...e.dataTransfer.files];
-
-    // Add this count to the screen
-    if (count && count < files.length) {
-      console.log(
-        `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
-      );
-      return;
-    }
-
-    if (
-      formats
-      && fileList.some(
-        (file) => !formats.some((format) => file.name.toLowerCase().endsWith(format.toLowerCase())),
-      )
-    ) {
-      console.log(
-        `Only the following file formats are acceptable: ${formats.join(', ')}`,
-      );
-      setState({ ...state, fileSelection: 'invalid_file_component' });
-      return;
-    }
-
-    setState({
-      ...state,
-      selectedFile: files,
-      fileSelection: 'list_component',
-    });
-    return files;
-  }
-
-  function handleFiles(e) {
-    console.log(e);
-    // let files = e.files
-    const files = [...e];
-    // console.log(files)
-
-    // How do I display this message?
-
-    // ##### count the number of files
-    // if (count && count < files.length) {
-    //   console.log(
-    //     `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`
-    //   )
-    //   return
-    // }
-
-    // if (
-    //   formats &&
-    //   fileList.some(
-    //     (file) =>
-    //       !formats.some((format) =>
-    //         file.name.toLowerCase().endsWith(format.toLowerCase())
-    //       )
-    //   )
-    // ) {
-    //   console.log(
-    //     `Only the following file formats are acceptable: ${formats.join(', ')}`
-    //   )
-    //   setState({ ...state, fileSelection: 'invalid_file_component' })
-    //   return
-    // }
-
-    setState({
-      ...state,
-      selectedFile: files,
-      fileSelection: 'list_component',
-    });
-    return files;
-  }
-
-  // for each of these -
-  // we also need a spinner when we're waiting for the response
+  // FIXME: methods for rendering state shoud be reworked
+  // also looks a bit confusing
   const renderSwitch = (currentState) => {
-    switch (currentState) {
+    switch (currentState.displayComponent) {
       case 'download_component':
-        return <Download />;
+        return <DownloadButton data={state.returnedData} />;
       case 'list_component':
-        return <ListView />;
+        return <ListView state={currentState} setState={setState} />;
       case 'loading_component':
-        return <LoadingView />;
+        return <LoadingView state={currentState} setState={setState} />;
       case 'invalid_file_component':
-        return <WrongFileMessage />;
+        return <WrongFileMessage state={currentState} setState={setState} />;
       case 'default_component':
-        return <DropArea />;
+        return <DropArea state={currentState} setState={setState} />;
       default:
-        return <DropArea />;
+        return <DropArea state={currentState} setState={setState} />;
     }
   };
 
@@ -240,175 +361,8 @@ function Extractor() {
   //   return state.validFile ? <DropArea /> : <WrongFileMessage />
   // }
 
-  function DropArea() {
-    const ref = useRef(null);
-    const inputFile = useRef(null);
-
-    // const [files, errors, openFileSelector] = useFilePicker({
-    //   multiple: true,
-    //   accept: '.ics,.pdf',
-    // })
-
-    useEffect(() => {
-      const dropArea = ref.current;
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-      });
-
-      dropArea.addEventListener('drop', handleDrop, false);
-      ['dragenter', 'dragover'].forEach((eventName) => {
-        dropArea.addEventListener(eventName, highlight, false);
-      });
-      ['dragleave', 'drop'].forEach((eventName) => {
-        dropArea.addEventListener(eventName, unhighlight, false);
-      });
-
-      // dropArea.addEventListener('click', chooseFiles, false)
-
-      function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        // console.log('Dragged')
-      }
-      // I want to add this class to the drop area only
-      function highlight(e) {
-        dropArea.classList.add('bg-indigo-300');
-      }
-
-      function unhighlight(e) {
-        dropArea.classList.remove('bg-indigo-300');
-      }
-
-      // function chooseFiles() {
-      //   ref.current.click()
-      // }
-
-      // const onChangeFile = (event) => {
-      //   event.stopPropagation()
-      //   event.preventDefault()
-      //   var file = event.target.files[0]
-      //   console.log(file)
-      //   // this.setState({ file }) /// if you want to upload latter
-      // }
-
-      // what does this mean and how does it work?
-      // when should I remove listener?
-      return () => {
-        // dropArea.removeEventListener('dragenter', handleDrag)
-        // dropArea.removeEventListener('dragleave', handleDrag)
-        // dropArea.removeEventListener('dragover', handleDrag)
-        // dropArea.removeEventListener('drop', handleDrag)
-        dropArea.removeEventListener('drop', handleDrop, false);
-      };
-    }, []);
-
-    const onClickHandler = () => {
-      inputFile.current.click();
-      // handleDrop(e)
-    };
-
-    // responsive window width - if it's less than 640px change width
-    const handleResize = () => {
-      if (window.innerWidth < 640) {
-        // setState({ ...state, width: '100%' })
-      } else {
-        // setState({ ...state, width: '50%' })
-      }
-    };
-
-    return (
-      <div
-        ref={ref}
-        className="drop-area-full flex
-        cursor-pointer flex-col items-center justify-center break-normal
-        border-2 border-dashed border-indigo-300 text-center
-        font-sans"
-        onClick={onClickHandler}
-      >
-        <input
-          multiple
-          type="file"
-          id="file"
-          ref={inputFile}
-          accept="application/pdf"
-          style={{ display: 'none' }}
-          onChange={(e) => handleFiles(e.target.files)}
-        />
-        <div>
-          <Image
-            className="pointer-events-none select-none"
-            src={DownloadIcon}
-            priority
-            alt="Drop your files here"
-            layout="raw"
-          />
-          <div className="pointer-events-none select-none text-sm">
-            Click to choose a file or drag it here
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  function WrongFileMessage() {
-    const ref = useRef(null);
-
-    function startAgain() {
-      setState({ ...state, fileSelection: 'default_component' });
-    }
-
-    useEffect(() => {
-      const wrongFileBox = ref.current;
-
-      wrongFileBox.addEventListener('click', preventDefaults, false);
-
-      function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        // console.log('Dragged')
-      }
-
-      wrongFileBox.addEventListener('click', startAgain, false);
-
-      // remove listeners
-    });
-
-    return (
-      <div
-        ref={ref}
-        className="drop-area flex w-8/12
-        cursor-pointer flex-col items-center justify-center break-normal
-        border-2 border-dashed border-red-300 bg-red-300
-        text-center font-sans"
-      >
-        <Image
-          className="pointer-events-none select-none"
-          src={FrownIcon}
-          priority
-          alt="Not a pdf file"
-          layout="raw"
-        />
-        <div className="pointer-events-none select-none text-sm">
-          Pdf files only. Try again.
-        </div>
-      </div>
-    );
-  }
   // I want this to last for a couple of seconds
   // and should it be ternary operator?
-
-  function LoadingView() {
-    return (
-      <div className="indigo-300">
-        <Image
-          className="fill-indigo-300"
-          src={Spinner}
-          priority
-          alt="Loading..."
-        />
-      </div>
-    );
-  }
 
   function ListView() {
     return (
@@ -427,13 +381,13 @@ function Extractor() {
               bg-indigo-500 py-2 px-4 font-bold
               text-white hover:bg-indigo-300"
             onClick={async () => {
-              setState({ ...state, fileSelection: 'loading_component' });
+              setState({ ...state, displayComponent: 'loading_component' });
               const processFiles = await processAllFiles([
                 ...state.selectedFile,
               ]);
               setState({
                 ...state,
-                fileSelection: 'download_component',
+                displayComponent: 'download_component',
                 returnedData: processFiles,
               });
             }}
@@ -471,7 +425,7 @@ function Extractor() {
           className="mobile-container
         flex h-72 items-center justify-center font-sans"
         >
-          {renderSwitch(state.fileSelection)}
+          {renderSwitch(state)}
         </div>
       ) : (
         <div
@@ -479,7 +433,7 @@ function Extractor() {
           h-72 w-full justify-center
           break-normal font-sans"
         >
-          {renderSwitch(state.fileSelection)}
+          {renderSwitch(state)}
         </div>
       )}
     </div>
@@ -487,35 +441,3 @@ function Extractor() {
 }
 
 export default Extractor;
-
-{
-  /* #### Come back to this #### */
-}
-{
-  /* <form className="my-form">
-          <input
-            type="file"
-            id="fileElem"
-            multiple
-            accept="application/pdf,application/vnd.ms-excel"
-            // here we add the function to process the files I think.
-            // onchange={handleFiles(this.files)}
-          />
-          <label className="button" htmlFor="fileElem">
-            Select some files
-          </label>
-        </form> */
-}
-
-{
-  /* <input type="file" id="files" name="files" multiple></input> */
-}
-{
-  /* <ul className=""></ul> */
-}
-
-// TODO
-// file state object needs to be editable.
-// add files, rearrange files in the array,
-// remove files from the
-// update the view
