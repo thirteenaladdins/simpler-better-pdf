@@ -6,4 +6,8 @@ module.exports = {
       layoutRaw: true,
     },
   },
-}
+  // extends: [
+  //   // ...
+  //   'plugin:@next/next/recommended',
+  // ],
+};

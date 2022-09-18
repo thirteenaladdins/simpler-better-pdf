@@ -6,6 +6,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "-": "^0.0.1",
+    "@typescript-eslint/parser": "^5.37.0",
+    "D": "^1.0.0",
     "axios": "^0.27.2",
     "json2csv": "^5.0.7",
     "next": "latest",
@@ -17,6 +20,8 @@
     "use-file-picker": "^1.4.2"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.19.1",
+    "@next/eslint-plugin-next": "^12.3.0",
     "@types/node": "17.0.4",
     "@types/react": "17.0.38",
     "autoprefixer": "^10.4.0",

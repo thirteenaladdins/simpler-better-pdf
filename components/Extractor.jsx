@@ -3,7 +3,7 @@ import {
 } from 'react';
 import { PropTypes, string } from 'prop-types';
 import Image from 'next/image';
-import uploadFile from '../api/uploadFile';
+import uploadFile from '../pages/api/uploadFile';
 
 import ListItem from './ListItem';
 import DownloadButton from './DownloadButton';

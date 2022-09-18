@@ -1,8 +1,9 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import ParentComponent from '../components/ParentComponent'
+// import type { NextPage } from 'next';
+import Head from 'next/head';
+import React from 'react';
+import ParentComponent from '../components/ParentComponent';
 
-const Home: NextPage = () => {
+function Home() {
   return (
     <div className="flex flex-col overflow-hidden ">
       <Head>
@@ -11,13 +12,11 @@ const Home: NextPage = () => {
       </Head>
       <div className="mx-auto pt-8 font-sans">Magic Extractor V2</div>
       <main className="home-page">
+        <ParentComponent />
 
-        {/* TODO - pass option state to the extractor component */}
-          <ParentComponent />
-          
       </main>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
