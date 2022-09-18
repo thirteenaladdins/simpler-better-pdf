@@ -1,6 +1,5 @@
 const parseJsonData = (jsonData) => {
   try {
-    console.log(jsonData);
     const replacer = (key, value) => (value === null ? '' : value); // specify how you want to handle null values here
     const headers = Object.keys(jsonData[0]);
     // console.log(headers)
@@ -13,9 +12,11 @@ const parseJsonData = (jsonData) => {
     // console.log(csv)
     return csv;
   } catch {
+    // FIXME: add proper error handling
     // add file name here?
     // TODO - add error message to screen
-    console.log('Something went wrong with a file.');
+    console.log('Something went wrong converting json to csv.');
+    return null;
   }
 
   // return <Download fileName={filename} csv={csv} />

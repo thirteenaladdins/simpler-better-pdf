@@ -69,10 +69,3 @@ ListItem.defaultProps = {
 SideBar.propTypes = {
   setOption: PropTypes.func.isRequired,
 };
-
-// ListItem.propTypes = {
-//   item: PropTypes.shape({
-//     title: string.isRequired,
-//     cName: string.isRequired,
-//   }),
-// };

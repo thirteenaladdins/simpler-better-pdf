@@ -1,9 +1,9 @@
 import {
   React, useRef, useEffect, useState,
 } from 'react';
-import { string, objectOf } from 'prop-types';
+import { PropTypes, string } from 'prop-types';
 import Image from 'next/image';
-import axios from 'axios';
+import uploadFile from '../api/uploadFile';
 
 import ListItem from './ListItem';
 import DownloadButton from './DownloadButton';
@@ -13,8 +13,8 @@ import Spinner from '../public/tail-spin.svg';
 import parseJsonData from '../utils/parseJsonData';
 
 const initialState = {
-  displayComponent: null,
-  selectedFile: 'default_component',
+  displayComponent: 'default_component',
+  selectedFiles: [],
   returnedData: false,
   loading: false,
   downloadFile: false,
@@ -72,7 +72,7 @@ function DropArea(props) {
 
       setState({
         ...state,
-        selectedFile: files,
+        selectedFiles: files,
         displayComponent: 'list_component',
       });
       return files;
@@ -130,12 +130,11 @@ function DropArea(props) {
   }, []);
 
   function handleFiles(e) {
-    console.log(e);
     // let files = e.files
     const files = [...e];
     setState({
       ...state,
-      selectedFile: files,
+      selectedFiles: files,
       displayComponent: 'list_component',
     });
     return files;
@@ -152,22 +151,28 @@ function DropArea(props) {
   };
 
   // responsive window width - if it's less than 640px change width
-  const handleResize = () => {
-    if (window.innerWidth < 640) {
-      // setState({ ...state, width: '100%' })
-    } else {
-      // setState({ ...state, width: '50%' })
-    }
-  };
+  // const handleResize = () => {
+  //   if (window.innerWidth < 640) {
+  //     // setState({ ...state, width: '100%' })
+  //   } else {
+  //     // setState({ ...state, width: '50%' })
+  //   }
+  // };
 
-  // TODO: add keyboard listener for enter key
-  // think about tab order for buttons
+  function onKeyDownHandler(e) {
+    if (e.key === 'Enter') {
+      inputFile.current.click();
+    }
+  }
 
   return (
     <div
       ref={ref}
       className="drop-area-full"
       onClick={onClickHandler}
+      role="button"
+      tabIndex={0}
+      onKeyPress={onKeyDownHandler}
     >
       <input
         multiple
@@ -178,6 +183,7 @@ function DropArea(props) {
         style={{ display: 'none' }}
         onChange={(e) => handleFiles(e.target.files)}
       />
+
       <div>
         <Image
           className="pointer-events-none select-none"
@@ -255,66 +261,77 @@ function LoadingView() {
 }
 
 // instead of dealing with json we're using json array
+// const processAllFiles = async (files, option) => {
+//   const responses = [];
+
+//   // TODO:
+//   // I'm sure I had to do this because I could only process
+//   // one file at a time
+//   // Likely need to support multiple requests on the backend -
+
+//   // eslint-disable-next-line no-restricted-syntax
+//   for (const file of files) {
+//     try {
+//       // eslint-disable-next-line no-await-in-loop
+//       const responseData = await uploadFile(file, option);
+//       responses.push(responseData.data);
+//       // FIXME: add proper error handling
+//     } catch {
+//       console.log('Error');
+//     }
+//   }
+
+//   console.log(responses);
+
+//   // do i really need to spread the responses here?
+
+//   console.log(combinedResponses);
+//   const csvFormattedData = parseJsonData(combinedResponses);
+
+//   return csvFormattedData;
+// };
+
 const processAllFiles = async (files, option) => {
   const responses = [];
 
-  // TODO: does this need to be fixed?
+  // eslint-disable-next-line no-restricted-syntax
   for (const file of files) {
     try {
-      console.log(option);
-      const responseData = await uploadFile(file, option).catch((err) => {});
+      // eslint-disable-next-line no-await-in-loop
+      const responseData = await uploadFile(file, option);
       responses.push(responseData.data);
     } catch {
-      (error) => {
-        if (error.response.status === 500) {
-          console.log(err);
-          return error;
-        }
-      };
+      // FIXME: add proper error handling
+      console.log('Error - something went wrong a file');
     }
   }
 
+  // const combinedResponses = [].concat.apply([], responses);
   const combinedResponses = [...responses][0];
+  // console.log(responses)
+  // setState({ ...state, returnedData: true })
   const csvFormattedData = parseJsonData(combinedResponses);
-
+  // console.log(csvFormattedData)
   return csvFormattedData;
 };
 
-const uploadFile = async (file, option) => {
-  const url = 'http://localhost:8080/api/processfile';
-  // for production
-  // const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
-  // eslint-disable-next-line no-undef
-  const formData = new FormData();
-  console.log('formdata', option);
-  formData.append('file', file);
-  formData.append('option', option);
-
-  const response = await axios.post(url, formData, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
-  // .catch((err) => {
-  //   if (err.response.status === 500) {
-  //     console.log('Something went wrong')
-  //   }
-  // })
-
-  return response;
-};
+function ListFiles(state) {
+  const items = [...state.selectedFiles].map((file) => (
+    // FIXME: it's unlikely that the user will have the same file twice
+    // but should I change this just in case?
+    <ListItem key={file.name} fileName={file.name} />
+  ));
+  return items;
+}
 
 function ListView(props) {
   const { state, setState, selectedOption } = props;
-  console.log('selected', selectedOption);
+
   return (
     <div className="flex w-64 flex-col items-center rounded-lg shadow">
       <div className="scrollbar overflow-auto border border-2">
         <ul className="p-0">
-          {[...state.selectedFile].map((file, index) => (
-            // here we should import the custom style component
-            <ListItem key={index} fileName={file.name} />
-          ))}
+          {ListFiles(state)}
         </ul>
       </div>
       <div>
@@ -324,10 +341,10 @@ function ListView(props) {
             bg-indigo-500 py-2 px-4 font-bold
             text-white hover:bg-indigo-300"
           onClick={async () => {
-            console.log('second', selectedOption);
             setState({ ...state, displayComponent: 'loading_component' });
             const processedFiles = await processAllFiles([
-              ...state.selectedFile,
+              // eslint-disable-next-line react/prop-types
+              ...state.selectedFiles,
             ], selectedOption);
 
             setState({
@@ -343,8 +360,6 @@ function ListView(props) {
     </div>
   );
 }
-
-// TODO: what difference does this make?
 
 function Extractor(props) {
   const [state, setState] = useState(initialState);
@@ -371,13 +386,6 @@ function Extractor(props) {
         return <DropArea state={currentState} setState={setState} />;
     }
   };
-
-  // const DropSwitcher = () => {
-  //   return state.validFile ? <DropArea /> : <WrongFileMessage />
-  // }
-
-  // I want this to last for a couple of seconds
-  // and should it be ternary operator?
 
   //   for mobile
   const [windowDimension, setWindowDimension] = useState(null);
@@ -420,8 +428,43 @@ function Extractor(props) {
   );
 }
 
+// TODO: copilot used - come back and fix this
 Extractor.propTypes = {
   option: string.isRequired,
+};
+
+DropArea.propTypes = {
+  state: PropTypes.shape({
+    // selectedFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
+    displayComponent: PropTypes.string.isRequired,
+    validFile: PropTypes.bool.isRequired,
+  }),
+
+  setState: PropTypes.func.isRequired,
+};
+
+DropArea.defaultProps = {
+  state: PropTypes.shape({
+    selectedFiles: [],
+  }),
+};
+
+ListView.propTypes = {
+  state: PropTypes.shape({
+    // selectedFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
+    displayComponent: PropTypes.string,
+    validFile: PropTypes.bool,
+  }).isRequired,
+  setState: PropTypes.func.isRequired,
+  selectedOption: PropTypes.string.isRequired,
+};
+
+WrongFileMessage.propTypes = {
+  state: PropTypes.shape({
+    displayComponent: PropTypes.string,
+    validFile: PropTypes.bool,
+  }).isRequired,
+  setState: PropTypes.func.isRequired,
 };
 
 export default Extractor;

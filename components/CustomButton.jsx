@@ -1,4 +1,5 @@
 import React from 'react';
+import { string } from 'prop-types';
 
 function CustomButton(props) {
   const { text } = props;
@@ -6,3 +7,7 @@ function CustomButton(props) {
 }
 
 export default CustomButton;
+
+CustomButton.propTypes = {
+  text: string.isRequired,
+};
