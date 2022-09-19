@@ -1,9 +1,11 @@
 import axios from 'axios';
 
+// const base_url = process.env.ENV_URL || 'http://www.default.com';
+
 const uploadFile = async (file, option) => {
-  const url = 'http://localhost:8080/api/processfile';
+  // const url = 'http://localhost:8080/api/processfile';
   // for production
-  // const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
+  const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
   const formData = new FormData();
   // console.log('formdata', option);
   formData.append('file', file);

@@ -13,7 +13,7 @@ export default function DownloadButton(props) {
 
   return (
     <div className="w-64 items-center shadow">
-      <div className="basic-button">
+      <div className="basic-button download-link">
         <a
           download="export.csv"
             // here we're passing the json data returned from the function

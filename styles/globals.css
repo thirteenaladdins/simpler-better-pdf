@@ -38,7 +38,7 @@ html {
   color: white;
   font-family: arial;
   font-size: 0.875rem; /* 14px */
-  line-height: 1.25rem; /* 20px */
+  
 }
 
 .download-button a {
@@ -49,50 +49,60 @@ padding-right: 1rem;
 margin-top: 1rem; 
 margin-bottom: 1rem; 
 background-color: #6366F1; 
-
 font-size: 0.875rem;
-line-height: 1.25rem; 
 font-weight: 400; 
 line-height: 1.25rem; 
 text-align: center; 
 text-decoration: none; 
 text-transform: uppercase; 
 border-radius: 0.25rem; 
-}
-
-.basic-button a {
-  color: #ffffff; 
-  text-decoration: none;
 }
 
 .basic-button {
-box-sizing: border-box; 
-margin: 0.25rem;
-display: inline-block; 
-padding-top: 0.5rem;
-padding-bottom: 0.5rem; 
-padding-left: 1rem;
-padding-right: 1rem; 
-background-color: #6366F1; 
-color: #ffffff; 
-font-size: 0.875rem;
-line-height: 1.25rem; 
-font-weight: 400; 
-line-height: 1.25rem; 
-text-align: center; 
-text-decoration: none; 
-text-transform: uppercase; 
-border-radius: 0.25rem; 
-border-style: none; 
-cursor: pointer; 
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  border: 2px solid #05f;
+  border-radius: 4px;
+  padding: 0 16px;
+  margin: 4px;
+  min-width: 10rem;
+  height: 36px;
+  vertical-align: middle;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  background-color: #fff;
+  background-color: rgb(var(--pure-material-onprimary-rgb,255,255,255));
+  color: rgb(var(--pure-material-primary-rgb,0,85,255));
+  font-family: "Roboto","Segoe UI",BlinkMacSystemFont,system-ui,-apple-system;
+  font-family: var(--pure-material-font,"Roboto","Segoe UI",BlinkMacSystemFont,system-ui,-apple-system);
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow .2s;
+}
+
+.basic-button a {
+  color: #05f; 
+  text-decoration: none;
+}
+
+.basic-button:hover a {
+  color: #fff; 
+  text-decoration: none;
 }
 
 .basic-button:hover {
-  background-color: #A5B4FC; 
+  background-color: #05f;
+  color: #fff;
 } 
 
 .basic-button.selected {
-  background-color: #A5B4FC; 
+  background-color: #05f;
+  color: #fff;
 }
 
 /* .home-page {
@@ -103,7 +113,7 @@ cursor: pointer;
 .sidebar {
   display: flex;
   height: 100%;
-  border: 1px solid red;
+  border: 1px solid red;  
 }
 
 

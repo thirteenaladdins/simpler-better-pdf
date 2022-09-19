@@ -2,7 +2,7 @@ import {
   React, useRef, useEffect, useState,
 } from 'react';
 import { PropTypes, string } from 'prop-types';
-import Image from 'next/image';
+import Image from 'next/future/image';
 import uploadFile from '../pages/api/uploadFile';
 
 import ListItem from './ListItem';
@@ -127,7 +127,7 @@ function DropArea(props) {
       // dropArea.removeEventListener('drop', handleDrag)
       dropArea.removeEventListener('drop', handleDrop, false);
     };
-  }, []);
+  }, [setState, state]);
 
   function handleFiles(e) {
     // let files = e.files
@@ -387,7 +387,7 @@ function Extractor(props) {
     }
   };
 
-  //   for mobile
+  // for mobile
   const [windowDimension, setWindowDimension] = useState(null);
 
   useEffect(() => {
