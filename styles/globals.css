@@ -33,6 +33,35 @@ html {
   overflow-y: hidden;
 }
 
+/* .parent {
+  display: grid;
+  algin-items: end;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+} */
+
+
+.main-navbar {
+  display: flex; 
+  justify-content: space-between;
+  height: 50px;
+  text-align: center;
+  font-weight: bold;
+  /* border: 1px solid #fbebb9; */
+  background: rgb(254,254,254);
+}
+
+.title {
+  padding: 16px 16px;
+  background: transparent;
+  font-size: 1.125rem;
+}
+
 .download-button {
   /* background-color: rgb(165 180 252); */
   color: white;
@@ -85,6 +114,10 @@ border-radius: 0.25rem;
   transition: box-shadow .2s;
 }
 
+.basic-button:focus {
+  border: 3px solid #000;
+}
+
 .basic-button a {
   color: #05f; 
   text-decoration: none;
@@ -113,7 +146,7 @@ border-radius: 0.25rem;
 .sidebar {
   display: flex;
   height: 100%;
-  border: 1px solid red;  
+  /* border: 1px solid red;   */
 }
 
 

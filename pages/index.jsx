@@ -10,7 +10,7 @@ function Home() {
         <title>Magic Extractor V2</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="mx-auto pt-8 font-sans">Magic Extractor V2</div>
+      {/* <div className="mx-auto pt-8 font-sans">Magic Extractor V2</div> */}
       <main className="home-page">
         <ParentComponent />
 
