@@ -11,14 +11,22 @@ function ParentComponent() {
   };
 
   return (
-    <div className="parent">
+    <div>
       {/* pass the state from passing a callback function -   */}
 
       {/* pass the setOption function -  */}
       <NavigationBar />
-      <SideBar setOption={setOption} />
-      <Extractor option={state} />
 
+      <div className="parent">
+        <div className="column-one">
+          <SideBar setOption={setOption} />
+        </div>
+        <div className="column-two">
+          <Extractor option={state} />
+        </div>
+        {/* <div id="three" /> */}
+
+      </div>
     </div>
   );
 }

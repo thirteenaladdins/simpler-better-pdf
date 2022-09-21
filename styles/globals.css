@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 
+* {
+  border: 1px solid red;
+} */
+
 body,
 html {
   height: 100%;
@@ -33,33 +38,45 @@ html {
   overflow-y: hidden;
 }
 
-/* .parent {
-  display: grid;
-  algin-items: end;
-  flex-direction: column;
+.parent {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 20px; 
   height: 100%;
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: hidden;
-} */
+} 
 
+/* .column-one {
+    width:15%;
+    height:100%;
+
+}
+
+.column-two {
+    width: 85%;
+    height:100%;
+} */
 
 .main-navbar {
   display: flex; 
   justify-content: space-between;
   height: 50px;
+  background: aliceblue;
   text-align: center;
-  font-weight: bold;
+  /* font-weight: bold; */
   /* border: 1px solid #fbebb9; */
-  background: rgb(254,254,254);
+  /* border-bottom: 1px solid rgb(0,254,254); */
 }
 
 .title {
   padding: 16px 16px;
   background: transparent;
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
 
 .download-button {
@@ -146,6 +163,7 @@ border-radius: 0.25rem;
 .sidebar {
   display: flex;
   height: 100%;
+  margin: 25px;
   /* border: 1px solid red;   */
 }
 
@@ -159,10 +177,8 @@ border-radius: 0.25rem;
   color: #6366F1;
 }
 
-
 .drop-area-full {
   display: flex;
-  flex-direction: column;
   text-align: center;
   align-items: center;
   justify-content: center;

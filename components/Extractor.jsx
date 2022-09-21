@@ -417,9 +417,7 @@ function Extractor(props) {
         </div>
       ) : (
         <div
-          className="main-container flex
-          h-72 w-full justify-center
-          break-normal font-sans"
+          className="main-container"
         >
           {renderSwitch(state)}
         </div>
