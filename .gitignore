@@ -4,10 +4,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# other 
+pdf
+tmp
+
 # C extensions
 *.so
 
 # Distribution / packaging
+pdf
+tmp
 Scripts
 .Python
 build/
