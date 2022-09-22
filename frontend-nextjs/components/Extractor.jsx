@@ -306,9 +306,11 @@ const processAllFiles = async (files, option) => {
     }
   }
 
-  // const combinedResponses = [].concat.apply([], responses);
-  const combinedResponses = [...responses][0];
-  // console.log(responses)
+  // spread doesn't work for this line
+  // eslint-disable-next-line prefer-spread
+  const combinedResponses = [].concat.apply([], responses);
+  // const combinedResponses = [...responses];
+
   // setState({ ...state, returnedData: true })
   const csvFormattedData = parseJsonData(combinedResponses);
   // console.log(csvFormattedData)
