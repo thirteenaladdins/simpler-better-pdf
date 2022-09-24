@@ -19,7 +19,7 @@ const initialState = {
   option: '',
 };
 
-const count = 50;
+const count = 2;
 const formats = ['pdf'];
 
 function DropArea(props) {
@@ -40,18 +40,8 @@ function DropArea(props) {
         console.log(
           `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
         );
-        return (
-          <div>
-            {' '}
-            `Only $
-            {count}
-            {' '}
-            file$
-            {count !== 1 ? 's' : ''}
-            {' '}
-            can be uploaded at a time`
-          </div>
-        );
+        setState({ ...state, displayComponent: 'invalid_file_component' });
+        return null;
       }
 
       if (
@@ -257,7 +247,7 @@ function Extractor({ option }) {
   const [state, setState] = useState(initialState);
 
   // setState({ ...state, option });
-  console.log(option);
+  // console.log(option);
 
   // FIXME: methods for rendering state shoud be reworked
   // also looks a bit confusing

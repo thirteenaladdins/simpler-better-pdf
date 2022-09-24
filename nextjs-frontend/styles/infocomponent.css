@@ -1,0 +1,12 @@
+.info-component {
+    display: flex;
+    font-family: monospace, monospace;
+    font-size: 14px;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-component error {
+    color: red;
+}

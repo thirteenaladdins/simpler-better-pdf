@@ -130,43 +130,6 @@ html {
   color: #fff;
 }
 
-/* .home-page {
-  display: flex;
-  flex-direction: row;
-} */
-
-.sidebar {
-  /* display: flex; */
-  height: 100%;
-  /* margin: 25px; */
-  /* border: 1px solid red;   */
-  /* display: inline-flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  border: 1px solid black;
-  flex-basis: content;
-  height: 100%; */
-  width: 200px;
-  position: fixed;
-  z-index: 1;
-  /* top: 0; */
-  left: 0;
-  background-color: #fff;
-  overflow-x: hidden;
-  padding-top: 20px;
-}
-
-
-.sidebar-item {
-  list-style: none
-}
-
-/* if sidebar links clicked */
-.on-selected-sidebar {
-  color: #6366F1;
-}
-
 .drop-area-full {
   display: flex;
   text-align: center;
