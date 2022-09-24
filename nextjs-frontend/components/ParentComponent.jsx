@@ -13,10 +13,10 @@ function ParentComponent() {
   return (
     <div>
       <NavigationBar />
-      <div className="parent">
+      <div className="overlay">
         <SideBar setOption={setOption} />
-        {/* <div className="column-one">
-        </div> */}
+      </div>
+      <div className="center-container">
         <div>
           <Extractor option={state} />
         </div>

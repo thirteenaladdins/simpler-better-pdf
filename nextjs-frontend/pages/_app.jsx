@@ -1,5 +1,9 @@
 // TODO: come back and convert back to TypeScript
 import '../styles/globals.css';
+import '../styles/sidebar.css';
+import '../styles/download.css';
+import '../styles/listview.css';
+
 import React from 'react';
 // import type { AppProps } from 'next/app'
 

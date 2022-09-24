@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* * {
   border: 1px solid red;
 } */
@@ -38,9 +37,10 @@ html {
   overflow-y: hidden;
 }
 
-.parent {
+.center-container {
   display: flex;
   flex-direction: row;
+  justify-content: center;
   margin-top: 20px;
   height: 100%;
   width: 100%;
@@ -65,42 +65,17 @@ html {
   display: flex; 
   justify-content: space-between;
   height: 50px;
-  background: aliceblue;
+  /* background: aliceblue; */
   text-align: center;
   /* font-weight: bold; */
-  /* border: 1px solid #fbebb9; */
-  /* border-bottom: 1px solid rgb(0,254,254); */
+  border-bottom: 1px solid lightgrey;
+  /* border: 1px solid var(--color-line-3rd) */
 }
 
 .title {
   padding: 16px 16px;
   background: transparent;
   font-size: 1rem;
-}
-
-.download-button {
-  /* background-color: rgb(165 180 252); */
-  color: white;
-  font-family: arial;
-  font-size: 0.875rem; /* 14px */
-  
-}
-
-.download-button a {
-box-sizing: border-box; 
-display: inline-block; 
-padding-left: 1rem;
-padding-right: 1rem; 
-margin-top: 1rem; 
-margin-bottom: 1rem; 
-background-color: #6366F1; 
-font-size: 0.875rem;
-font-weight: 400; 
-line-height: 1.25rem; 
-text-align: center; 
-text-decoration: none; 
-text-transform: uppercase; 
-border-radius: 0.25rem; 
 }
 
 .basic-button {
@@ -132,8 +107,7 @@ border-radius: 0.25rem;
 
 .basic-button:focus {
   border: 4px solid #05f;
-  color: #05f;
-  
+  color: #05f; 
 }
 
 .basic-button a {
@@ -162,10 +136,25 @@ border-radius: 0.25rem;
 } */
 
 .sidebar {
-  display: flex;
+  /* display: flex; */
   height: 100%;
-  margin: 25px;
+  /* margin: 25px; */
   /* border: 1px solid red;   */
+  /* display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  border: 1px solid black;
+  flex-basis: content;
+  height: 100%; */
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  /* top: 0; */
+  left: 0;
+  background-color: #fff;
+  overflow-x: hidden;
+  padding-top: 20px;
 }
 
 
@@ -197,8 +186,13 @@ border-radius: 0.25rem;
   cursor: pointer;
 }
 
+.drop-area-full.error {
+  background-color: #fca5a5;
+  color: #fff;
+}
+
 .main-container {
-  height: 100%;
+  max-height: 420px;
   display: flex;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
@@ -210,6 +204,8 @@ border-radius: 0.25rem;
   /* height: 18rem; */
 }
 
+
+/* flex h-72 items-center justify-center font-sans */
 .mobile-container {
   height: 100%;
   width: 400px;

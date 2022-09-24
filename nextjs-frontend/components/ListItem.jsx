@@ -5,9 +5,9 @@ import closeButton from '../public/x.svg';
 
 function ListItem({ fileName }) {
   return (
-    <div className="flex rounded-md hover:bg-indigo-300">
+    <div className="list-view">
       <li
-        className="cursor-pointer list-none
+        className="list-none
        p-4"
         // key={prop.keyName}
       >

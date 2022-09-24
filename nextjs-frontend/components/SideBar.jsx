@@ -4,16 +4,27 @@ import {
 } from 'prop-types';
 import MenuItems from './MenuItems';
 
-function ListItem({
+// new function to decide className
+// default to selected on the first item?
+function getClassName(isActive) {
+  if (!isActive) {
+    return 'sidebar-button';
+  }
+  return 'sidebar-button selected';
+}
+// !isActive ? 'sidebar-button' : 'sidebar-button selected';
+
+function SidebarListItem({
   item, setOption, handleClick, isActive,
 }) {
   return (
     <li className={item.cName}>
       <button
         type="button"
-        className={`${
-          !isActive ? 'basic-button' : 'basic-button selected'
-        }`}
+        // className={`${
+        //   !isActive ? 'sidebar-button' : 'sidebar-button selected'
+        // }`}
+        className={`${getClassName(isActive)}`}
         onClick={() => {
           setOption(item.title);
           handleClick(item.title);
@@ -33,9 +44,9 @@ export default function SideBar({ setOption }) {
 
   return (
     <div className="sidebar font-sans">
-      <ul>
+      <ul className="sidebar-list">
         {MenuItems.map((sideBarItem) => (
-          <ListItem
+          <SidebarListItem
             key={sideBarItem.title}
             item={sideBarItem}
             setOption={setOption}
@@ -49,7 +60,7 @@ export default function SideBar({ setOption }) {
   );
 }
 
-ListItem.propTypes = {
+SidebarListItem.propTypes = {
   item: PropTypes.shape({
     title: PropTypes.string.isRequired,
     cName: PropTypes.string.isRequired,
@@ -59,10 +70,11 @@ ListItem.propTypes = {
   isActive: PropTypes.bool.isRequired,
 };
 
-ListItem.defaultProps = {
+// what does this even do here?
+SidebarListItem.defaultProps = {
   item: {
-    title: 'Siemens',
-    cName: 'basic-button',
+    title: 'Siemens Regex',
+    cName: 'sidebar-button',
   },
 };
 

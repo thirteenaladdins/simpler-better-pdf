@@ -12,8 +12,8 @@ export default function DownloadButton(props) {
   const { data } = props;
 
   return (
-    <div className="w-64 items-center shadow">
-      <div className="basic-button download-link">
+    <div className="download-component">
+      <div className="download-button link">
         <a
           download="export.csv"
             // here we're passing the json data returned from the function
@@ -33,7 +33,7 @@ export default function DownloadButton(props) {
       {/* instead of resetting page - refresh */}
       <button
         type="submit"
-        className="basic-button"
+        className="download-button"
         onClick={refreshPage}
       >
         Convert another?

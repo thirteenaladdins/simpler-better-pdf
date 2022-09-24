@@ -6,7 +6,7 @@ module.exports = {
   extends: [
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    // "standard-with-typescript",
+    'plugin:@next/next/recommended',
     'airbnb',
   ],
   overrides: [

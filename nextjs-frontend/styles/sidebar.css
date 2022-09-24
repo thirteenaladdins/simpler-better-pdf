@@ -1,0 +1,50 @@
+.sidebar-list {
+    padding: 0;
+  }
+  
+.sidebar-button {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  /* border: 2px solid #05f; */
+  border: none;
+  /* border-radius: 4px; */
+  padding: 0 16px;
+  margin: 4px;
+  min-width: 10rem;
+  height: 36px;
+  vertical-align: middle;
+  text-align: center;
+  text-overflow: ellipsis;
+  background-color: #fff;
+  color: rgb(var(--pure-material-primary-rgb,0,85,255));
+  font-family: monospace, monospace;
+  /* font-family: var(--pure-material-font,"Roboto","Segoe UI",BlinkMacSystemFont,system-ui,-apple-system); */
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow .2s;
+}
+
+/* .sidebar-button:focus {
+    border: 4px solid #05f;
+    color: #05f;
+    
+  } */
+  
+.sidebar-button a {
+    color: #05f; 
+    text-decoration: none;
+}
+  
+  .sidebar-button:hover {
+    background-color: #05f;
+    color: #fff;
+  } 
+  
+  .sidebar-button.selected {
+    background-color: #05f;
+    color: #fff;
+  }

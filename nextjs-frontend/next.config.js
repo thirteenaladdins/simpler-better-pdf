@@ -10,14 +10,11 @@ module.exports = {
   //     allowFutureImage: true,
   //   },
   // },
-  experimental: {
-    outputStandalone: true,
-  },
+  // experimental: {
+  //   outputStandalone: true,
+  // },
+  output: 'standalone',
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles')],
   },
-  // extends: [
-  //   // ...
-  //   'plugin:@next/next/recommended',
-  // ],
 };

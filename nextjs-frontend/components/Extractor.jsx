@@ -2,15 +2,13 @@ import {
   React, useRef, useEffect, useState,
 } from 'react';
 import { PropTypes, string } from 'prop-types';
-import Image from 'next/future/image';
-import uploadFile from '../pages/api/uploadFile';
+import Image from 'next/image';
+import ListView from './ListView';
 
-import ListItem from './ListItem';
 import DownloadButton from './DownloadButton';
 import DownloadIcon from '../public/download.svg';
 import FrownIcon from '../public/frown.svg';
 import Spinner from '../public/tail-spin.svg';
-import parseJsonData from '../utils/parseJsonData';
 
 const initialState = {
   displayComponent: 'default_component',
@@ -18,7 +16,7 @@ const initialState = {
   returnedData: false,
   loading: false,
   downloadFile: false,
-  option: 'Siemens',
+  option: '',
 };
 
 const count = 50;
@@ -190,7 +188,6 @@ function DropArea(props) {
           src={DownloadIcon}
           priority
           alt="Drop your files here"
-          layout="raw"
         />
         <div className="pointer-events-none select-none text-sm">
           Click to choose a file or drag it here
@@ -228,17 +225,13 @@ function WrongFileMessage(props) {
   return (
     <div
       ref={ref}
-      className="drop-area flex w-8/12
-      cursor-pointer flex-col items-center justify-center break-normal
-      border-2 border-dashed border-red-300 bg-red-300
-      text-center font-sans"
+      className="drop-area-full error"
     >
       <Image
         className="pointer-events-none select-none"
         src={FrownIcon}
         priority
         alt="Not a pdf file"
-        layout="raw"
       />
       <div className="pointer-events-none select-none text-sm">
         Pdf files only. Try again.
@@ -260,115 +253,11 @@ function LoadingView() {
   );
 }
 
-// instead of dealing with json we're using json array
-// const processAllFiles = async (files, option) => {
-//   const responses = [];
-
-//   // TODO:
-//   // I'm sure I had to do this because I could only process
-//   // one file at a time
-//   // Likely need to support multiple requests on the backend -
-
-//   // eslint-disable-next-line no-restricted-syntax
-//   for (const file of files) {
-//     try {
-//       // eslint-disable-next-line no-await-in-loop
-//       const responseData = await uploadFile(file, option);
-//       responses.push(responseData.data);
-//       // FIXME: add proper error handling
-//     } catch {
-//       console.log('Error');
-//     }
-//   }
-
-//   console.log(responses);
-
-//   // do i really need to spread the responses here?
-
-//   console.log(combinedResponses);
-//   const csvFormattedData = parseJsonData(combinedResponses);
-
-//   return csvFormattedData;
-// };
-
-const processAllFiles = async (files, option) => {
-  const responses = [];
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const file of files) {
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      const responseData = await uploadFile(file, option);
-      responses.push(responseData.data);
-    } catch {
-      // FIXME: add proper error handling
-      console.log('Error - something went wrong a file');
-    }
-  }
-
-  // spread doesn't work for this line
-  // eslint-disable-next-line prefer-spread
-  const combinedResponses = [].concat.apply([], responses);
-  // const combinedResponses = [...responses];
-
-  // setState({ ...state, returnedData: true })
-  const csvFormattedData = parseJsonData(combinedResponses);
-  // console.log(csvFormattedData)
-  return csvFormattedData;
-};
-
-function ListFiles(state) {
-  const items = [...state.selectedFiles].map((file) => (
-    // FIXME: it's unlikely that the user will have the same file twice
-    // but should I change this just in case?
-    <ListItem key={file.name} fileName={file.name} />
-  ));
-  return items;
-}
-
-function ListView(props) {
-  const { state, setState, selectedOption } = props;
-
-  return (
-    <div className="flex w-64 flex-col items-center rounded-lg shadow">
-      <div className="scrollbar overflow-auto border border-2">
-        <ul className="p-0">
-          {ListFiles(state)}
-        </ul>
-      </div>
-      <div>
-        <button
-          type="button"
-          className="bottom-0 mt-auto rounded border-none
-            bg-indigo-500 py-2 px-4 font-bold
-            text-white hover:bg-indigo-300"
-          onClick={async () => {
-            setState({ ...state, displayComponent: 'loading_component' });
-            const processedFiles = await processAllFiles([
-              // eslint-disable-next-line react/prop-types
-              ...state.selectedFiles,
-            ], selectedOption);
-
-            setState({
-              ...state,
-              displayComponent: 'download_component',
-              returnedData: processedFiles,
-            });
-          }}
-        >
-          Extract
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Extractor(props) {
+function Extractor({ option }) {
   const [state, setState] = useState(initialState);
 
-  const { option } = props;
   // setState({ ...state, option });
-  // console.log(option);
+  console.log(option);
 
   // FIXME: methods for rendering state shoud be reworked
   // also looks a bit confusing
@@ -405,6 +294,7 @@ function Extractor(props) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // FIXME: make this more responsive
   const isMobile = windowDimension <= 640;
 
   return (
@@ -412,8 +302,7 @@ function Extractor(props) {
     <div>
       {isMobile ? (
         <div
-          className="mobile-container
-        flex h-72 items-center justify-center font-sans"
+          className="mobile-container"
         >
           {renderSwitch(state)}
         </div>
@@ -437,7 +326,7 @@ DropArea.propTypes = {
   state: PropTypes.shape({
     // selectedFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
     displayComponent: PropTypes.string.isRequired,
-    validFile: PropTypes.bool.isRequired,
+    // validFile: PropTypes.bool.isRequired,
   }),
 
   setState: PropTypes.func.isRequired,
@@ -449,20 +338,10 @@ DropArea.defaultProps = {
   }),
 };
 
-ListView.propTypes = {
-  state: PropTypes.shape({
-    // selectedFiles: PropTypes.arrayOf(PropTypes.instanceOf(File)),
-    displayComponent: PropTypes.string,
-    validFile: PropTypes.bool,
-  }).isRequired,
-  setState: PropTypes.func.isRequired,
-  selectedOption: PropTypes.string.isRequired,
-};
-
 WrongFileMessage.propTypes = {
   state: PropTypes.shape({
     displayComponent: PropTypes.string,
-    validFile: PropTypes.bool,
+    // validFile: PropTypes.bool,
   }).isRequired,
   setState: PropTypes.func.isRequired,
 };
