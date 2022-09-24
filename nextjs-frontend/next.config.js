@@ -4,10 +4,14 @@ const path = require('path');
 
 module.exports = {
   reactStrictMode: true,
+  // experimental: {
+  //   images: {
+  //     layoutRaw: true,
+  //     allowFutureImage: true,
+  //   },
+  // },
   experimental: {
-    images: {
-      layoutRaw: true,
-    },
+    outputStandalone: true,
   },
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles')],
