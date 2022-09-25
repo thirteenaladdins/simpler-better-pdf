@@ -14,7 +14,6 @@ function ParentComponent() {
   return (
     <div>
       <NavigationBar />
-
       <SideBar setOption={setOption} />
 
       <div className="center-container">

@@ -17,4 +17,7 @@ module.exports = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'styles')],
   },
+  // env: {
+  //   ENV_URL: 'http://localhost:8080',
+  // },
 };

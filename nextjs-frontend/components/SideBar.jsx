@@ -43,7 +43,7 @@ export default function SideBar({ setOption }) {
   const handleClick = (item) => (active === item ? setActive() : setActive(item));
 
   return (
-    <div className="sidebar font-sans">
+    <div className="sidebar">
       <ul className="sidebar-list">
         {MenuItems.map((sideBarItem) => (
           <SidebarListItem

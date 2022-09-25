@@ -6,13 +6,13 @@ import ListFiles from '../utils/listFiles';
 export default function ListView(props) {
   const { state, setState, selectedOption } = props;
   return (
-    <div className="flex w-64 flex-col items-center rounded-lg shadow">
-      <div className="scrollbar overflow-auto border border-2">
+    <div className="item-list-view">
+      <div className="item-list-view">
         <ul className="p-0">
           {ListFiles(state)}
         </ul>
       </div>
-      <div>
+      <div className="extract-button-container">
         <button
           type="button"
           className="extract-button"

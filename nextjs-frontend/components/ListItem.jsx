@@ -1,19 +1,19 @@
 import React from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { string } from 'prop-types';
-import closeButton from '../public/x.svg';
+// import closeButton from '../public/x.svg';
 
 function ListItem({ fileName }) {
   return (
-    <div className="list-view">
+    <div className="list-item">
       <li
-        className="list-none
-       p-4"
+        className="list-item-text"
         // key={prop.keyName}
       >
         {fileName}
       </li>
-      <Image className="fill-white" src={closeButton} />
+      {/* TODO: Button here to remove a file - implement later */}
+      {/* <Image className="fill-black" src={closeButton} /> */}
     </div>
   );
 }
