@@ -1,5 +1,5 @@
 import {
-  React, useRef, useEffect, useState,
+  React, useEffect, useState,
 } from 'react';
 import { PropTypes, string } from 'prop-types';
 import Image from 'next/image';
@@ -7,8 +7,7 @@ import ListView from './ListView';
 
 import DropArea from './DropArea';
 import DownloadButton from './DownloadButton';
-
-import FrownIcon from '../public/frown.svg';
+import ErrorMessage from './ErrorMessage';
 import Spinner from '../public/tail-spin.svg';
 
 const initialState = {
@@ -20,49 +19,7 @@ const initialState = {
   option: '',
 };
 
-function WrongFileMessage(props) {
-  const ref = useRef(null);
-
-  const { state, setState } = props;
-
-  function startAgain() {
-    setState({ ...state, displayComponent: 'default_component' });
-  }
-
-  useEffect(() => {
-    const wrongFileBox = ref.current;
-
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      // console.log('Dragged')
-    }
-
-    wrongFileBox.addEventListener('click', preventDefaults, false);
-
-    wrongFileBox.addEventListener('click', startAgain, false);
-
-    // remove listeners
-  });
-
-  return (
-    <div
-      ref={ref}
-      className="drop-area-full error"
-    >
-      <Image
-        className="pointer-events-none select-none"
-        src={FrownIcon}
-        priority
-        alt="Not a pdf file"
-      />
-      <div className="pointer-events-none select-none text-sm">
-        Pdf files only. Try again.
-      </div>
-    </div>
-  );
-}
-
+// TODO: give this some more CSS properties
 function LoadingView() {
   return (
     <div className="indigo-300">
@@ -76,7 +33,7 @@ function LoadingView() {
   );
 }
 
-function Extractor({ option }) {
+function Extractor({ option, errNotif }) {
   const [state, setState] = useState(initialState);
 
   // setState({ ...state, option });
@@ -93,9 +50,9 @@ function Extractor({ option }) {
       case 'loading_component':
         return <LoadingView state={currentState} setState={setState} />;
       case 'invalid_file_component':
-        return <WrongFileMessage state={currentState} setState={setState} />;
+        return <ErrorMessage />;
       case 'default_component':
-        return <DropArea state={currentState} setState={setState} />;
+        return <DropArea state={currentState} setState={setState} errNotif={errNotif} />;
       default:
         return <DropArea state={currentState} setState={setState} />;
     }
@@ -143,14 +100,7 @@ function Extractor({ option }) {
 // TODO: copilot used - come back and fix this
 Extractor.propTypes = {
   option: string.isRequired,
-};
-
-WrongFileMessage.propTypes = {
-  state: PropTypes.shape({
-    displayComponent: PropTypes.string,
-    // validFile: PropTypes.bool,
-  }).isRequired,
-  setState: PropTypes.func.isRequired,
+  errNotif: PropTypes.func.isRequired,
 };
 
 export default Extractor;

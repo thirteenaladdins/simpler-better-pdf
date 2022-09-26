@@ -12,8 +12,10 @@ function DropArea(props) {
   const ref = useRef(null);
   const inputFile = useRef(null);
 
-  const { state, setState } = props;
+  const { state, setState, errNotif } = props;
 
+  //   set the state with the new message
+  //   display it at the top of the screen
   useEffect(() => {
     const dropArea = ref.current;
 
@@ -23,10 +25,11 @@ function DropArea(props) {
 
       // TODO: Add this count to the screen
       if (count && count < files.length) {
-        console.log(
-          `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
-        );
+        // console.log(
+        //   `Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`,
+        // );
         setState({ ...state, displayComponent: 'invalid_file_component' });
+        errNotif(`Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`);
         return null;
       }
 
@@ -37,10 +40,11 @@ function DropArea(props) {
               .toLowerCase().endsWith(format.toLowerCase())),
           )
       ) {
-        console.log(
-          `Only the following file formats are acceptable: ${formats.join(', ')}`,
-        );
+        // console.log(
+        //   `Only the following file formats are acceptable: ${formats.join(', ')}`,
+        // );
         setState({ ...state, displayComponent: 'invalid_file_component' });
+        errNotif(`Only the following file formats are acceptable: ${formats.join(', ')}`);
         return null;
       }
 
@@ -101,7 +105,7 @@ function DropArea(props) {
       // dropArea.removeEventListener('drop', handleDrag)
       dropArea.removeEventListener('drop', handleDrop, false);
     };
-  }, [setState, state]);
+  }, [setState, state, errNotif]);
 
   function handleFiles(e) {
     // let files = e.files
@@ -181,8 +185,8 @@ DropArea.propTypes = {
     displayComponent: PropTypes.string.isRequired,
     // validFile: PropTypes.bool.isRequired,
   }),
-
   setState: PropTypes.func.isRequired,
+  errNotif: PropTypes.func.isRequired,
 };
 
 DropArea.defaultProps = {

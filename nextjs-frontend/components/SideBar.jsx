@@ -6,6 +6,8 @@ import MenuItems from './MenuItems';
 
 // new function to decide className
 // default to selected on the first item?
+// on first pass - set isActive to true
+
 function getClassName(isActive) {
   if (!isActive) {
     return 'sidebar-button';
@@ -38,7 +40,7 @@ function SidebarListItem({
 
 export default function SideBar({ setOption }) {
   // const [selected, setSelected] = useState(false);
-  const [active, setActive] = useState();
+  const [active, setActive] = useState('Siemens Regex');
 
   const handleClick = (item) => (active === item ? setActive() : setActive(item));
 

@@ -6,13 +6,15 @@ import axios from 'axios';
 
 const uploadFile = async (file, option) => {
   // if production
-  // const url = 'process.env.BASE_URL/api/processfile';
+  // const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/processfile`;
+  const url = 'http://localhost:8080/api/processfile';
+
   // for production
   // set the base url in the .env file
   // const url = 'https://luxury-goods-backend.herokuapp.com/api/processfile';
 
-  // for docker - production
-  const url = 'http://backend:8080/api/processfile';
+  // for docker - productionyar
+  // const url = '/api/processfile';
 
   const formData = new FormData();
   // console.log('formdata', option);

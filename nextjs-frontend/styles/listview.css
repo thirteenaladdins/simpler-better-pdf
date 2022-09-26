@@ -28,20 +28,23 @@
 
 .list-item {
 display: flex; 
+width: 100%;
 list-style: none;
 text-align: center;
 margin-bottom: 10px;
 font-size: 1rem;
+/* font-family: monospace, monospace; */
+
 
 }
 
 .list-item:hover {
-background-color: #01baef;
+background-color: #05f;
 color: white;
 }
 
 .list-item-text {
-padding: 10px;
+padding: 5px;
 }
 
 

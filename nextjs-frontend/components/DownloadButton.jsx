@@ -33,7 +33,7 @@ export default function DownloadButton(props) {
       {/* instead of resetting page - refresh */}
       <button
         type="submit"
-        className="download-button"
+        className="convert-button"
         onClick={refreshPage}
       >
         Convert another?
