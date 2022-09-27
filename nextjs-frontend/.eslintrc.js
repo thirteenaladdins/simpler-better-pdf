@@ -20,6 +20,7 @@ module.exports = {
   ],
   rules: {
     // 'linebreak-style': ['error', (process.platform === 'win32' ? 'windows' : 'unix')]
-    'linebreak-style': ['error', 'windows'],
+    // 'linebreak-style': ['error', 'windows'],
+    'linebreak-style': 'off',
   },
 };

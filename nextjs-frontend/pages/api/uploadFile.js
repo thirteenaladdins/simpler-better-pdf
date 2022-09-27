@@ -7,7 +7,8 @@ import axios from 'axios';
 const uploadFile = async (file, option) => {
   // if production
   // const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/processfile`;
-  const url = 'http://localhost:8080/api/processfile';
+  // production url
+  const url = 'http://146.190.19.45:8080/api/processfile';
 
   // for production
   // set the base url in the .env file
