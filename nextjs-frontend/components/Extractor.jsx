@@ -20,6 +20,7 @@ const initialState = {
 };
 
 // TODO: give this some more CSS properties
+// center this component
 function LoadingView() {
   return (
     <div className="indigo-300">
@@ -33,6 +34,7 @@ function LoadingView() {
   );
 }
 
+// TODO: this should be named main component - or something of the sort
 function Extractor({ option, errNotif }) {
   const [state, setState] = useState(initialState);
 

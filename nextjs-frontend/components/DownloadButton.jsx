@@ -13,22 +13,26 @@ export default function DownloadButton(props) {
 
   return (
     <div className="download-component">
-      <div className="download-button link">
-        <a
-          download="export.csv"
+      {/* <div className="download-button link"> */}
+      <a
+        download="export.csv"
             // here we're passing the json data returned from the function
             // encode uri component
-          href={
+        href={
               `data:text/csv;charset=utf-8,%EF%BB%BF${
                 encodeURIComponent(data)}`
             }
-        >
+        className="download-button-link"
+      >
+        <div className="download-button">
           {/* <img src={DownloadIcon} className="download-icon" /> */}
-          <i className="fas fa-arrow-down" />
+          {/* <i className="fas fa-arrow-down" /> */}
           {' '}
           Download
-        </a>
-      </div>
+        </div>
+      </a>
+
+      {/* </div> */}
 
       {/* instead of resetting page - refresh */}
       <button

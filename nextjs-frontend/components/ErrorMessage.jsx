@@ -29,6 +29,7 @@ function ErrorMessage() {
     // remove listeners
   });
 
+  // TODO: add text beneath the icon - come back to this later
   return (
     <div
       ref={ref}

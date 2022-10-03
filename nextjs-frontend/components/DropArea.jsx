@@ -5,9 +5,10 @@ import { PropTypes } from 'prop-types';
 import Image from 'next/image';
 import DownloadIcon from '../public/download.svg';
 
-const count = 2;
+const count = 50;
 const formats = ['pdf'];
 
+// TODO: add limit to the normal file selection
 function DropArea(props) {
   const ref = useRef(null);
   const inputFile = useRef(null);
