@@ -6,9 +6,7 @@ import re
 from itertools import combinations
 import pandas as pd
 
-from numpy import extract, full
-
-# web version
+from numpy import extract, full# web version
 # make an interface to simplify the process
 
 # prepend each item with invoice number
@@ -19,8 +17,120 @@ alpha = re.compile('[a-zA-Z]')
 num = re.compile('\d')
 tariff = re.compile('\d{8}')
 
+
+def find_quantity_in_list(item_list, value):
+    # first - get only the numbers - so where there is an alpha - remove it
+    # filtered_list = [i for i in item_list if not i.isalpha()]
+    
+    final_list = []
+
+    # item list? What is item list? 
+    for item in item_list:
+        filtered_list = []
+        new_list = item.split('\n')
+        
+        # FIND VALUE - have to remove percent
+        # percent always refers to a discount value
+        item_list_to_process = [k for k in new_list if '%' not in k]
+        # print(item_list_to_process)
+        
+        # discount = [k for k in new_list if '%' in k]
+
+        # index = item_list_to_process.index('Made in')
+        value = find_value(item_list_to_process)
+        # print('VALUE', value, flush=True)
+
+        for new_item in item_list_to_process:
+            if not re.search(alpha, new_item):
+                if re.search(num, new_item):
+                    if not re.search(tariff, new_item):
+                        
+                        # TODO filter any characters that aren't commas and full stops?
+                        filtered_list.append(new_item.replace(' ', '').replace('_', '').replace('.', '').replace(',', '.'))
+                        remove_duplicates = sorted(set(filtered_list))
+                        remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
+        
+
+                        #  the biggest problem is my code is hard to follow
+                        # none of it makes senses 
+        all_combinations = list(combinations(remove_leading_zeroes, 2))  
+        # print(all_combinations, flush=True)
+
+        # this is for each item - a number of combinations for each item.
+        list_calculated_values = {}
+        list_compare_values = {}
+
+        # these seems to work anyway, because when I multiply the values out
+        # the correct value is always the smallest somehow
+        for ind, each_value in enumerate(all_combinations):
+            x, y = each_value
+            
+            # that might bring me closer to the correct value
+            multiply_value = float(x) * float(y)
+            # store this value and the tuple together
+            list_calculated_values[multiply_value] = each_value
+            
+            # list of calculated values 
+            keys_list = list(list_calculated_values.keys()) 
+            # the difference that is closest to zero is the winner
+            for key in keys_list:
+                # this should equal zero or be close to zero
+                # for each 
+                difference = float(key) - float(value)
+                # print("key", float(key), "value", float(value), "difference", difference, flush=True)
+                # print(difference, flush=True)
+                
+                # add the difference here - against the multiplied value
+                # add the absolute value of the key here 
+                # all that matters is how close the difference is to zero - whether it's positive or negative
+
+                list_compare_values[abs(difference)] = key
+            
+            compare_keys = list(list_compare_values.keys())
+            print(compare_keys, flush=True)
+
+        # TODO: get the smallest value? Or really it should be the one that is closest to zero
+        # get difference between 0 and the value - the smallest difference is the winner
+
+        # FIXME: here we get min - but really we want the one that is closest to zero
+        # simplest way is to make all values positive - but in case the smallest value is the negative
+        # - think about this a bit more. 
+
+        # i know what to do. don't turn them all positive but instead get the absolute value
+        # FIXME: it works in some cases but not in others - look at this tomorrow. 
+
+        value_closest_to_zero = min(compare_keys)
+        # value_closest_to_zero = min(compare_keys)
+        # value_closest_to_zero = min(get_absolute_values)
+        # print(value_closest_to_zero, flush=True)
+
+        # get the key of the value that is closest to zero
+        get_delta_key = list_compare_values[value_closest_to_zero]
+        
+        # what's this?
+        quantity_pair = list_calculated_values[get_delta_key]
+        
+        # this is a complicated process - but it works
+        # at this point in our journey we have a whole number and a number with a decimal
+        # I want the one that has no dot
+        # print(quantity_pair)
+                
+        for y in quantity_pair:
+            if '.' not in y:
+                final_list.append(y)
+
+        # list_types = [type(k) for k in compare_keys]
+
+    return final_list
+
+
+
+
+
+
+
 # TODO: put this function somewhere else 
-def load_pdf(path_to_pdf):
+def load_pdf_convert_to_text(path_to_pdf):
     doc = fitz.open(stream=path_to_pdf, filetype="pdf")
     
     full_text = ""
@@ -71,7 +181,7 @@ def extract_net_weight(full_text):
 # so we have a tariff to compare to
 
 
-# TODO - looks like this won't work evey time because the discount is calculated on the total 
+# TODO - looks like this won't work every time because the discount is calculated on the total 
 # invoice cost and not on the individual items, which somehow doesn't give us the correct value. 
 
 # the value for this is entirely dependent on the comma in the value
@@ -81,18 +191,21 @@ def extract_net_weight(full_text):
 # at each point we can either try to find the item - if it doesn't exist 
 # at a blank space to the list in it's place
 
-def calculate_value(items_list):
+# I have no idea what is happening here. 
+# perhaps we are getting the wrong value for the item?
+
+def find_value(items_list):
     # print(items_list, flush=True)
-    find_value = []
+    number_array = []
     
     for value in items_list:
         if ',' in value:
             if not re.search(alpha, value):
-                find_value.append(float(value.replace('.', "").replace(',', '.')))
+                number_array.append(float(value.replace('.', "").replace(',', '.')))
 
-    # value = max(find_value)
-    max_value = max(find_value)
-    min_value = min(find_value)
+    # value = max(number_array)
+    max_value = max(number_array)
+    min_value = min(number_array)
 
     # print(max_value, min_value, flush=True)
     if (max_value / min_value < 1.5):
@@ -105,83 +218,7 @@ def calculate_value(items_list):
     # print('TRUE VALUE', value)
     return value
 
-def calculate_quantity(item_list, value):
-    # first - get only the numbers - so where there is an alpha - remove it
-    # filtered_list = [i for i in item_list if not i.isalpha()]
-    
-    final_list = []
 
-    for item in item_list:
-        filtered_list = []
-        new_list = item.split('\n')
-        
-        # FIND VALUE - have to remove percent
-        item_list_to_process = [k for k in new_list if '%' not in k]
-        # print(item_list_to_process)
-        
-        # discount = [k for k in new_list if '%' in k]
-
-        # index = item_list_to_process.index('Made in')
-        value = calculate_value(item_list_to_process)
-
-        for new_item in item_list_to_process:
-            if not re.search(alpha, new_item):
-                if re.search(num, new_item):
-                    if not re.search(tariff, new_item):
-                        
-                        # TODO filter any characters that aren't commas and full stops?
-                        filtered_list.append(new_item.replace(' ', '').replace('_', '').replace('.', '').replace(',', '.'))
-                        remove_duplicates = sorted(set(filtered_list))
-                        remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
-        
-                                                           
-        all_comb = list(combinations(remove_leading_zeroes, 2))      
-
-        # this is for each item - a number of combinations for each item.
-        list_calculated_values = {}
-        list_compare_values = {}
-
-        # these seems to work anyway, because when I multiply the values out
-        # the correct value is always the smallest somehow
-        for ind, each_value in enumerate(all_comb):
-            x, y = each_value
-            
-            multiply_value = float(x) * float(y)
-            # store this value and the tuple together
-            list_calculated_values[multiply_value] = each_value
-            
-            # list of calculated values 
-            keys_list = list(list_calculated_values.keys()) 
-
-            # the difference that is closest to zero is the winner
-            for key in keys_list:
-                # this should equal zero or be close to zero
-                # for each 
-                difference = float(key) - float(value)
-                
-                # add the difference here - against the multiplied value
-                list_compare_values[difference] = key
-            
-            compare_keys = list(list_compare_values.keys())
-
-        # TODO get the smallest value? Or really it should be the one that is closest to zero
-        min_delta = min(compare_keys)
-
-        get_delta_key = list_compare_values[min_delta]
-        
-        quantity_pair = list_calculated_values[get_delta_key]
-        
-        # at this point in our journey we have a whole number and a number with a decimal
-        # I want the one that has no dot
-        # print(quantity_pair)
-                
-        for y in quantity_pair:
-            if '.' not in y:
-                final_list.append(y)
-
-        # list_types = [type(k) for k in compare_keys]
-
-    return final_list
 
 def extract_descriptions(full_text):
     # ENCLOSED TARIFF CODE
@@ -241,16 +278,16 @@ def format_items(all_items):
         # use the filter to remove anything with a percent symbol
 
         alpha = re.compile('[a-zA-Z]')
-        find_value = []
+        number_array = []
 
         # for item in item_list:
         #     if ',' in item:
         #         if not re.search(alpha, item):
-        #             find_value.append(float(item.replace('.', "").replace(',', '.')))
+        #             number_array.append(float(item.replace('.', "").replace(',', '.')))
 
         
         
-        value = calculate_value(item_list)
+        value = find_value(item_list)
         
         country_of_origin = item_list[index + 1]
         
@@ -291,7 +328,7 @@ def match_descriptions(all_items, descriptions):
 def extract_luxury_goods_data(file):
     item_list = []
     # for path in files:
-    full_text = load_pdf(file)
+    full_text = load_pdf_convert_to_text(file)
     invoice_no = extract_invoice_no(file)
 
     # pro rata net weight
@@ -307,7 +344,7 @@ def extract_luxury_goods_data(file):
         item.append(invoice_no)
 
     # run the below and output into excel format
-    quantity = calculate_quantity(all_matches, 1)
+    quantity = find_quantity_in_list(all_matches, 1)
     
     add_descriptions = match_descriptions(formatted_items, descriptions_list)
     
@@ -320,6 +357,7 @@ def extract_luxury_goods_data(file):
     df = pd.DataFrame(item_list)
 
     # Rearrange these into the correct order
+    # TODO: create a generic function to output this data for both siemens and luxury goods
     df.columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description", "Quantity"]
 
     # value_sum = round(df.iloc[:, 1].sum(), 2)
@@ -330,6 +368,8 @@ def extract_luxury_goods_data(file):
     # df.to_csv("output.csv")
 
     return df
-    
+
+# there is also information at the bottom of the page
+# that we can use to validate the information
 
     

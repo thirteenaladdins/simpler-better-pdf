@@ -43,7 +43,7 @@ class Siemens:
             logging.log_exception(exception, False)
 
     """ The amount of times I transform the types here is ridiculous. Is there a simpler way? 
-		A method I have used before is locating the index of an element and gettinig all that precedes it
+		A method I have used before is locating the index of an element and getting all that precedes it
 	"""
 
 # TODO: extract_siemens
@@ -78,6 +78,7 @@ class Siemens:
             # print(text_split)
             item_list = []
 
+            # TODO: make a more generic way to extract the data
             for item in text_split:
                 if "Material" in item:
                     # find material - the preceding values are for this item, the following HS Code
