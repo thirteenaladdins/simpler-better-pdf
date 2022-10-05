@@ -114,13 +114,17 @@ def process():
         file = request.files["file"].read()
 
         """ Process the file here - return the dataframe """
-        if request.form["option"] == "Siemens":
+        if request.form["option"] == "Siemens Regex":
             processed_file = None
             processed_file = Siemens.extract_siemens(file)
 
         elif request.form["option"] == "Luxury Goods":
             processed_file = None
             processed_file = extract_luxury_goods_data(file)
+
+        else: 
+            # TODO: return 404 here?
+            return "Something went wrong"
 
 
         return processed_file.to_json(orient="records")
