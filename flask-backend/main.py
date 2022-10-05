@@ -5,6 +5,7 @@ import sys
 import re
 from itertools import combinations
 import pandas as pd
+from utils.helpers import Helpers
 
 from numpy import extract, full# web version
 # make an interface to simplify the process
@@ -123,25 +124,6 @@ def find_quantity_in_list(item_list, value):
 
     return final_list
 
-
-
-
-
-
-
-# TODO: put this function somewhere else 
-def load_pdf_convert_to_text(path_to_pdf):
-    doc = fitz.open(stream=path_to_pdf, filetype="pdf")
-    
-    full_text = ""
-    for page in doc:
-        text = page.get_text("text")
-        full_text += text
-    
-    # print(full_text)
-    # print(full_text.split('\n'))
-    # doc.close()
-    return full_text
 
 def extract_items(full_text):
     all_matches = re.findall(r'Item .*?Made .*?[A-Z]\n', full_text, re.DOTALL)
@@ -328,7 +310,7 @@ def match_descriptions(all_items, descriptions):
 def extract_luxury_goods_data(file):
     item_list = []
     # for path in files:
-    full_text = load_pdf_convert_to_text(file)
+    full_text = Helpers.convert_all_pages_to_text(file)
     invoice_no = extract_invoice_no(file)
 
     # pro rata net weight
@@ -363,9 +345,6 @@ def extract_luxury_goods_data(file):
     # value_sum = round(df.iloc[:, 1].sum(), 2)
 
     # df['Net Weight'] = (float(net_weight) / float(value_sum)) * df.iloc[:,1] 
-
-    # output file
-    # df.to_csv("output.csv")
 
     return df
 

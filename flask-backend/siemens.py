@@ -2,7 +2,7 @@ import logging
 import fitz
 import re
 import pandas as pd
-
+from utils.helpers import Helpers
 import sys
 import pprint
 
@@ -42,9 +42,6 @@ class Siemens:
             # Output unexpected Exceptions.
             logging.log_exception(exception, False)
 
-    """ The amount of times I transform the types here is ridiculous. Is there a simpler way? 
-		A method I have used before is locating the index of an element and getting all that precedes it
-	"""
 
 # TODO: extract_siemens
 
@@ -120,8 +117,15 @@ class Siemens:
             print(i)
         
 
+        # TODO: fill in the missing information
+        # move the table output to another function
+        # pipe the information throught the function
         df = pd.DataFrame(full_list)
-
+        df["country of origin"] = ""
+        df["invoice"] = ""
+        df["shipment"] = ""
+        # Commodity Code, description, quantity, gross, net, value, country of origin, invoice, shipment 
+        df.columns = ["commodity code", "description", "quantity", "gross weight", "net weight", "value", "country of origin", "invoice", "shipment"]
         return df
 
 # for testing purposes
