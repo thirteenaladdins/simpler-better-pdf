@@ -6,6 +6,10 @@ from utils.helpers import Helpers
 import sys
 import pprint
 
+# TODO: verify total value and total quantity
+# TODO: get shipment number
+# TODO: get invoice number
+# TODO: calculate gross and net weight
 
 # helper function
 def is_number(x):
