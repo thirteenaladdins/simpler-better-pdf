@@ -1,5 +1,5 @@
 import {
-  React, useEffect, useState,
+  React, useState,
 } from 'react';
 import { PropTypes, string } from 'prop-types';
 import Image from 'next/image';
@@ -60,42 +60,53 @@ function Extractor({ option, errNotif }) {
     }
   };
 
-  // for mobile
-  const [windowDimension, setWindowDimension] = useState(null);
+  // // for mobile
+  // const [windowDimension, setWindowDimension] = useState(null);
 
-  useEffect(() => {
-    setWindowDimension(window.innerWidth);
-  }, []);
+  // useEffect(() => {
+  //   setWindowDimension(window.innerWidth);
+  // }, []);
 
-  useEffect(() => {
-    function handleResize() {
-      setWindowDimension(window.innerWidth);
-    }
+  // useEffect(() => {
+  //   function handleResize() {
+  //     setWindowDimension(window.innerWidth);
+  //   }
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  //   window.addEventListener('resize', handleResize);
+  //   return () => window.removeEventListener('resize', handleResize);
+  // }, []);
 
-  // FIXME: make this more responsive
-  const isMobile = windowDimension <= 640;
+  // // FIXME: make this more responsive
+  // // here we've got the flickering issue
+  // const isMobile = windowDimension <= 640;
+
+  // ternary operator for mobile view
+  // return (
+  //   // ternary operator
+  //   <div>
+  //     {isMobile ? (
+  //       <div
+  //         className="mobile-container"
+  //       >
+  //         {renderSwitch(state)}
+  //       </div>
+  //     ) : (
+  //       <div
+  //         className="main-container"
+  //       >
+  //         {renderSwitch(state)}
+  //       </div>
+  //     )}
+  //   </div>
+  // );
 
   return (
-    // ternary operator
-    <div>
-      {isMobile ? (
-        <div
-          className="mobile-container"
-        >
-          {renderSwitch(state)}
-        </div>
-      ) : (
-        <div
-          className="main-container"
-        >
-          {renderSwitch(state)}
-        </div>
-      )}
+    <div
+      className="main-container"
+    >
+      {renderSwitch(state)}
     </div>
+
   );
 }
 

@@ -1,15 +1,26 @@
-.sidebar {
-  /* display: flex; */
-  height: 100%;
-  /* min-width: 200px; */
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  background-color: #fff;
-  overflow-x: hidden;
-  padding-top: 20px;
-  border-right: 1px solid #ccc;
+/* Small devices (landscape phones, 576px and up) */
+@media only screen and (max-width: 576px) {  
+  background-color:#f00;
+  .sidebar-list {
+    display: flex;
+    border: 1px solid red;
+  }
 }
+
+/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+@media (min-width: 768px) {
+  /* .main-container {
+    width: 90%;    
+  } */
+}
+
+/* Large devices (desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {}
+
 
 .sidebar-item {
   list-style: none
