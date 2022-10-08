@@ -1,9 +1,16 @@
 /* Small devices (landscape phones, 576px and up) */
 @media only screen and (max-width: 576px) {  
-  background-color:#f00;
   .sidebar-list {
     display: flex;
-    border: 1px solid red;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .drop-area-full {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 }
 

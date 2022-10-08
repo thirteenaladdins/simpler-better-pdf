@@ -1,11 +1,14 @@
 .extract-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #05f;
+    height: 40px;
     border: none;
     color: white;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
-    display: inline-block;
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
@@ -18,7 +21,7 @@
 }
 
 .extract-button-container {
-    /* height: 100%; */
+    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -46,6 +49,8 @@ font-size: 1rem;
 .list-item-text {
 padding: 10px;
 cursor: pointer;
+font-family: monospace, monospace;
+font-size: 14px;
 }
 
 
@@ -59,4 +64,11 @@ overflow-y: auto;
 overflow-x: hidden;
 border-radius: 0.5rem; 
 border: 1px solid #e7e7e7;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.spinner {
+    height: 50%;
 }

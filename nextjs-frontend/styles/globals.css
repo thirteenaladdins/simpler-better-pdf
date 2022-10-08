@@ -161,11 +161,12 @@ html {
   background-color:#f00;
   .main-container {
     height: 100%;
+    margin: 20px;
     position: fixed;
     z-index: 1;
     left: 0;
     background-color: #fff;
-    
+    margin: 20px;
     overflow-x: hidden;
     padding-top: 20px;
     border-right: 1px solid #ccc;
@@ -176,6 +177,7 @@ html {
 @media (min-width: 768px) {
   .main-container {
     max-height: 420px;
+    margin: 20px;
     display: flex;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
       'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',

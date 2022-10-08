@@ -2,13 +2,12 @@ import {
   React, useState,
 } from 'react';
 import { PropTypes, string } from 'prop-types';
-import Image from 'next/image';
+
 import ListView from './ListView';
 
 import DropArea from './DropArea';
 import DownloadButton from './DownloadButton';
 import ErrorMessage from './ErrorMessage';
-import Spinner from '../public/tail-spin.svg';
 
 const initialState = {
   displayComponent: 'default_component',
@@ -21,18 +20,7 @@ const initialState = {
 
 // TODO: give this some more CSS properties
 // center this component
-function LoadingView() {
-  return (
-    <div className="indigo-300">
-      <Image
-        className="fill-indigo-300"
-        src={Spinner}
-        priority
-        alt="Loading..."
-      />
-    </div>
-  );
-}
+// put spinner within the button itself.
 
 // TODO: this should be named main component - or something of the sort
 function Extractor({ option, errNotif }) {
@@ -49,8 +37,8 @@ function Extractor({ option, errNotif }) {
         return <DownloadButton data={state.returnedData} />;
       case 'list_component':
         return <ListView state={currentState} setState={setState} selectedOption={option} />;
-      case 'loading_component':
-        return <LoadingView state={currentState} setState={setState} />;
+      // case 'loading_component':
+      //   return <LoadingView state={currentState} setState={setState} />;
       case 'invalid_file_component':
         return <ErrorMessage />;
       case 'default_component':
@@ -59,46 +47,6 @@ function Extractor({ option, errNotif }) {
         return <DropArea state={currentState} setState={setState} />;
     }
   };
-
-  // // for mobile
-  // const [windowDimension, setWindowDimension] = useState(null);
-
-  // useEffect(() => {
-  //   setWindowDimension(window.innerWidth);
-  // }, []);
-
-  // useEffect(() => {
-  //   function handleResize() {
-  //     setWindowDimension(window.innerWidth);
-  //   }
-
-  //   window.addEventListener('resize', handleResize);
-  //   return () => window.removeEventListener('resize', handleResize);
-  // }, []);
-
-  // // FIXME: make this more responsive
-  // // here we've got the flickering issue
-  // const isMobile = windowDimension <= 640;
-
-  // ternary operator for mobile view
-  // return (
-  //   // ternary operator
-  //   <div>
-  //     {isMobile ? (
-  //       <div
-  //         className="mobile-container"
-  //       >
-  //         {renderSwitch(state)}
-  //       </div>
-  //     ) : (
-  //       <div
-  //         className="main-container"
-  //       >
-  //         {renderSwitch(state)}
-  //       </div>
-  //     )}
-  //   </div>
-  // );
 
   return (
     <div
