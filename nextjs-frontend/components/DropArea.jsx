@@ -13,7 +13,9 @@ function DropArea(props) {
   const ref = useRef(null);
   const inputFile = useRef(null);
 
-  const { state, setState, errNotif } = props;
+  const {
+    state, setState, errNotif, hideNav,
+  } = props;
 
   //   set the state with the new message
   //   display it at the top of the screen
@@ -54,6 +56,10 @@ function DropArea(props) {
         selectedFiles: files,
         displayComponent: 'list_component',
       });
+      hideNav(true);
+      // TODO: return number of files to display on screen
+      // setting the error notification here doesn't work
+      // errNotif(files.length);
       return files;
     }
 
@@ -106,7 +112,7 @@ function DropArea(props) {
       // dropArea.removeEventListener('drop', handleDrag)
       dropArea.removeEventListener('drop', handleDrop, false);
     };
-  }, [setState, state, errNotif]);
+  }, [setState, state, errNotif, hideNav]);
 
   function handleFiles(e) {
     // let files = e.files
@@ -116,6 +122,7 @@ function DropArea(props) {
       selectedFiles: files,
       displayComponent: 'list_component',
     });
+    hideNav(true);
     return files;
   }
 
@@ -128,15 +135,6 @@ function DropArea(props) {
     inputFile.current.click();
     // handleDrop(e)
   };
-
-  // responsive window width - if it's less than 640px change width
-  // const handleResize = () => {
-  //   if (window.innerWidth < 640) {
-  //     // setState({ ...state, width: '100%' })
-  //   } else {
-  //     // setState({ ...state, width: '50%' })
-  //   }
-  // };
 
   function onKeyDownHandler(e) {
     if (e.key === 'Enter') {
@@ -188,6 +186,7 @@ DropArea.propTypes = {
   }),
   setState: PropTypes.func.isRequired,
   errNotif: PropTypes.func.isRequired,
+  hideNav: PropTypes.func.isRequired,
 };
 
 DropArea.defaultProps = {

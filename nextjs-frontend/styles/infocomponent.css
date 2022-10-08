@@ -10,3 +10,7 @@
 .info-component error {
     color: red;
 }
+
+.info-hidden {
+    visibility: hidden;
+}

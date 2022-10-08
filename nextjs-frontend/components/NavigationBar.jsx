@@ -1,4 +1,6 @@
 import React from 'react';
+// map links here
+// display github link style
 
 function NavigationBar() {
   return (

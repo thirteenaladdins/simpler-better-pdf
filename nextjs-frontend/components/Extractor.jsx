@@ -15,15 +15,12 @@ const initialState = {
   returnedData: false,
   loading: false,
   downloadFile: false,
+  hideNav: false,
   option: '',
 };
 
-// TODO: give this some more CSS properties
-// center this component
-// put spinner within the button itself.
-
 // TODO: this should be named main component - or something of the sort
-function Extractor({ option, errNotif }) {
+function Extractor({ option, errNotif, hideNav }) {
   const [state, setState] = useState(initialState);
 
   // setState({ ...state, option });
@@ -36,13 +33,26 @@ function Extractor({ option, errNotif }) {
       case 'download_component':
         return <DownloadButton data={state.returnedData} />;
       case 'list_component':
-        return <ListView state={currentState} setState={setState} selectedOption={option} />;
+        return (
+          <ListView
+            state={currentState}
+            setState={setState}
+            selectedOption={option}
+          />
+        );
       // case 'loading_component':
       //   return <LoadingView state={currentState} setState={setState} />;
       case 'invalid_file_component':
         return <ErrorMessage />;
       case 'default_component':
-        return <DropArea state={currentState} setState={setState} errNotif={errNotif} />;
+        return (
+          <DropArea
+            state={currentState}
+            setState={setState}
+            errNotif={errNotif}
+            hideNav={hideNav}
+          />
+        );
       default:
         return <DropArea state={currentState} setState={setState} />;
     }
@@ -62,6 +72,7 @@ function Extractor({ option, errNotif }) {
 Extractor.propTypes = {
   option: string.isRequired,
   errNotif: PropTypes.func.isRequired,
+  hideNav: PropTypes.func.isRequired,
 };
 
 export default Extractor;

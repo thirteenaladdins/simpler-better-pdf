@@ -1,10 +1,10 @@
 /* Small devices (landscape phones, 576px and up) */
 @media only screen and (max-width: 576px) {  
-  .sidebar-list {
+  /* .sidebar-list {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+  } */
 
   .drop-area-full {
     display: flex;
@@ -29,6 +29,10 @@
 @media (min-width: 1200px) {}
 
 
+.sidebar-hidden {
+  visibility: hidden;
+}
+
 .sidebar-item {
   list-style: none
 }
@@ -38,11 +42,13 @@
   color: #6366F1;
 }
 
-
 .sidebar-list {
-    padding: 0;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
 .sidebar-button {
   position: relative;
   display: inline-block;

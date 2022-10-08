@@ -38,14 +38,15 @@ function SidebarListItem({
   );
 }
 
-export default function SideBar({ setOption }) {
+export default function SideBar({ hideNav, setOption }) {
   // const [selected, setSelected] = useState(false);
   const [active, setActive] = useState('Siemens Regex');
 
   const handleClick = (item) => (active === item ? setActive() : setActive(item));
-
+  // setstate - hidenav.
+  // if hidenav then hide the sidebar
   return (
-    <div className="sidebar">
+    <div className={hideNav === true ? 'sidebar-hidden' : 'sidebar'}>
       <ul className="sidebar-list">
         {MenuItems.map((sideBarItem) => (
           <SidebarListItem

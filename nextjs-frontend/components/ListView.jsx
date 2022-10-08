@@ -18,8 +18,9 @@ function LoadingView() {
   );
 }
 
-export default function ListView(props) {
-  const { state, setState, selectedOption } = props;
+export default function ListView({
+  state, setState, selectedOption,
+}) {
   return (
     <div className="item-list-view">
       <div className="item-list-view">
