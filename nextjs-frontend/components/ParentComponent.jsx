@@ -14,11 +14,16 @@ function ParentComponent() {
     setState(e);
   };
 
-  // get the count here - set the count
-  // I'm getting so confused here
-  const getErrorNotification = () => {
-    // get the count here
-    console.log('errorNotification', errorNotification);
+  // display info message / error message
+
+  // `Selected ${errorNotification} file${errorNotification !== 1 ? 's' : ''} to extract`)
+  const displayErrorNotification = () => {
+    console.log(errorNotification);
+
+    if (typeof (errorNotification) === 'number') {
+      return `Selected ${errorNotification} file${errorNotification !== 1 ? 's' : ''} to extract`;
+    }
+
     if (errorNotification !== '') {
       return errorNotification;
     }
@@ -35,12 +40,11 @@ function ParentComponent() {
       <NavigationBar />
       <InfoBar />
       <SideBar hideNav={hideNav} setOption={setOption} />
-
       <div className="center-container">
         <div>
           {/* set the number of files selected up top */}
           {/* count number of api calls at the top - count at the top */}
-          <InfoComponent hideNav={hideNav} status={getErrorNotification()} />
+          <InfoComponent hideNav={hideNav} status={displayErrorNotification()} />
           <Extractor
             option={state}
             hideNav={getHideNav}

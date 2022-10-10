@@ -59,7 +59,9 @@ function DropArea(props) {
       hideNav(true);
       // TODO: return number of files to display on screen
       // setting the error notification here doesn't work
-      // errNotif(files.length);
+      // stringify
+      // errNotif(files.length.toString());
+      errNotif(files.length.toString());
       return files;
     }
 
@@ -123,6 +125,7 @@ function DropArea(props) {
       displayComponent: 'list_component',
     });
     hideNav(true);
+    errNotif(files.length.toString());
     return files;
   }
 
