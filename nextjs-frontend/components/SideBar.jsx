@@ -83,4 +83,5 @@ SidebarListItem.defaultProps = {
 
 SideBar.propTypes = {
   setOption: PropTypes.func.isRequired,
+  hideNav: PropTypes.bool.isRequired,
 };
