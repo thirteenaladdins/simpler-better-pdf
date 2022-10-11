@@ -164,6 +164,9 @@ html {
   
 }
 
+.info-hidden {
+  visibility: hidden;
+}
 
 
 /* Small devices (landscape phones, 576px and up) */

@@ -20,7 +20,9 @@ const initialState = {
 };
 
 // TODO: this should be named main component - or something of the sort
-function Extractor({ option, errNotif, hideNav }) {
+function Extractor({
+  option, errNotif, hideNav, hideInfo,
+}) {
   const [state, setState] = useState(initialState);
 
   // setState({ ...state, option });
@@ -38,6 +40,7 @@ function Extractor({ option, errNotif, hideNav }) {
             state={currentState}
             setState={setState}
             selectedOption={option}
+            hideInfo={hideInfo}
           />
         );
       // case 'loading_component':
@@ -73,6 +76,7 @@ Extractor.propTypes = {
   option: string.isRequired,
   errNotif: PropTypes.func.isRequired,
   hideNav: PropTypes.func.isRequired,
+  hideInfo: PropTypes.func.isRequired,
 };
 
 export default Extractor;

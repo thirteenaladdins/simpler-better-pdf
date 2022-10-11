@@ -19,7 +19,7 @@ function LoadingView() {
 }
 
 export default function ListView({
-  state, setState, selectedOption,
+  state, setState, selectedOption, hideInfo,
 }) {
   return (
     <div className="item-list-view">
@@ -44,6 +44,8 @@ export default function ListView({
               displayComponent: 'download_component',
               returnedData: processedFiles,
             });
+
+            hideInfo(true);
           }}
         >
 
@@ -65,5 +67,6 @@ ListView.propTypes = {
   }).isRequired,
   setState: PropTypes.func.isRequired,
   selectedOption: PropTypes.string.isRequired,
+  hideInfo: PropTypes.func.isRequired,
 
 };

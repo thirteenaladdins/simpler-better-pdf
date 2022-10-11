@@ -9,6 +9,7 @@ function ParentComponent() {
   const [state, setState] = useState('Siemens Regex');
   const [errorNotification, setErrorNotification] = useState('');
   const [hideNav, setHideNav] = useState(false);
+  const [hideInfo, setHideInfo] = useState(false);
 
   const setOption = (e) => {
     setState(e);
@@ -18,8 +19,6 @@ function ParentComponent() {
 
   // `Selected ${errorNotification} file${errorNotification !== 1 ? 's' : ''} to extract`)
   const displayErrorNotification = () => {
-    console.log(errorNotification);
-
     if (typeof (errorNotification) === 'number') {
       return `Selected ${errorNotification} file${errorNotification !== 1 ? 's' : ''} to extract`;
     }
@@ -35,6 +34,10 @@ function ParentComponent() {
     setHideNav(e);
   };
 
+  const getHideInfo = (e) => {
+    setHideInfo(e);
+  };
+
   return (
     <div>
       <NavigationBar />
@@ -44,12 +47,17 @@ function ParentComponent() {
         <div>
           {/* set the number of files selected up top */}
           {/* count number of api calls at the top - count at the top */}
-          <InfoComponent hideNav={hideNav} status={displayErrorNotification()} />
+          <InfoComponent
+            hideNav={hideInfo}
+            hideInfo={hideInfo}
+            status={displayErrorNotification()}
+          />
           <Extractor
             option={state}
             hideNav={getHideNav}
             // change name of the prop
             errNotif={setErrorNotification}
+            hideInfo={getHideInfo}
             // count={setErrorNotification}
           />
           {/* reuse the info component - pass data into it */}
