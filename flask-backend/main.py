@@ -1,5 +1,6 @@
 from calendar import c
 from csv import list_dialects
+from tkinter.ttk import Separator
 import fitz
 import sys
 import re
@@ -88,7 +89,7 @@ def find_quantity_in_list(item_list, value):
                 list_compare_values[abs(difference)] = key
             
             compare_keys = list(list_compare_values.keys())
-            print(compare_keys, flush=True)
+            # print(compare_keys, flush=True)
 
         # TODO: get the smallest value? Or really it should be the one that is closest to zero
         # get difference between 0 and the value - the smallest difference is the winner
@@ -136,11 +137,14 @@ def extract_invoice_no(path_to_pdf):
     first_page = doc[0].get_text("text")
 
     split = first_page.split('\n')
-    index_no = split.index('INVOICE')
-    invoice_no = split[index_no + 1]
-    # print(index_no)
-    return invoice_no
-    
+
+    try: 
+        index_no = split.index('INVOICE')
+        invoice_no = split[index_no + 1]
+        return invoice_no
+    except:
+        # return 'No Invoice Number found'
+        return
 
 # search the tariff section here instead?
 def extract_net_weight(full_text):
@@ -152,33 +156,21 @@ def extract_net_weight(full_text):
     net_weight = search_net_weight[0].split('\n')[-1]
     formatted_net_weight = net_weight.replace(',', '.').replace('KG', ' ')
     
-
-
     return formatted_net_weight
     # invoice_no = re.findall(r'INVOICE', full_text)
     # return invoice_no
 
-# TODO following tariff number
 
-# so we have a tariff to compare to
-
-
-# TODO - looks like this won't work every time because the discount is calculated on the total 
+# FIXME: - looks like this won't work every time because the discount is calculated on the total 
 # invoice cost and not on the individual items, which somehow doesn't give us the correct value. 
 
-# the value for this is entirely dependent on the comma in the value
-
-# only two values should be passed in here - they are the ones with the commas
-# I just realised I don't need all that other complicated code - 
-# at each point we can either try to find the item - if it doesn't exist 
-# at a blank space to the list in it's place
-
-# I have no idea what is happening here. 
-# perhaps we are getting the wrong value for the item?
+# the value for this is entirely dependent on the comma in the value: 
+# not a foolproof method but it's the best I can do for now.
 
 def find_value(items_list):
     # print(items_list, flush=True)
     number_array = []
+
     
     for value in items_list:
         if ',' in value:
@@ -202,6 +194,97 @@ def find_value(items_list):
 
 
 
+# TODO: from here 
+# get commodity code
+# total amount 
+# pieces/pairs
+# total net weight
+
+# compare total values from here to the list we have output already
+
+# TODO: get table data from here 
+
+# def get_descriptions(rejoined_text):
+#     description_list = []
+
+#     all_items = re.findall(r'\d{8} .*?GBP .*?Kg', rejoined_text)
+#     # all_items = re.findall(r'\d{8} .*?Kg', rejoined_text)
+#     for item in all_items:
+#         split = item.split(' ')
+
+#         print(split)
+
+#         try:
+#             GBP_index = split.index("GBP")
+#             description_list.append(split[:GBP_index-1])
+#             print(description_list)
+#         except:
+#             continue
+
+# TODO: compare two dataframes get the differences
+
+def format_number(number):
+    try:
+        remove_dot = number.replace('.', '')
+        print(remove_dot)
+        replace_comma = remove_dot.replace(',', '.')
+        print(replace_comma)
+        return replace_comma
+    except:
+        return number
+
+def extract_total_table_data(full_text):
+    totals = []
+    
+
+    tariff_code_segment = full_text.split('\n')
+    index_of = tariff_code_segment.index("ENCLOSED TARIFF CODE")
+    tariff_page_segment = tariff_code_segment[index_of:]
+    rejoined_text =' '.join(tariff_page_segment)
+    # print(rejoined_text)
+    # get_descriptions(rejoined_text)
+    all_items = re.findall(r'\d{8} .*?GBP .*?Kg', rejoined_text)
+    # all_items = re.findall(r'\d{8} .*?Kg', rejoined_text)
+    for item in all_items:
+        split = item.split(' ')
+        GBP_index = split.index("GBP")
+        # print(split)
+        separator = ' '
+        item_list = []
+
+        try:
+            first_half_list = split[1:GBP_index-1]
+            commodity_code = split[0]
+            description = separator.join(first_half_list)
+            value = split[GBP_index-1]
+    
+            total_quantity = split[GBP_index +1]
+            total_net_weight = split[GBP_index + 2]
+
+            # format the data here
+            item_list.append(commodity_code)
+            item_list.append(description)
+            item_list.append(format_number(total_quantity))
+            item_list.append(format_number(total_net_weight))
+            item_list.append(format_number(value))
+            totals.append(item_list)
+
+        except:
+            continue
+
+    df = pd.DataFrame(totals)
+    print(df)
+    df.columns = ["Commodity Code", "Description", "Quantity", "Net Weight", "Value"]
+    
+    return totals
+
+
+
+
+
+
+
+# TODO: get table of data here
 def extract_descriptions(full_text):
     # ENCLOSED TARIFF CODE
     # tariff_code_segment = re.findall((r'?<=ENCLOSED TARIFF CODE).*'), full_text, re.DOTALL)
@@ -220,15 +303,14 @@ def extract_descriptions(full_text):
     for item in all_items:
         split = item.split(' ')
 
-        print(split)
+        # print(split)
 
         try:
             GBP_index = split.index("GBP")
             description_list.append(split[:GBP_index-1])
+            # print(description_list)
         except:
             continue
-
-        
 
     return description_list
 
@@ -313,9 +395,6 @@ def extract_luxury_goods_data(file):
     full_text = Helpers.convert_all_pages_to_text(file)
     invoice_no = extract_invoice_no(file)
 
-    # pro rata net weight
-    # net_weight = extract_net_weight(full_text)
-    
     descriptions_list = extract_descriptions(full_text)
     
     all_matches = extract_items(full_text)
@@ -335,7 +414,9 @@ def extract_luxury_goods_data(file):
         i.append(j)
         item_list.append(i)
         
-
+    # TODO: compare total values of totals df 
+    # vs all items df
+    totals = extract_total_table_data(full_text)
     df = pd.DataFrame(item_list)
 
     # Rearrange these into the correct order
