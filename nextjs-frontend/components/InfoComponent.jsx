@@ -17,5 +17,5 @@ export default InfoComponent;
 
 InfoComponent.propTypes = {
   status: PropTypes.string.isRequired,
-  hideInfo: PropTypes.func.isRequired,
+  hideInfo: PropTypes.bool.isRequired,
 };
