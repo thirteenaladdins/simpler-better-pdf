@@ -8,7 +8,7 @@ from itertools import combinations
 import pandas as pd
 from utils.helpers import Helpers
 
-from numpy import extract, full# web version
+from numpy import extract, full, where # web version
 # make an interface to simplify the process
 
 # prepend each item with invoice number
@@ -226,9 +226,7 @@ def find_value(items_list):
 def format_number(number):
     try:
         remove_dot = number.replace('.', '')
-        print(remove_dot)
         replace_comma = remove_dot.replace(',', '.')
-        print(replace_comma)
         return replace_comma
     except:
         return number
@@ -273,10 +271,8 @@ def extract_total_table_data(full_text):
             continue
 
     df = pd.DataFrame(totals)
-    print(df)
     df.columns = ["Commodity Code", "Description", "Quantity", "Net Weight", "Value"]
-    
-    return totals
+    return df
 
 
 
@@ -414,14 +410,47 @@ def extract_luxury_goods_data(file):
         i.append(j)
         item_list.append(i)
         
-    # TODO: compare total values of totals df 
-    # vs all items df
-    totals = extract_total_table_data(full_text)
+    
+    
     df = pd.DataFrame(item_list)
+    df.columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description", "Quantity"]
 
     # Rearrange these into the correct order
     # TODO: create a generic function to output this data for both siemens and luxury goods
-    df.columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description", "Quantity"]
+    
+    
+    # new totals df
+    items_sort = df.sort_values(by=['Commodity Code'])
+
+    items_sort['Quantity'] = items_sort["Quantity"].apply(lambda x: float(x))
+
+    manually_extracted_totals = items_sort.groupby(['Commodity Code'], as_index=False).sum()
+
+    manually_extracted_totals =  manually_extracted_totals.reindex(columns=['Commodity Code', 'Quantity', 'Value'])
+    
+
+    totals = extract_total_table_data(full_text)
+
+    # drop description, net weight
+    totals = totals.drop(columns=['Description', 'Net Weight'])
+    
+    compared = manually_extracted_totals.compare(totals, align_axis=1, keep_shape=False, keep_equal=False)
+    print(compared)
+    # compare the two dataframes
+    # output data to excel - instead of csv create excel and add colour
+
+    # items_sum = items_sort.groupby(['Commodity Code']).sum()
+    
+    # items_sum.columns = ["Commodity Code", "Description", "Quantity", "Net Weight", "Value"]
+    # print(items_sum)
+    
+    # comparison_column = where(manually_extracted_totals["Commodity Code"] == totals["Commodity Code"], True, False)
+    # print(comparison_column)
+
+    # TODO: compare row by row - 
+    
+    
+
 
     # value_sum = round(df.iloc[:, 1].sum(), 2)
 
