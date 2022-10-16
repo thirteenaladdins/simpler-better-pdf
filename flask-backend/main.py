@@ -416,45 +416,37 @@ def extract_luxury_goods_data(file):
     df.columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description", "Quantity"]
 
     # Rearrange these into the correct order
-    # TODO: create a generic function to output this data for both siemens and luxury goods
     
     
-    # new totals df
+    ''' COMPARE TOTALS HERE '''
+    
     items_sort = df.sort_values(by=['Commodity Code'])
 
-    items_sort['Quantity'] = items_sort["Quantity"].apply(lambda x: float(x))
+    # items_sort['Quantity'] = items_sort["Quantity"].apply(lambda x: float(x))
+    cols = ['Commodity Code', 'Quantity', 'Value']
+    items_sort[cols] = items_sort[cols].apply(pd.to_numeric, errors='coerce', axis=1)
 
     manually_extracted_totals = items_sort.groupby(['Commodity Code'], as_index=False).sum()
 
     manually_extracted_totals =  manually_extracted_totals.reindex(columns=['Commodity Code', 'Quantity', 'Value'])
+    print(manually_extracted_totals)
     
-
     totals = extract_total_table_data(full_text)
-
-    # drop description, net weight
+    
     totals = totals.drop(columns=['Description', 'Net Weight'])
+    totals[cols] = totals[cols].apply(pd.to_numeric, errors='coerce', axis=1)
     
-    compared = manually_extracted_totals.compare(totals, align_axis=1, keep_shape=False, keep_equal=False)
-    print(compared)
-    # compare the two dataframes
-    # output data to excel - instead of csv create excel and add colour
-
-    # items_sum = items_sort.groupby(['Commodity Code']).sum()
+    # validate function here 
+    # compared = manually_extracted_totals.compare(totals, align_axis=0, keep_shape=False, keep_equal=False)
+    # print(compared)
+    manually_extracted_totals['quantities_match'] = where(manually_extracted_totals['Quantity'] == totals['Quantity'], 'True', 'False')
+    manually_extracted_totals['value_match'] = where(manually_extracted_totals['Value'] == totals['Value'], 'True', 'False')
+    # compare the two dataframes here - add an extra column to the totals dataframe
     
-    # items_sum.columns = ["Commodity Code", "Description", "Quantity", "Net Weight", "Value"]
-    # print(items_sum)
-    
-    # comparison_column = where(manually_extracted_totals["Commodity Code"] == totals["Commodity Code"], True, False)
-    # print(comparison_column)
+    print(manually_extracted_totals)
 
-    # TODO: compare row by row - 
-    
-    
+    # TODO: add net weights 
 
-
-    # value_sum = round(df.iloc[:, 1].sum(), 2)
-
-    # df['Net Weight'] = (float(net_weight) / float(value_sum)) * df.iloc[:,1] 
 
     return df
 
