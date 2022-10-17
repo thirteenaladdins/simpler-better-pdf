@@ -443,7 +443,14 @@ def extract_luxury_goods_data(file):
     manually_extracted_totals['value_match'] = where(manually_extracted_totals['Value'] == totals['Value'], 'True', 'False')
     # compare the two dataframes here - add an extra column to the totals dataframe
     
+    # this is complete spaghetti 
     print(manually_extracted_totals)
+
+    # TODO: lookup value in dataframe look up commodity code - for value in list 
+    # get the value check and quantity check - get each value in the original dataframe
+    # and add these values to the new columns
+
+    
 
     # TODO: add net weights 
 
