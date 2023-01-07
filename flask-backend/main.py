@@ -1,8 +1,6 @@
 from calendar import c
 from csv import list_dialects
-from tkinter.ttk import Separator
 import fitz
-import sys
 import re
 from itertools import combinations
 import pandas as pd
