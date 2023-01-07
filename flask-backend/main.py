@@ -147,6 +147,8 @@ def extract_invoice_no(path_to_pdf):
         return
 
 # search the tariff section here instead?
+# get net weight/gross weight and total cartons add them to the first row
+# 
 def extract_net_weight(full_text):
     # 'TOTAL NW'
 
@@ -154,15 +156,46 @@ def extract_net_weight(full_text):
 
     # this does not always get the correct data
     net_weight = search_net_weight[0].split('\n')[-1]
-    formatted_net_weight = net_weight.replace(',', '.').replace('KG', ' ')
+    formatted_net_weight = net_weight.replace(',', '.').replace('KG', ' ')    
+
+    return formatted_net_weight
+    
+
+def extract_gross_weight(full_text):
+    search_gross_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
+    print(search_gross_weight, flush=True)
+
+    # this does not always get the correct data
+    gross_weight = search_gross_weight[0].split('\n')[-4]
+    formatted_gross_weight = gross_weight.replace(',', '.').replace('KG', ' ')    
+    
+    return formatted_gross_weight
+
+def extract_net_weight(full_text):
+    # 'TOTAL NW'
+
+    search_net_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
+
+    # this does not always get the correct data
+    net_weight = search_net_weight[0].split('\n')[-1]
+    formatted_net_weight = net_weight.replace(',', '.').replace('KG', ' ')    
     
     return formatted_net_weight
-    # invoice_no = re.findall(r'INVOICE', full_text)
-    # return invoice_no
+
+def extract_total_packages(full_text):
+
+    search_total_packages = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
+
+    # this does not always get the correct data
+    total_packages = search_total_packages[0].split('\n')[-7]
+    formatted_total_packages = total_packages.replace(',', '.').replace('KG', ' ')    
+    
+    return formatted_total_packages
+    
 
 
 # FIXME: - looks like this won't work every time because the discount is calculated on the total 
-# invoice cost and not on the individual items, which somehow doesn't give us the correct value. 
+# invoice cost and not on the individual items, which doesn't always give us the correct value at item level. 
 
 # the value for this is entirely dependent on the comma in the value: 
 # not a foolproof method but it's the best I can do for now.
@@ -262,6 +295,8 @@ def extract_total_table_data(full_text):
             # format the data here
             item_list.append(commodity_code)
             item_list.append(description)
+
+            # TODO: fix the quantity as it is not always correct
             item_list.append(format_number(total_quantity))
             item_list.append(format_number(total_net_weight))
             item_list.append(format_number(value))
@@ -270,8 +305,11 @@ def extract_total_table_data(full_text):
         except:
             continue
 
+    
     df = pd.DataFrame(totals)
     df.columns = ["Commodity Code", "Description", "Quantity", "Net Weight", "Value"]
+    # df.columns = ["Commodity Code", "Description", "Net Weight", "Value"]
+    # why can't I drop the column here? 
     return df
 
 
@@ -394,6 +432,12 @@ def extract_luxury_goods_data(file):
     descriptions_list = extract_descriptions(full_text)
     
     all_matches = extract_items(full_text)
+
+    total_net_weight = extract_net_weight(full_text)
+    total_gross_weight = extract_gross_weight(full_text)
+    total_cartons = extract_total_packages(full_text)
+    print(total_net_weight, total_gross_weight, total_cartons)
+    
     
     formatted_items = format_items(all_matches)
     
@@ -413,13 +457,26 @@ def extract_luxury_goods_data(file):
     
     
     df = pd.DataFrame(item_list)
-    df.columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description", "Quantity"]
+    df['Total Gross Weight'] = ''
+    df['Total Gross Weight'][0] = total_gross_weight
 
+    df['Total Net Weight'] = ''
+    df['Total Net Weight'][0] = total_net_weight
+
+    df['Total Cartons'] = ''
+    df['Total Cartons'][0] = total_cartons
+
+
+    df.columns = ["Commodity Code", "Value", "Country of Origin", 
+    "Invoice", "Description", "Quantity", "Total Gross Weight", "Total Net Weight", "Total Cartons"]
+    
     # Rearrange these into the correct order
+    # I have really complicated this.
     
     
     ''' COMPARE TOTALS HERE '''
     
+    # TODO: make this a separate function
     items_sort = df.sort_values(by=['Commodity Code'])
 
     # items_sort['Quantity'] = items_sort["Quantity"].apply(lambda x: float(x))
@@ -449,11 +506,11 @@ def extract_luxury_goods_data(file):
     # TODO: lookup value in dataframe look up commodity code - for value in list 
     # get the value check and quantity check - get each value in the original dataframe
     # and add these values to the new columns
-
     
+    # remove quantity for now 
 
-    # TODO: add net weights 
-
+    # add gross weight and net weight and pro-rata
+    df.drop(['Quantity'], axis=1, inplace=True)
 
     return df
 
