@@ -8,7 +8,10 @@ const uploadFile = async (file, option) => {
   // if production
   // const url = `${process.env.NEXT_PUBLIC_BASE_URL}/api/processfile`;
   // production url
-  const url = 'http://146.190.19.45:8080/api/processfile';
+  // const url = 'http://localhost:8080/api/processfile';
+  // const url = 'http://146.190.19.45:8080/api/processfile';
+
+  const url = 'https://magic-extractor-v2.herokuapp.com/api/processfile';
 
   // for production
   // set the base url in the .env file
@@ -26,13 +29,26 @@ const uploadFile = async (file, option) => {
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-  });
-    // .catch((err) => {
-    //   if (err.response.status === 500) {
-    //     console.log('Something went wrong')
-    //   }
-    // })
+  })
+    .catch((error) => {
+      // count number of requests
+      // count successful requests
+      // cuont failed requests - if any fail say how many
+      // and display it on the screen where the luxury goods component is
+      console.log('error', error);
+      // return 'error state';
+    });
+    // return success if successful at the top
+    // count requests
 
+  // .catch((AxiosError) => {
+  //   if (error instanceof Error) {
+  //     console.error(
+  //       'Error with fetching ..., details: ',
+  //       error,
+  //     );
+  //   }
+  // });
   return response;
 };
 
