@@ -1,10 +1,10 @@
-// just create a file "404.js" in pages folder.
+// just create a file "404.tsx" in pages folder.
 
 // import 404.css
 import React from 'react';
 
-// pages/404.js
-export default function Custom404() {
+// pages/404.tsx
+const Custom404: React.FC = () => {
   return (
     <div className="mCont">
       <h1>404</h1>
@@ -14,4 +14,6 @@ export default function Custom404() {
       </section>
     </div>
   );
-}
+};
+
+export default Custom404;
