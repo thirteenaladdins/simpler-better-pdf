@@ -85,13 +85,12 @@
     color: #05f; 
     text-decoration: none;
 }
-  
-  .sidebar-button:hover {
+
+.sidebar-button.selected {
     background-color: #05f;
     color: #fff;
   } 
   
-  .sidebar-button.selected {
-    background-color: #05f;
-    color: #fff;
+  .sidebar-button:hover {
+    border: solid 1px #05f;
   }

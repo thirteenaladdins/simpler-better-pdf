@@ -1,17 +1,14 @@
 import Head from 'next/head';
-import React from 'react';
-import ParentComponent from '../components/ParentComponent';
 
 const Home: React.FC = () => {
   return (
-    <div className="flex flex-col overflow-hidden ">
+    <div>
       <Head>
-        <title>Magic Extractor V2</title>
+        <title>Welcome to my site</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {/* <div className="mx-auto pt-8 font-sans">Magic Extractor V2</div> */}
-      <main className="home-page">
-        <ParentComponent />
+      <main>
+        <h1>Welcome</h1>
       </main>
     </div>
   );

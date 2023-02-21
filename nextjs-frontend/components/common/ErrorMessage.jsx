@@ -1,7 +1,7 @@
 import { React, useRef, useEffect } from 'react';
 import { PropTypes } from 'prop-types';
 import Image from 'next/image';
-import FrownIcon from '../public/frown.svg';
+import FrownIcon from '../../public/frown.svg';
 
 function ErrorMessage() {
   const ref = useRef(null);

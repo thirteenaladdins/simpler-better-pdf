@@ -2,7 +2,12 @@ import axios from 'axios';
 
 let failedRequests = 0;
 
-const uploadFile = async (file: File, option: string) => {
+interface UploadFileResponseData {
+  data: string;
+  error?: string;
+}
+
+const uploadFile = async (file: File, option: string): Promise<UploadFileResponseData> => {
   const baseUrl = process.env.NODE_ENV === 'production'
     ? 'https://magic-extractor-v2.herokuapp.com'
     : 'http://localhost:8008';

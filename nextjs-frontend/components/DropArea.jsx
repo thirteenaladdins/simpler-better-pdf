@@ -101,13 +101,8 @@ function DropArea(props) {
     //   // this.setState({ file }) /// if you want to upload latter
     // }
 
-    // what does this mean and how does it work?
     // TODO: when should I remove listener?
     return () => {
-      // dropArea.removeEventListener('dragenter', handleDrag)
-      // dropArea.removeEventListener('dragleave', handleDrag)
-      // dropArea.removeEventListener('dragover', handleDrag)
-      // dropArea.removeEventListener('drop', handleDrag)
       dropArea.removeEventListener('drop', handleDrop, false);
     };
   }, [setState, state, errNotif, hideNav]);

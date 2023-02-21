@@ -1,9 +1,8 @@
 import { React, useState } from 'react';
-import Extractor from './Extractor';
-import SideBar from './SideBar';
-import NavigationBar from './NavigationBar';
-import InfoComponent from './InfoComponent';
-import InfoBar from './InfoBar';
+import Extractor from '../components/Extractor';
+import SideBar from '../components/SideBar';
+import NavigationBar from '../components/NavigationBar';
+import InfoComponent from '../components/InfoComponent';
 
 function ParentComponent() {
   const [state, setState] = useState('Siemens Regex');
@@ -41,7 +40,6 @@ function ParentComponent() {
   return (
     <div>
       <NavigationBar />
-      <InfoBar />
       <SideBar hideNav={hideNav} setOption={setOption} />
       <div className="center-container">
         <div>
@@ -60,8 +58,6 @@ function ParentComponent() {
             hideInfo={getHideInfo}
             // count={setErrorNotification}
           />
-          {/* reuse the info component - pass data into it */}
-          {/* pass file information here */}
         </div>
       </div>
     </div>
