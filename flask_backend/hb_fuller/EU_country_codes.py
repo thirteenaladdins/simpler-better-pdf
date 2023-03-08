@@ -1,0 +1,4 @@
+EU_countries = [
+    
+]
+
