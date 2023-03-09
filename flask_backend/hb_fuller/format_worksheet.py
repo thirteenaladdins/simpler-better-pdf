@@ -108,6 +108,37 @@ rows_df["Prev Doc Type"] = "380"
 # format the date properly
 rows_df["Prev Doc Reference"] = df_subset['Sales Order Nbr'].str.cat(df['Date Creation Record'], sep=' ')
 
+# define the list of EU countries
+# eu_countries = ['Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 
+#                 'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany',
+#                   'Greece', 'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania',
+#                   'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal',
+#                     'Romania', 'Slovakia', 'Slovenia', 'Spain', 'Sweden']
+
+eu_countries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 
+                    'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV',
+                      'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+                        'SI', 'ES', 'SE']
+
+# create the new dataframe
+# new_df = pd.DataFrame(columns=['EU_country', 'non_EU_country'])
+
+def categorize_country(country):
+    if country in eu_countries:
+        return 'EU country'
+    else:
+        return 'Non-EU country'
+
+# loop through the values in the 'Country' column of the original dataframe
+# for country in df_subset['Country Of Origin']:
+# if country in eu_countries:
+rows_df['Country of Preferential Origin'] = df_subset['Country Of Origin'].apply(categorize_country)
+# else:
+# rows_df = rows_df.apply({'Country of Preferential Origin': None, 'Origin Country': country}, ignore_index=True)
+
+
+
+
 # create duplicate columns
 
 # create new df
@@ -119,15 +150,30 @@ rows_df_2["Prev Doc Type"] = "CLE"
 rows_df_2["Prev Doc Reference"] = df_subset["Date Creation Record"]
 rows_df_2["Doc Type"] = "N935"
 rows_df_2["Doc Status"] = "AE"
-rows_df_2["Doc Reference"]= df_subset['Sales Order Nbr'].str.cat(df['Date Creation Record'], sep=' ')
+rows_df_2["Doc Reference"] = df_subset['Sales Order Nbr'].str.cat(df['Date Creation Record'], sep=' ')
+
+# Country Of Origin
+
+# define the dataframe
+# df = pd.DataFrame({'Country': ['France', 'Spain', 'Australia', 'Italy']})
+
+
+
+# rows_df_3 = pd.DataFrame(index=df_subset.index)
+# rows_df_3["Doc Type"] = "U112"
+# rows_df_3["Doc Status"] = "JP"
+# rows_df_3["Doc Reference"] = df_subset['Sales Order Nbr'].str.cat(df['Date Creation Record'], sep=' ')
+# rows_df_3["Doc Reason"] = "Importers Knowledge"
+
+rows_df_4 = pd.DataFrame(index=df_subset.index)
+rows_df_4["Doc Type"] = "C514"
+rows_df_4["Doc Reference"] = "EIDR REF"
 
 # TODO: 
 # 100, 300
 # countries of origin
 # check plant name and assign addresses
-# add C514?
-# add N935
-# add u112 for eu countries
+
 # add A00 - E for non EU
 # add C505, C506 for non EU and dutiable 
 
@@ -136,10 +182,6 @@ rows_df_2["Doc Reference"]= df_subset['Sales Order Nbr'].str.cat(df['Date Creati
 # add commodity validation for 
 # check table first, if not present then fetch from the api. 
 # but then if the data is present in the table but has been updated this won't work
-
-# error handling etc
-
-
 
 
 # depends on the origin
