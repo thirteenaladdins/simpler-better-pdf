@@ -13,8 +13,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "downlevelIteration": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/index.tsx", "utils/parseJsonData.js", "utils/processAllFiles.js", "pages/api/uploadFile.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/index.tsx", "utils/parseJsonData.js", "utils/processAllFiles.js", "pages/api/uploadFile.js", "components/Extractor.jsx"],
   "exclude": ["node_modules"]
 }

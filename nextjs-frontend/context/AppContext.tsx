@@ -12,7 +12,7 @@ type AppContextProps = {
 };
 
 export const AppContext = createContext<AppContextProps>({
-    option: 'Luxury Goods',
+    option: 'Siemens Regex',
     setOption: () => { },
     errorNotification: '',
     setErrorNotification: () => { },
@@ -23,8 +23,16 @@ export const AppContext = createContext<AppContextProps>({
 
 });
 
-const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [option, setOption] = useState('Luxury Goods');
+type AppContextProviderProps = {
+    value: {
+        option: string;
+        setOption: (e: string) => void;
+    };
+    children: React.ReactNode;
+};
+
+function AppContextProvider({ value, children }: AppContextProviderProps) {
+    const [option, setOption] = useState('Siemens Regex');
     const [errorNotification, setErrorNotification] = useState('');
     const [hideNav, setHideNav] = useState(false);
     const [hideInfo, setHideInfo] = useState(false);

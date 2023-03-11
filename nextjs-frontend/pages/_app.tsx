@@ -4,6 +4,7 @@ import '../styles/download.css';
 import '../styles/listview.css';
 import '../styles/infocomponent.css';
 import '../styles/404.css';
+import '../styles/layout.css';
 
 import React from 'react';
 import type { AppProps } from 'next/app';

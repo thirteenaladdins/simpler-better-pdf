@@ -12,6 +12,7 @@ interface ErrorResponse {
 // // TODO: instead of console logging errors bring them to the frontend with new component
 // COME BACK TO THIS LATER
 // SIMPLIFY ALL CODE
+
 const processAllFiles = async (files: File[], option: string): Promise<string> => {
   const responses: any[] = [];
 
@@ -20,8 +21,8 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
       const responseData = await uploadFile(file, option);
       
       // we need to retrieve the response data and check if there's an error key
-      if (responseData.data.error) {
-        console.error(`Error: Something went wrong with file ${file.name}:`, responseData.data.error);
+      if (responseData.error) {
+        console.error(`Error: Something went wrong with file ${file.name}:`, responseData.error);
         throw new Error(responseData.error);
       } else {
         responses.push(responseData.data);

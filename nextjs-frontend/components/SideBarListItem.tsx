@@ -1,33 +1,44 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { AppContext } from "../context/AppContext";
+import { useRouter } from "next/router";
 
 interface ISidebarListItemProps {
     item: {
         title: string;
+        url: string;
         cName: string;
     };
 }
 
 export default function SidebarListItem({ item }: ISidebarListItemProps) {
     const { option, setOption } = useContext(AppContext);
+    const router = useRouter();
 
-    // Add an onClick handler to update the option state
     const handleClick = () => {
         setOption(item.title);
+        localStorage.setItem("option", item.title);
+        router.push(item.url);
     };
 
-    // Use useEffect to log the option state variable when it changes
+    const selectedClass = useMemo(() => (option === item.title ? "selected" : ""), [option, item.title]);
+
     useEffect(() => {
-        console.log(option);
+        const storedOption = localStorage.getItem("option");
+        if (storedOption) {
+            setOption(storedOption);
+            console.log(storedOption);
+            console.log(option)
+        }
+    }, [setOption]);
+
+    useEffect(() => {
+        console.log('Option changed:', option);
     }, [option]);
+
 
     return (
         <li className={item.cName}>
-            <button
-                type="button"
-                className={option === item.title ? "sidebar-button selected" : "sidebar-button"}
-                onClick={handleClick}
-            >
+            <button type="button" className={`sidebar-button ${selectedClass}`} style={{ cursor: "pointer" }} onClick={handleClick}>
                 {item.title}
             </button>
         </li>

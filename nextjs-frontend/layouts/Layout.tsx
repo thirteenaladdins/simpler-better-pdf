@@ -1,36 +1,43 @@
 import React, { ReactNode, useContext } from 'react';
 import SideBar from '../components/SideBar';
 import NavigationBar from '../components/NavigationBar';
-// import { AppContext } from '../context/AppContext';
+import AppContextProvider from '../context/AppContext'
+import { AppContext } from '../context/AppContext'
 
-interface ISidebarProps {
-    option: string;
-    hideNav: boolean;
-}
+// import
+// import './Layout.css';
+
+// interface ISidebarProps {
+//     option: string;
+//     hideNav: boolean;
+// }
 
 type LayoutProps = {
     children: ReactNode;
 };
 
-//TODO:  add CSS
-
 function Layout({ children }: LayoutProps) {
 
-    // const { errorNotification, setErrorNotification, setOption, hideNav, option } = useContext(AppContext);
-    // const { option } = useContext(AppContext);
+    const {
+        option,
+        setOption,
+    } = useContext(AppContext);
+
+    // <App
 
     return (
+        <AppContextProvider value={{
+            option, setOption
+        }} >
+            <div className="layout-container">
+                <NavigationBar />
+                <div className="content-container">
+                    <SideBar setOption={setOption} option={option} />
 
-        <>
-            <NavigationBar />
-            {/* I probably won't hide the sidebar anymore */}
-            {/* <SideBar hideNav={hideNav} option={option} /> */}
-            <SideBar />
-            <div className="center-container">
-                <div>{children}</div>
+                    <div className="main-container">{children}</div>
+                </div>
             </div>
-        </>
-
+        </AppContextProvider>
     );
 }
 

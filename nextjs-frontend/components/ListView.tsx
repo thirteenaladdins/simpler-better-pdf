@@ -79,10 +79,12 @@
 import React, { useContext } from 'react';
 import Image from 'next/image';
 
-// import AppContext from '../context/AppContext';
+import AppContext from '../context/AppContext';
+import AppContextProvider from '../context/AppContext';
 import processAllFiles from '../utils/processAllFiles';
 import ListFiles from '../utils/listFiles';
 import Spinner from '../public/tail-spin.svg';
+
 
 interface ListViewProps {
   state: {
@@ -92,7 +94,7 @@ interface ListViewProps {
   },
   setState: (state: any) => void,
   option: string,
-  hideInfo: (arg0: boolean) => void
+  // hideInfo: (arg0: boolean) => void
 }
 
 function LoadingView() {
@@ -108,13 +110,18 @@ function LoadingView() {
   );
 }
 
+// const {
+//   option,
+//   setOption
+// } = useContext(AppContext);
+
 export default function ListView({
-  state, setState, hideInfo, option
+  state, setState, option
 }: ListViewProps) {
 
-  // const { option } = useContext(AppContext);
 
   return (
+    // <AppContextProvider value={{ setOption, option }}>
     <div className="item-list-view">
       <div className="item-list-view">
         <ul className="p-0">
@@ -137,7 +144,7 @@ export default function ListView({
               returnedData: processedFiles,
             });
 
-            hideInfo(true);
+            // hideInfo(true);
           }}
         >
           {/* ternary operator */}
@@ -145,6 +152,7 @@ export default function ListView({
         </button>
       </div>
     </div>
+    // </AppContextProvider >
   );
 }
 
