@@ -4,6 +4,15 @@ const path = require('path');
 require('dotenv').config();
 
 module.exports = {
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent: true,
+      },
+    ];
+  },
   reactStrictMode: true,
   // experimental: {
   //   images: {
