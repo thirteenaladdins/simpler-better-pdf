@@ -16,6 +16,7 @@
     "incremental": true,
     "downlevelIteration": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/index.tsx", "utils/parseJsonData.js", "utils/processAllFiles.js", "pages/api/uploadFile.js", "components/Extractor.jsx"],
+  // "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/index.tsx", "utils/parseJsonData.js", "utils/processAllFiles.js", "pages/api/uploadFile.js", "components/Extractor.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

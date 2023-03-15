@@ -1,35 +1,44 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
 import DownloadIcon from '../public/download.svg';
+import { ExtractorState } from './Extractor';
+
+// interface Props {
+//   state: {
+//     selectedFiles: File[] | null;
+//     displayComponent: string;
+//   };
+//   setState: React.Dispatch<React.SetStateAction<{
+//     selectedFiles: File[] | null;
+//     displayComponent: string;
+//   }>>;
+//   errNotif: (arg: string | number) => void;
+//   // hideNav: (arg: boolean) => void;
+// }
 
 interface Props {
-  state: {
-    selectedFiles: File[] | null;
-    displayComponent: string;
-  };
-  setState: React.Dispatch<React.SetStateAction<{
-    selectedFiles: File[] | null;
-    displayComponent: string;
-  }>>;
-  errNotif: (arg: string | number) => void;
+  state: ExtractorState;
+  setState: React.Dispatch<React.SetStateAction<ExtractorState>>;
+  // errNotif: (arg: string | number) => void;
   // hideNav: (arg: boolean) => void;
 }
+
+// type DropAreaProps = {
+//   state: ExtractorState;
+//   setState: React.Dispatch<React.SetStateAction<{ selectedFiles: File[] | null; displayComponent: string; }>>;
+// };
 
 const count: number = 50;
 const formats = ['pdf'];
 
-// TODO: add limit to the normal file selection
 function DropArea(props: Props): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const inputFile = useRef<HTMLInputElement>(null);
 
   const {
-    state, setState, errNotif,
+    state, setState,
   } = props;
 
-  //   set the state with the new message
-  //   display it at the top of the screen
-  // useEffect(() => {
   const dropArea = ref.current;
 
   function handleDrop(e: DragEvent): File[] | null {
@@ -41,10 +50,11 @@ function DropArea(props: Props): JSX.Element {
       fileList.push(...Array.from(files));
     }
 
-    // TODO: Add this count to the screen
     if (count && files && count < files.length) {
       setState({ ...state, displayComponent: 'invalid_file_component' });
-      errNotif(`Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`);
+
+      // TODO: reimplement this using a notification function defined elsewhere.
+      // errNotif(`Only ${count} file${count !== 1 ? 's' : ''} can be uploaded at a time`);
       return null;
     }
 
@@ -56,20 +66,20 @@ function DropArea(props: Props): JSX.Element {
       )
     ) {
       setState({ ...state, displayComponent: 'invalid_file_component' });
-      errNotif(`Only the following file formats are acceptable: ${formats.join(', ')}`);
+
+      // TODO: reimplement this using a notification function defined elsewhere.
+      // errNotif(`Only the following file formats are acceptable: ${formats.join(', ')}`);
       return null;
     }
 
     return fileList;
   }
 
-  function preventDefaults(e: DragEvent) {
+  function preventDefaults(e: Event) {
     e.preventDefault();
     e.stopPropagation();
-    // console.log('Dragged')
   }
 
-  // I want to add this class to the drop area only
   function highlight() {
     dropArea?.classList.add('bg-indigo-300');
   }
@@ -79,11 +89,11 @@ function DropArea(props: Props): JSX.Element {
   }
 
   ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-    dropArea?.addEventListener(eventName, (e: DragEvent) => preventDefaults(e), false);
+    dropArea?.addEventListener(eventName, (e: Event) => preventDefaults(e as DragEvent), false);
   });
 
+  dropArea?.addEventListener('drop', (e: Event) => handleDrop(e as DragEvent), false);
 
-  dropArea?.addEventListener('drop', handleDrop, false);
   ['dragenter', 'dragover'].forEach((eventName) => {
     dropArea?.addEventListener(eventName, highlight, false);
   });
@@ -91,7 +101,6 @@ function DropArea(props: Props): JSX.Element {
   ['dragleave', 'drop'].forEach((eventName) => {
     dropArea?.addEventListener(eventName, unhighlight, false);
   });
-
 
   const onClickHandler = () => {
     inputFile.current?.click();
@@ -116,7 +125,6 @@ function DropArea(props: Props): JSX.Element {
     return files;
   };
 
-
   return (
     <div
       ref={ref}
@@ -128,6 +136,7 @@ function DropArea(props: Props): JSX.Element {
     >
       <input
         multiple
+
         type="file"
         id="file"
         ref={inputFile}
@@ -135,8 +144,6 @@ function DropArea(props: Props): JSX.Element {
         style={{ display: 'none' }}
         onChange={handleFiles}
       />
-
-
       <Image
         className="pointer-events-none select-none"
         src={DownloadIcon}
@@ -150,7 +157,5 @@ function DropArea(props: Props): JSX.Element {
 
     </div>
   );
-  // }, [state, setState, errNotif, hideNav]);
-
 }
 export default DropArea;

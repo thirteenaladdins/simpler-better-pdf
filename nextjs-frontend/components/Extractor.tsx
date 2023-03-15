@@ -5,7 +5,7 @@ import DownloadButton from './DownloadButton';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { AppContext } from '../context/AppContext';
 
-type ExtractorState = {
+export type ExtractorState = {
   displayComponent: 'default_component' | 'download_component' | 'list_component' | 'invalid_file_component';
   selectedFiles: File[];
   // returnedData: BlobPart;
