@@ -24,7 +24,7 @@ const uploadFile = async (file: File, option: string): Promise<UploadFileRespons
       },
     });
     // FIXME: remove this
-    console.log(response)
+    console.log(response);
     return response;
   } catch (error) {
     console.error(error);

@@ -4,14 +4,12 @@ interface ErrorProps {
     errors: string[];
 }
 
-const Error: React.FC<ErrorProps> = ({ errors }) => {
-    return (
-        <div>
-            {errors.map((error, index) => (
-                <pre key={index}>{error}</pre>
-            ))}
-        </div>
-    );
-};
+const Error: React.FC<ErrorProps> = ({ errors }) => (
+  <div>
+    {errors.map((error, index) => (
+      <pre key={index}>{error}</pre>
+    ))}
+  </div>
+);
 
 export default Error;

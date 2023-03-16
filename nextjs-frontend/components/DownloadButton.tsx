@@ -34,4 +34,3 @@ export default function DownloadButton(props: DownloadButtonProps) {
     </div>
   );
 }
-

@@ -7,6 +7,8 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:@next/next/recommended',
+    'plugin:@typescript-eslint/recommended',
+    // 'plugin:prettier/recommended',
     'airbnb',
   ],
   overrides: [
@@ -14,8 +16,10 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
+    parser: '@typescript-eslint/parser',
   },
   plugins: [
+    '@typescript-eslint',
     'react',
   ],
   rules: {

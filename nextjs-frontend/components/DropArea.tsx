@@ -28,7 +28,7 @@ interface Props {
 //   setState: React.Dispatch<React.SetStateAction<{ selectedFiles: File[] | null; displayComponent: string; }>>;
 // };
 
-const count: number = 50;
+const count = 50;
 const formats = ['pdf'];
 
 function DropArea(props: Props): JSX.Element {
@@ -113,7 +113,7 @@ function DropArea(props: Props): JSX.Element {
   };
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const { files } = e.target;
     if (files) {
       const fileList = [...files];
       setState({
@@ -147,7 +147,7 @@ function DropArea(props: Props): JSX.Element {
       <Image
         className="pointer-events-none select-none"
         src={DownloadIcon}
-        priority={true}
+        priority
         alt="Drop your files here"
       />
 

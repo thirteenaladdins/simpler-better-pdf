@@ -85,7 +85,6 @@ import processAllFiles from '../utils/processAllFiles';
 import ListFiles from '../utils/listFiles';
 import Spinner from '../public/tail-spin.svg';
 
-
 interface ListViewProps {
   state: {
     displayComponent: string,
@@ -116,10 +115,8 @@ function LoadingView() {
 // } = useContext(AppContext);
 
 export default function ListView({
-  state, setState, option
+  state, setState, option,
 }: ListViewProps) {
-
-
   return (
     // <AppContextProvider value={{ setOption, option }}>
     <div className="item-list-view">
@@ -155,4 +152,3 @@ export default function ListView({
     // </AppContextProvider >
   );
 }
-

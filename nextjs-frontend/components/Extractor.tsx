@@ -37,7 +37,7 @@ function Extractor(props: ExtractorProps): JSX.Element {
   const { option } = props;
   const appContext = useContext(AppContext);
 
-  const decoder = new TextDecoder("utf-8");
+  const decoder = new TextDecoder('utf-8');
   // const data = decoder.decode(blob);
 
   const renderSwitch = () => {

@@ -12,14 +12,14 @@ type AppContextProps = {
 };
 
 export const AppContext = createContext<AppContextProps>({
-    option: 'Siemens Regex',
-    setOption: () => { },
-    errorNotification: '',
-    setErrorNotification: () => { },
-    hideNav: false,
-    setHideNav: () => { },
-    hideInfo: false,
-    setHideInfo: () => { },
+  option: 'Siemens Regex',
+  setOption: () => { },
+  errorNotification: '',
+  setErrorNotification: () => { },
+  hideNav: false,
+  setHideNav: () => { },
+  hideInfo: false,
+  setHideInfo: () => { },
 
 });
 
@@ -32,27 +32,27 @@ type AppContextProviderProps = {
 };
 
 function AppContextProvider({ value, children }: AppContextProviderProps) {
-    const [option, setOption] = useState('Siemens Regex');
-    const [errorNotification, setErrorNotification] = useState('');
-    const [hideNav, setHideNav] = useState(false);
-    const [hideInfo, setHideInfo] = useState(false);
+  const [option, setOption] = useState('Siemens Regex');
+  const [errorNotification, setErrorNotification] = useState('');
+  const [hideNav, setHideNav] = useState(false);
+  const [hideInfo, setHideInfo] = useState(false);
 
-    return (
-        <AppContext.Provider
-            value={{
-                option,
-                setOption,
-                errorNotification,
-                setErrorNotification,
-                hideNav,
-                setHideNav,
-                hideInfo,
-                setHideInfo,
-            }}
-        >
-            {children}
-        </AppContext.Provider>
-    );
-};
+  return (
+    <AppContext.Provider
+      value={{
+        option,
+        setOption,
+        errorNotification,
+        setErrorNotification,
+        hideNav,
+        setHideNav,
+        hideInfo,
+        setHideInfo,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+}
 
 export default AppContextProvider;

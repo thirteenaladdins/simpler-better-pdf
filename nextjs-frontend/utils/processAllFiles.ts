@@ -19,14 +19,13 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
   for (const file of files) {
     try {
       const responseData = await uploadFile(file, option);
-      
+
       // we need to retrieve the response data and check if there's an error key
       if (responseData.error) {
         console.error(`Error: Something went wrong with file ${file.name}:`, responseData.error);
         throw new Error(responseData.error);
       } else {
         responses.push(responseData.data);
-        
       }
     } catch (error) {
       console.error(`Error: Something went wrong with file ${file.name}:`, error);
@@ -41,7 +40,6 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
 
 export default processAllFiles;
 
-
 // const processAllFiles = async (files: File[], option: string): Promise<string> => {
 //   const responses: any[] = [];
 //   const errors: string[] = [];
@@ -49,7 +47,7 @@ export default processAllFiles;
 //   for (const file of files) {
 //     try {
 //       const responseData = await uploadFile(file, option);
-      
+
 //       // we need to retrieve the response data and check if there's an error key
 //       if (responseData.data.error) {
 //         console.error(`Error: Something went wrong with file ${file.name}:`, responseData.data.error);
@@ -87,7 +85,7 @@ export default processAllFiles;
 //   for (const file of files) {
 //     try {
 //       const responseData = await uploadFile(file, option);
-      
+
 //       // we need to retrieve the response data and check if there's an error key
 //       if (responseData.data.error) {
 //         console.error(`Error: Something went wrong with file ${file.name}:`, responseData.data.error);
