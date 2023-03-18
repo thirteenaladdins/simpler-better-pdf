@@ -1,7 +1,7 @@
 import React from 'react';
 import MenuItems from '../data/MenuItems';
 // @ts-ignore  
-import SidebarListItem from './SidebarListItem';
+import SideBarListItem from './SideBarListItem';
 
 // interface ISidebarProps {
 //   setOption: (option: string) => void;
@@ -20,7 +20,7 @@ export default function Sidebar() {
     <div className="sidebar">
       <ul className="sidebar-list">
         {MenuItems.map((sideBarItem) => (
-          <SidebarListItem key={sideBarItem.title} item={sideBarItem} />
+          <SideBarListItem key={sideBarItem.title} item={sideBarItem} />
         ))}
       </ul>
     </div>

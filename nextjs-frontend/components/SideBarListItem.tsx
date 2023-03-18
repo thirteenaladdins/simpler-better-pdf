@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppContext';
 
-interface ISidebarListItemProps {
+interface ISideBarListItemProps {
   item: {
     title: string;
     url: string;
@@ -11,7 +11,7 @@ interface ISidebarListItemProps {
   // option: string;
 }
 
-export default function SidebarListItem({ item }: ISidebarListItemProps) {
+export default function SideBarListItem({ item }: ISideBarListItemProps) {
   const { option, setOption } = useContext(AppContext);
   const router = useRouter();
 
