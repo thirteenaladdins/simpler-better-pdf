@@ -1,5 +1,5 @@
 import os
-from main import extract_luxury_goods_data
+from luxury_goods import extract_luxury_goods_data
 from siemens import Siemens
 
 # create a route that sends the information over from flask
