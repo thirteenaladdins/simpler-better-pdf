@@ -4,10 +4,10 @@ import uploadFile from '../pages/api/uploadFile';
 // may need to change the name
 // import Error from '../components/common/Error'
 
-interface ErrorResponse {
-  file: File;
-  // error: string;
-}
+// interface ErrorResponse {
+//   file: File;
+//   // error: string;
+// }
 
 // // TODO: instead of console logging errors bring them to the frontend with new component
 // COME BACK TO THIS LATER

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let failedRequests = 0;
+// let failedRequests = 0;
 
 interface UploadFileResponseData {
   data: string;
@@ -28,7 +28,7 @@ const uploadFile = async (file: File, option: string): Promise<UploadFileRespons
     return response;
   } catch (error) {
     console.error(error);
-    failedRequests += 1;
+    // failedRequests += 1;
     throw error;
   }
 };

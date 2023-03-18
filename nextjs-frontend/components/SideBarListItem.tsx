@@ -1,13 +1,14 @@
-import { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppContext';
 
 interface ISidebarListItemProps {
-    item: {
-        title: string;
-        url: string;
-        cName: string;
-    };
+  item: {
+    title: string;
+    url: string;
+    cName: string;
+  };
+  // option: string;
 }
 
 export default function SidebarListItem({ item }: ISidebarListItemProps) {
@@ -26,10 +27,10 @@ export default function SidebarListItem({ item }: ISidebarListItemProps) {
     const storedOption = localStorage.getItem('option');
     if (storedOption) {
       setOption(storedOption);
-      console.log(storedOption);
-      console.log(option);
+      // console.log(storedOption);
+      // console.log(option);
     }
-  }, [setOption]);
+  }, [setOption, option]);
 
   useEffect(() => {
     console.log('Option changed:', option);

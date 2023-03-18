@@ -16,22 +16,17 @@ import { ExtractorState } from './Extractor';
 //   // hideNav: (arg: boolean) => void;
 // }
 
-interface Props {
+interface DropAreaProps {
   state: ExtractorState;
   setState: React.Dispatch<React.SetStateAction<ExtractorState>>;
   // errNotif: (arg: string | number) => void;
   // hideNav: (arg: boolean) => void;
 }
 
-// type DropAreaProps = {
-//   state: ExtractorState;
-//   setState: React.Dispatch<React.SetStateAction<{ selectedFiles: File[] | null; displayComponent: string; }>>;
-// };
-
 const count = 50;
 const formats = ['pdf'];
 
-function DropArea(props: Props): JSX.Element {
+function DropArea(props: DropAreaProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const inputFile = useRef<HTMLInputElement>(null);
 
@@ -136,7 +131,6 @@ function DropArea(props: Props): JSX.Element {
     >
       <input
         multiple
-
         type="file"
         id="file"
         ref={inputFile}

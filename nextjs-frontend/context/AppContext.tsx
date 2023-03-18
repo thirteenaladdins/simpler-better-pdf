@@ -1,14 +1,14 @@
-import { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 
 type AppContextProps = {
-    option: string;
-    setOption: (e: string) => void;
-    errorNotification: string;
-    setErrorNotification: (e: string) => void;
-    hideNav: boolean;
-    setHideNav: (e: boolean) => void;
-    hideInfo: boolean;
-    setHideInfo: (e: boolean) => void;
+  option: string;
+  setOption: (e: string) => void;
+  errorNotification: string;
+  setErrorNotification: (e: string) => void;
+  hideNav: boolean;
+  setHideNav: (e: boolean) => void;
+  hideInfo: boolean;
+  setHideInfo: (e: boolean) => void;
 };
 
 export const AppContext = createContext<AppContextProps>({
@@ -24,14 +24,14 @@ export const AppContext = createContext<AppContextProps>({
 });
 
 type AppContextProviderProps = {
-    value: {
-        option: string;
-        setOption: (e: string) => void;
-    };
-    children: React.ReactNode;
+  value: {
+    option: string;
+    setOption: (e: string) => void;
+  };
+  children: React.ReactNode;
 };
 
-function AppContextProvider({ value, children }: AppContextProviderProps) {
+function AppContextProvider({ children }: AppContextProviderProps) {
   const [option, setOption] = useState('Siemens Regex');
   const [errorNotification, setErrorNotification] = useState('');
   const [hideNav, setHideNav] = useState(false);

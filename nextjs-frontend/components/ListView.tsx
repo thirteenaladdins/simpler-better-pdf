@@ -76,11 +76,11 @@
 
 // };
 
-import React, { useContext } from 'react';
+import React from 'react';
 import Image from 'next/image';
 
-import AppContext from '../context/AppContext';
-import AppContextProvider from '../context/AppContext';
+// import AppContext from '../context/AppContext';
+// import AppContextProvider from '../context/AppContext';
 import processAllFiles from '../utils/processAllFiles';
 import ListFiles from '../utils/listFiles';
 import Spinner from '../public/tail-spin.svg';
@@ -91,6 +91,7 @@ interface ListViewProps {
     loading: boolean,
     selectedFiles: File[]
   },
+  // TODO: come back and change this
   setState: (state: any) => void,
   option: string,
   // hideInfo: (arg0: boolean) => void

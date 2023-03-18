@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   env: {
     browser: true,
     es2021: true,
@@ -8,23 +8,22 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'plugin:@next/next/recommended',
     'plugin:@typescript-eslint/recommended',
-    // 'plugin:prettier/recommended',
-    'airbnb',
+    'airbnb-typescript',
   ],
-  overrides: [
-  ],
+  overrides: [],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
     parser: '@typescript-eslint/parser',
+    project: './nextjs-frontend/tsconfig.json'
   },
   plugins: [
     '@typescript-eslint',
     'react',
+    'import'
   ],
   rules: {
-    // 'linebreak-style': ['error', (process.platform === 'win32' ? 'windows' : 'unix')]
-    // 'linebreak-style': ['error', 'windows'],
     'linebreak-style': 'off',
+    'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
   },
 };

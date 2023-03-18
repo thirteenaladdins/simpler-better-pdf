@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import ListView from './ListView';
 import DropArea from './DropArea';
 import DownloadButton from './DownloadButton';
-import ErrorMessage from '../components/common/ErrorMessage';
+import ErrorMessage from './common/ErrorMessage';
 import { AppContext } from '../context/AppContext';
 
 export type ExtractorState = {
@@ -15,12 +15,12 @@ export type ExtractorState = {
   // hideNav: boolean;
 };
 
-type ExtractorProps = {
-  option: string;
-  // errNotif: (message: string) => void;
-  // hideNav: () => void;
-  // hideInfo: () => void;
-};
+// type ExtractorProps = {
+//   option: string;
+//   // errNotif: (message: string) => void;
+//   // hideNav: () => void;
+//   // hideInfo: () => void;
+// };
 
 const initialState: ExtractorState = {
   displayComponent: 'default_component',
@@ -31,13 +31,13 @@ const initialState: ExtractorState = {
   // hideNav: false,
 };
 
-function Extractor(props: ExtractorProps): JSX.Element {
+function Extractor(): JSX.Element {
   const [state, setState] = useState<ExtractorState>(initialState);
   // const { errNotif, hideNav, hideInfo, option } = props;
-  const { option } = props;
+  // const { option } = props;
   const appContext = useContext(AppContext);
 
-  const decoder = new TextDecoder('utf-8');
+  // const decoder = new TextDecoder('utf-8');
   // const data = decoder.decode(blob);
 
   const renderSwitch = () => {
