@@ -15,7 +15,8 @@ export default {
     ecmaVersion: 'latest',
     sourceType: 'module',
     parser: '@typescript-eslint/parser',
-    project: './nextjs-frontend/tsconfig.json'
+    project: './nextjs-frontend/tsconfig.json',
+    // tsconfigRootDir: './nextjs-frontend',
   },
   plugins: [
     '@typescript-eslint',
