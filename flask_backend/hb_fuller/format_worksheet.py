@@ -115,27 +115,36 @@ rows_df["Prev Doc Reference"] = df_subset['Sales Order Nbr'].str.cat(df['Date Cr
 #                   'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal',
 #                     'Romania', 'Slovakia', 'Slovenia', 'Spain', 'Sweden']
 
+# eu_countries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 
+#                     'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV',
+#                       'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+#                         'SI', 'ES', 'SE']
+
 eu_countries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 
                     'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV',
                       'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
                         'SI', 'ES', 'SE']
 
-# create the new dataframe
-# new_df = pd.DataFrame(columns=['EU_country', 'non_EU_country'])
-
 def categorize_country(country):
     if country in eu_countries:
-        return 'EU country'
+        return 'Country of Preferential Origin'
     else:
-        return 'Non-EU country'
+        return 'Origin Country'
 
-# loop through the values in the 'Country' column of the original dataframe
-# for country in df_subset['Country Of Origin']:
-# if country in eu_countries:
-rows_df['Country of Preferential Origin'] = df_subset['Country Of Origin'].apply(categorize_country)
-# else:
-# rows_df = rows_df.apply({'Country of Preferential Origin': None, 'Origin Country': country}, ignore_index=True)
+origin_df = pd.DataFrame(index=df_subset.index)
+origin_df =  df_subset['Country Of Origin'].apply(categorize_country)
 
+print(origin_df)
+
+df_subset['Country Of Origin']
+
+
+
+
+
+
+# view the modified rows_df
+# print(rows_df)
 
 
 

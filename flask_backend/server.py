@@ -28,6 +28,8 @@ from werkzeug.utils import secure_filename
 # from dotenv import load_dotenv
 # load_dotenv(find_dotenv())
 
+# use pyPDF2 instead of fitz?
+
 # from PyPDF2 import PdfFileReader, PdfFileWriter
 # from processing.script import parse_args
 # from processing.main import process_file
@@ -113,7 +115,6 @@ def process():
             error_response = {"error": "Missing form option"}
             return error_response, 400
             
-        
         """From the immutablemultidict we can read the file data"""
         file = request.files["file"].read()
 
