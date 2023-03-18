@@ -1,5 +1,6 @@
 import React from 'react';
 import MenuItems from '../data/MenuItems';
+// @ts-ignore  
 import SidebarListItem from './SidebarListItem';
 
 // interface ISidebarProps {
