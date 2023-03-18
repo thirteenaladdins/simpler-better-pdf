@@ -1,30 +1,33 @@
-export default {
+module.exports = {
   env: {
     browser: true,
+    commonjs: true,
     es2021: true,
   },
   extends: [
+    // 'plugin:next/recommended',
     'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:@next/next/recommended',
-    'plugin:@typescript-eslint/recommended',
     'airbnb-typescript',
   ],
-  overrides: [],
+  parser: '@typescript-eslint/parser',
+  overrides: [
+  ],
   parserOptions: {
     ecmaVersion: 'latest',
-    sourceType: 'module',
-    parser: '@typescript-eslint/parser',
-    project: './nextjs-frontend/tsconfig.json',
-    // tsconfigRootDir: './nextjs-frontend',
+    project: 'tsconfig.json',
   },
   plugins: [
-    '@typescript-eslint',
     'react',
-    'import'
+    'import',
   ],
   rules: {
     'linebreak-style': 'off',
-    'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
+    // '@typescript-eslint/indent': ['error', 2],
+    // 'react/jsx-filename-extension': ['error', { extensions: ['.jsx', '.tsx'] }],
   },
+  settings: {
+    react: {
+      version: 'detect'
+    },
+  }
 };

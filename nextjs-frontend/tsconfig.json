@@ -17,6 +17,6 @@
     "downlevelIteration": true
   },
   // "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/index.tsx", "utils/parseJsonData.js", "utils/processAllFiles.js", "pages/api/uploadFile.js", "components/Extractor.jsx"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "nextjs-frontend/eslintrc.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", ".eslintrc.js"],
   "exclude": ["node_modules"]
 }

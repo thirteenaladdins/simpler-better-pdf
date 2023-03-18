@@ -1,7 +1,7 @@
-import React, { ReactNode, useContext } from 'react';
+import React, { ReactNode } from 'react';
 import SideBar from '../components/SideBar';
 import NavigationBar from '../components/NavigationBar';
-import AppContextProvider, { AppContext } from '../context/AppContext';
+// import AppContextProvider, { AppContext } from '../context/AppContext';
 
 // import
 // import './Layout.css';

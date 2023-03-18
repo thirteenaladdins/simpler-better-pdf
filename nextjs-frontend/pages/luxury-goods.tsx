@@ -7,12 +7,6 @@ export default function LuxuryGoods(): JSX.Element {
     const {
         option,
         setOption,
-        // errorNotification,
-        // setErrorNotification,
-        // hideNav,
-        // setHideNav,
-        // hideInfo,
-        // setHideInfo,
     } = useContext(AppContext);
 
     // const displayErrorNotification = (): string => {
@@ -24,38 +18,16 @@ export default function LuxuryGoods(): JSX.Element {
     //         return errorNotification;
     //     }
 
-    //     return `Selected ${option} to extract`;
-    // };
-
-    // const getHideNav = (e: boolean): void => {
-    //     setHideNav(e);
-    // };
-
-    // const getHideInfo = (e: boolean): void => {
-    //     setHideInfo(e);
-    // };
-
     return (
         <AppContextProvider
             value={{
                 option,
                 setOption,
-                // errorNotification,
-                // setErrorNotification,
-                // hideNav,
-                // setHideNav,
-                // hideInfo,
-                // setHideInfo,
             }}
         >
             {/* do I need the setoption here? */}
             <Layout setOption={setOption} option={option} >
-                <Extractor
-                // option={option}
-                // hideNav={getHideNav} 
-                // errNotif={setErrorNotification}
-                // hideInfo={getHideInfo}
-                />
+                <Extractor />
             </Layout>
         </AppContextProvider>
     );
