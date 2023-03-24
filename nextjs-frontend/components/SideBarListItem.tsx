@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { AppContext } from '../context/AppContext';
 
 interface ISideBarListItemProps {
   item: {
@@ -8,33 +7,31 @@ interface ISideBarListItemProps {
     url: string;
     cName: string;
   };
-  // option: string;
 }
 
+const translateUrlToTitle = (url: string): string => {
+  switch (url) {
+    case '/home':
+      return 'Siemens Regex';
+    case '/luxury-goods':
+      return 'Luxury Goods';
+    case '/als-logo-header':
+      return 'ALS Header';
+    default:
+      return '';
+  }
+};
+
 export default function SideBarListItem({ item }: ISideBarListItemProps) {
-  const { option, setOption } = useContext(AppContext);
   const router = useRouter();
 
   const handleClick = () => {
-    setOption(item.title);
     localStorage.setItem('option', item.title);
     router.push(item.url);
   };
 
-  const selectedClass = useMemo(() => (option === item.title ? 'selected' : ''), [option, item.title]);
-
-  useEffect(() => {
-    const storedOption = localStorage.getItem('option');
-    if (storedOption) {
-      setOption(storedOption);
-      // console.log(storedOption);
-      // console.log(option);
-    }
-  }, [setOption, option]);
-
-  useEffect(() => {
-    console.log('Option changed:', option);
-  }, [option]);
+  const currentTitle = translateUrlToTitle(router.pathname);
+  const selectedClass = useMemo(() => (currentTitle === item.title ? 'selected' : ''), [currentTitle, item.title]);
 
   return (
     <li className={item.cName}>

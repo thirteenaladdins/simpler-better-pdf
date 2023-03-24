@@ -3,17 +3,6 @@ import MenuItems from '../data/MenuItems';
 // @ts-ignore  
 import SideBarListItem from './SideBarListItem';
 
-// interface ISidebarProps {
-//   setOption: (option: string) => void;
-//   option: string;
-// }
-
-// type SidebarProps = {
-//   setOption: (e: string) => void;
-//   option: string;
-// }
-
-
 // export default function Sidebar({ setOption, option }: ISidebarProps) {
 export default function Sidebar() {
   return (

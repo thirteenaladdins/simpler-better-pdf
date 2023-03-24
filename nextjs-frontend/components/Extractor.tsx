@@ -8,19 +8,12 @@ import { AppContext } from '../context/AppContext';
 export type ExtractorState = {
   displayComponent: 'default_component' | 'download_component' | 'list_component' | 'invalid_file_component';
   selectedFiles: File[];
-  // returnedData: BlobPart;
-  returnedData: string;
+  returnedData: string | Blob;
   loading: boolean;
   downloadFile: boolean;
-  // hideNav: boolean;
+  fileType: string;
+  fileName: string;
 };
-
-// type ExtractorProps = {
-//   option: string;
-//   // errNotif: (message: string) => void;
-//   // hideNav: () => void;
-//   // hideInfo: () => void;
-// };
 
 const initialState: ExtractorState = {
   displayComponent: 'default_component',
@@ -28,28 +21,38 @@ const initialState: ExtractorState = {
   returnedData: '',
   loading: false,
   downloadFile: false,
-  // hideNav: false,
+  fileType: '',
+  fileName: '',
 };
 
-function Extractor(): JSX.Element {
+type ExtractorProps = {
+  fileType: string;
+  fileName: string;
+};
+
+function Extractor({ fileType, fileName }: ExtractorProps): JSX.Element {
   const [state, setState] = useState<ExtractorState>(initialState);
-  // const { errNotif, hideNav, hideInfo, option } = props;
-  // const { option } = props;
   const appContext = useContext(AppContext);
 
-  // const decoder = new TextDecoder('utf-8');
-  // const data = decoder.decode(blob);
+  // const updateFileDetails = (fileType: string, fileName: string) => {
+  //   setState((prevState) => ({
+  //     ...prevState,
+  //     fileType,
+  //     fileName,
+  //   }));
+  // };
+
+  console.log(state);
 
   const renderSwitch = () => {
     switch (state.displayComponent) {
       case 'download_component':
-        return <DownloadButton data={state.returnedData} />;
+        return <DownloadButton data={state.returnedData} fileType={fileType} fileName={fileName} />;
       case 'list_component':
         return (
           <ListView
             state={state}
             setState={setState}
-            // hideInfo={hideInfo}
             option={appContext.option}
           />
         );
@@ -61,8 +64,7 @@ function Extractor(): JSX.Element {
           <DropArea
             state={state}
             setState={setState}
-          // errNotif={errNotif}
-          // hideNav={hideNav}
+          // updateFileDetails={updateFileDetails}
           />
         );
     }
@@ -72,3 +74,5 @@ function Extractor(): JSX.Element {
 }
 
 export default Extractor;
+
+

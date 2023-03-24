@@ -6,7 +6,7 @@ function NavigationBar() {
   return (
     <div className="main-navbar font-sans">
       <div className="title">
-        Magic Extractor V2
+        ALS Toolkit - Powered by Flask and NextJS
       </div>
     </div>
   );

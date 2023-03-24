@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 type AppContextProps = {
   option: string;
@@ -31,11 +31,20 @@ type AppContextProviderProps = {
   children: React.ReactNode;
 };
 
-function AppContextProvider({ children }: AppContextProviderProps) {
-  const [option, setOption] = useState('Siemens Regex');
+function AppContextProvider({ value, children }: AppContextProviderProps) {
+  const [option, setOption] = useState(value.option);
   const [errorNotification, setErrorNotification] = useState('');
   const [hideNav, setHideNav] = useState(false);
   const [hideInfo, setHideInfo] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedOption = localStorage.getItem('option');
+      if (storedOption) {
+        setOption(storedOption);
+      }
+    }
+  }, []);
 
   return (
     <AppContext.Provider

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// let failedRequests = 0;
-
 interface UploadFileResponseData {
-  data: string;
+  // data: any; // Change from string to any as response can be anything
   error?: string;
+  contentType: string;
+  dataObject?: any;
 }
 
 const uploadFile = async (file: File, option: string): Promise<UploadFileResponseData> => {
@@ -23,12 +23,21 @@ const uploadFile = async (file: File, option: string): Promise<UploadFileRespons
         'Access-Control-Allow-Origin': '*',
       },
     });
-    // FIXME: remove this
-    console.log(response);
-    return response;
+
+    const contentType = response.headers['content-type']; // use brackets instead of get() 
+    
+    // console.log(contentType)
+    // console.log(response.data);
+
+    const dataObject = response.data;
+    // console.log(dataObject);
+
+    return {
+      contentType,
+      dataObject,
+    };
   } catch (error) {
     console.error(error);
-    // failedRequests += 1;
     throw error;
   }
 };

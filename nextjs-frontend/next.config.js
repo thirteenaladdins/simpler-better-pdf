@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const path = require('path');
+// const path = require('path');
 require('dotenv').config();
 
 module.exports = {
@@ -24,9 +24,9 @@ module.exports = {
   //   outputStandalone: true,
   // },
   output: 'standalone',
-  sassOptions: {
-    includePaths: [path.join(__dirname, 'styles')],
-  },
+  // sassOptions: {
+  //   includePaths: [path.join(__dirname, 'styles')],
+  // },
   // env: {
   //   ENV_URL: 'http://localhost:8080',
   // },

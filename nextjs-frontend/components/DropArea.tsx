@@ -23,7 +23,7 @@ interface DropAreaProps {
   // hideNav: (arg: boolean) => void;
 }
 
-const count = 50;
+const count = 100;
 const formats = ['pdf'];
 
 function DropArea(props: DropAreaProps): JSX.Element {
@@ -35,6 +35,7 @@ function DropArea(props: DropAreaProps): JSX.Element {
   } = props;
 
   const dropArea = ref.current;
+
 
   function handleDrop(e: DragEvent): File[] | null {
     e.preventDefault();
@@ -66,6 +67,17 @@ function DropArea(props: DropAreaProps): JSX.Element {
       // errNotif(`Only the following file formats are acceptable: ${formats.join(', ')}`);
       return null;
     }
+
+    // const { files } = e.target;
+    // if (files) {
+    // const fileList = [...files];
+    setState({
+      ...state,
+      selectedFiles: fileList,
+      displayComponent: 'list_component',
+    });
+    // }
+    // return files;
 
     return fileList;
   }
