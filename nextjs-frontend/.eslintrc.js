@@ -15,7 +15,7 @@ module.exports = {
   ],
   parserOptions: {
     // ecmaVersion: 'latest',
-    project: 'nextjs-frontend/tsconfig.json',
+    project: 'tsconfig.json',
   },
   plugins: [
     'react',
