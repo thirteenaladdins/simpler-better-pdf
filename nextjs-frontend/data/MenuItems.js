@@ -1,6 +1,6 @@
 const MenuItems = [
   // TODO: disable for now - fix options - make sure this updates with the state
-  { title: 'Siemens Regex', url: 'siemens-regex', cName: 'sidebar-item' },
+  { title: 'Siemens Regex', url: 'home', cName: 'sidebar-item' },
   { title: 'Luxury Goods', url: 'luxury-goods', cName: 'sidebar-item' },
   { title: 'ALS Header', url: 'als-logo-header', cName: 'sidebar-item' },
   // { title: 'Hb Fuller', url: '#', cName: 'sidebar-item' },
