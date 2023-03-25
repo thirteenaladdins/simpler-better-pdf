@@ -4,6 +4,7 @@ from itertools import combinations
 import pandas as pd
 from utils.helpers import Helpers
 
+
 alpha = re.compile('[a-zA-Z]')
 num = re.compile('\d')
 tariff = re.compile('\d{8}')
@@ -33,7 +34,7 @@ def extract_net_weight(full_text):
 
     # this does not always get the correct data
     net_weight = search_net_weight[0].split('\n')[-1]
-    formatted_net_weight = net_weight.replace(',', '.').replace('KG', ' ')    
+    formatted_net_weight = net_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
     return formatted_net_weight
     
 # 'TOTAL GW'
@@ -43,8 +44,7 @@ def extract_gross_weight(full_text):
 
     # this does not always get the correct data
     gross_weight = search_gross_weight[0].split('\n')[-4]
-    formatted_gross_weight = gross_weight.replace(',', '.').replace('KG', ' ')    
-    
+    formatted_gross_weight = gross_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
     return formatted_gross_weight
 
 def extract_total_packages(full_text):
@@ -260,8 +260,12 @@ def extract_luxury_goods_data(file):
     
     all_matches = extract_items(full_text)
 
+    # extract net weight
     total_net_weight = extract_net_weight(full_text)
+
+    # extract gross weight
     total_gross_weight = extract_gross_weight(full_text)
+
     total_cartons = extract_total_packages(full_text)
     # print(total_net_weight, total_gross_weight, total_cartons)
     
@@ -280,6 +284,8 @@ def extract_luxury_goods_data(file):
         i.append(j)
         item_list.append(i)
         
+    print("item_list:", item_list)
+
     df = pd.DataFrame(item_list)
     
     # Set initial values for Total Net Weight, Total Gross Weight, and Total Cartons
@@ -292,9 +298,10 @@ def extract_luxury_goods_data(file):
         "Commodity Code", "Value", "Country of Origin", "Invoice", "Description",
         "Quantity", "Total Net Weight", "Total Gross Weight", "Total Cartons"
     ]
-
+    
     # Calculate the pro-rated weights
     total_value = df['Value'].sum()
+
     pro_rated_net_weight = (float(df.at[0, 'Total Net Weight']) / total_value) * df['Value']
     pro_rated_gross_weight = (float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value']
 
@@ -302,6 +309,11 @@ def extract_luxury_goods_data(file):
     df.insert(loc=6, column='Pro-rated Net Weight', value=pro_rated_net_weight)
     df.insert(loc=7, column='Pro-rated Gross Weight', value=pro_rated_gross_weight)
 
+    # remove this as the value is not always calculated correctly
+    # df.drop(['Quantity'], axis=1, inplace=True)
+    
+    # df.drop("Quantity")
+    # print(df)
     return df
 
 

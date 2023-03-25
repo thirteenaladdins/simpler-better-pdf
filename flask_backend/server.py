@@ -1,6 +1,9 @@
 import os
 from luxury_goods import extract_luxury_goods_data
 from siemens import Siemens
+from als_header.pdf_add_header_footer import add_header_footer_to_pdf
+
+import base64
 
 # create a route that sends the information over from flask
 
@@ -14,10 +17,12 @@ from flask import (
     jsonify,
     request,
     redirect,
+    Response,
+    send_file,
+    send_from_directory,
+    abort,
     url_for,
     render_template,
-    send_from_directory,
-    Response,
     flash,
 )
 
@@ -75,7 +80,6 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-
 # reorder this list. 
 headers_list = ["tariff", "description", "quantity", "gross", "net", "value", "invoice"]
 
@@ -98,7 +102,30 @@ def index():
 # TODO: add all the checks and balances here
 # so pass the file to this route on the backend
 
-# we ping the api once per file and wait until each file has been processed
+# we ping the api once per file and wait until each file has been processed, ,
+
+# http://localhost:591/api/fetch_file/2022_9_20800.PDF_modified.pdf
+
+# I want to remove the file from the directory after
+# is this a security risk?
+@app.route('/api/delete_file/<path:filename>')
+def delete_file(filename):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    als_header_dir = os.path.join(script_dir, 'als_header')
+    file_path = os.path.join(als_header_dir, filename)
+    os.remove(file_path)
+    response = make_response('')
+    return response
+
+@app.route('/api/fetch_file/<path:filename>')
+def fetch_file(filename):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    als_header_dir = os.path.join(script_dir, 'als_header')
+    file_path = os.path.join(als_header_dir, filename)
+
+    return send_file(file_path)
+
+
 
 @app.route("/api/processfile", methods=["POST"])
 def process():
@@ -117,22 +144,44 @@ def process():
             
         """From the immutablemultidict we can read the file data"""
         file = request.files["file"].read()
+        file_name = request.files["file"].filename
 
-        """ Process the file here - return the dataframe """
         if request.form["option"] == "Siemens Regex":
             processed_file = Siemens.extract_siemens(file)
+            response_data = {"type": "csv", "data": processed_file.to_json(orient="records")}
 
         elif request.form["option"] == "Luxury Goods":
             processed_file = extract_luxury_goods_data(file)
+            response_data = {"type": "csv", "data": processed_file.to_json(orient="records")}
+
+        elif request.form["option"] == "ALS Header":
+            # returns the file name, side effect of writing the file to the 
+            # script directory
+            processed_file = add_header_footer_to_pdf(file_name, file)
+            
+            # response_data = {"type": "PDF", "data": processed_file}
+            # run script, write file, fetch file from the server
+            # sent to frontend
+
+            # script_dir = os.path.dirname(os.path.abspath(__file__))
+
+            # als_header_dir = os.path.join(script_dir, 'als_header')
+            # # print(processed_file, font_dir)
+            # header_file_path = als_header_dir + processed_file
+            
+            # this is just a string, but could I tag the type as application/pdf?
+            return Response(response=processed_file, content_type='application/pdf')
+        
+            # return Response(response=processed_file, content_type='application/pdf')
+            # return Response(response=pdf_data_base64, content_type='application/pdf')
 
         else: 
             # Return an error if form option is invalid
             error_response = {"error": "Invalid form option"}
             return error_response, 400
 
-        return processed_file.to_json(orient="records")
+        return jsonify(response_data)
 
-        
 
 @app.errorhandler(404)
 def not_found(e):
