@@ -137,6 +137,12 @@ def add_header_footer_to_pdf(file_name, input_file):
         with open(file_path, "wb") as out:
             writer.write(out)
 
+        if os.path.exists(file_path):
+            print(f"File {output_file_name} created successfully at {file_path}")
+        else:
+            print(f"Error occurred while creating {output_file_name}")
+
+        # now check if the file has been successfully created
         return output_file_name
         
     except Exception as e:
