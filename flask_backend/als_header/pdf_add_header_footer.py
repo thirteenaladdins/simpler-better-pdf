@@ -129,7 +129,9 @@ def add_header_footer_to_pdf(file_name, input_file):
 
     # Create the output file name
     output_file_name = file_name + "_modified.pdf"
-    file_path = f'{als_header_dir}\{output_file_name}'
+
+    # does the backslash/forward slash depend on the os?
+    file_path = f'{als_header_dir}/{output_file_name}'
     
 
     try:
