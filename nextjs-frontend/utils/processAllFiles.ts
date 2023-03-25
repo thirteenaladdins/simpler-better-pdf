@@ -39,13 +39,13 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
           });
           
           // Send the delete request after the file has been fetched successfully
-          try {
-            await axios.get(`${url}/api/delete_file/${encodeURIComponent(dataObject)}`);
-            console.log('File deleted successfully');
-          } catch (error) {
-            console.error('Error deleting file:', error);
-          }
-          
+          // try {
+          //   await axios.get(`${url}/api/delete_file/${encodeURIComponent(dataObject)}`);
+          //   console.log('File deleted successfully');
+          // } catch (error) {
+          //   console.error('Error deleting file:', error);
+          // }
+
           return response.data;
 
         } else {
