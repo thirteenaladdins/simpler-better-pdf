@@ -47,10 +47,10 @@ A MEMBER OF RHENUS LOGISTICS"""
 
 
 # Get the current script's directory
-script_dir = os.path.dirname(os.path.abspath(__file__))
 
+als_header_dir = os.path.join(os.getcwd(), 'als_header')
 # Define the font directory and file relative to the script's directory
-font_dir = os.path.join(script_dir, '..', 'fonts')
+font_dir = os.path.join(als_header_dir, '..', 'fonts')
 font_file = "OpenSans-Regular.ttf"
 
 # Create the font path and register the font
@@ -78,7 +78,7 @@ def add_header_footer_to_pdf(file_name, input_file):
     # input image file, then convert, then import into this script?
     try:
 
-        encoded_image_path = os.path.join(script_dir, 'output.txt')
+        encoded_image_path = os.path.join(als_header_dir, 'output.txt')
 
         with open(encoded_image_path, 'r') as f:
             encoded_image_data = f.read()
@@ -129,7 +129,7 @@ def add_header_footer_to_pdf(file_name, input_file):
 
     # Create the output file name
     output_file_name = file_name + "_modified.pdf"
-    file_path = f'{script_dir}\{output_file_name}'
+    file_path = f'{als_header_dir}\{output_file_name}'
     
 
     try:

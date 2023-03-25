@@ -46,14 +46,14 @@ __pycache__/
 
 # other 
 pdf
-tmp
+# tmp
 
 # C extensions
 *.so
 
 # Distribution / packaging
 pdf
-tmp
+
 Scripts
 .Python
 build/
