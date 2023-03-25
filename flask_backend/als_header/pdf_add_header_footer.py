@@ -1,6 +1,6 @@
 # Import the required modules
 import sys
-from PyPDF2 import PdfReader, PdfWriter
+from PyPDF4 import PdfFileReader, PdfFileWriter, PdfFileMerger
 from reportlab.pdfgen import canvas
 import textwrap
 
@@ -57,17 +57,23 @@ font_file = "OpenSans-Regular.ttf"
 font_path = os.path.join(font_dir, font_file)
 pdfmetrics.registerFont(TTFont("OpenSans", font_path))
 
+
+
+from PyPDF4 import PdfFileMerger, PdfFileReader
+
+
+
 def add_header_footer_to_pdf(file_name, input_file):
     # Create a PdfFileReader object to read the input file
     try:
         # reader = PdfReader(input_file)
-        reader = PdfReader(io.BytesIO(input_file))
+        reader = PdfFileReader(io.BytesIO(input_file))
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
 
     # Create a PdfFileWriter object to write the output file
-    writer = PdfWriter()
+    writer = PdfFileWriter()
 
     # input image file, then convert, then import into this script?
     try:
@@ -112,12 +118,12 @@ def add_header_footer_to_pdf(file_name, input_file):
         canvas_obj.save()
 
         # Merge the canvas object with the current page
-        watermark = PdfReader("temp.pdf")
-        page.merge_page(watermark.pages[0])
+        watermark = PdfFileReader("temp.pdf")
 
-        # Add the modified page to the output file
-        writer.add_page(page)
-
+        watermark_page = watermark.getPage(0)
+        watermark_page.mergePage(page)
+        writer.addPage(watermark_page)
+        
         # remove temp.pdf
         os.remove("temp.pdf")
 
@@ -125,6 +131,7 @@ def add_header_footer_to_pdf(file_name, input_file):
     output_file_name = file_name + "_modified.pdf"
     file_path = f'{script_dir}\{output_file_name}'
     
+
     try:
         # create a temporary directory to write this to
         with open(file_path, "wb") as out:
