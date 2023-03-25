@@ -97,7 +97,7 @@ def allowed_file(filename):
 @app.route("/", methods=["GET", "POST"])
 def index():
     # return ('', 204)
-    return 'Magic Extractor api deployed'
+    return 'Magic Extractor api deployed'   
 
 # TODO: add all the checks and balances here
 # so pass the file to this route on the backend
@@ -110,8 +110,7 @@ def index():
 # is this a security risk?
 @app.route('/api/delete_file/<path:filename>')
 def delete_file(filename):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    als_header_dir = os.path.join(script_dir, 'als_header')
+    als_header_dir = os.path.join(os.getcwd(), 'als_header')
     file_path = os.path.join(als_header_dir, filename)
     os.remove(file_path)
     response = make_response('')
@@ -119,12 +118,16 @@ def delete_file(filename):
 
 @app.route('/api/fetch_file/<path:filename>')
 def fetch_file(filename):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    als_header_dir = os.path.join(script_dir, 'als_header')
+    als_header_dir = os.path.join(os.getcwd(), 'als_header')
     file_path = os.path.join(als_header_dir, filename)
 
-    return send_file(file_path)
+    if not os.path.exists(file_path):
+        print(f"File not found: {file_path}")
+        return make_response("File not found", 404)
 
+    print(f"File path: {file_path}")
+
+    return send_file(file_path)
 
 
 @app.route("/api/processfile", methods=["POST"])
