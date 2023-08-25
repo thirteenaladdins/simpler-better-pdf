@@ -2,11 +2,9 @@ import parseJsonData from './parseJsonData';
 import uploadFile from '../pages/api/uploadFile';
 import axios from 'axios';
 
-// instead of parsing this data, we write the file to the disk, 
-// then we fetch the data and send it to the frontend and allow that file to be downloaded
-
 const processAllFiles = async (files: File[], option: string): Promise<string> => {
   const responses: any[] = [];
+  let isFirstFile = true;
 
   for (const file of files) {
     try {
@@ -17,18 +15,17 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
         throw new Error(responseData.error);
       } else {
         const { contentType, dataObject } = responseData;
-        // console.log(contentType)
         
         if (contentType === 'application/json') {
-          
-          // get a key using square brackets?
-          
-          responses.push(parseJsonData(JSON.parse(dataObject.data)));
-        
-        // this here will be only if there's a single file
+          const parsedData = parseJsonData(JSON.parse(dataObject.data)).split("\r\n");
+
+          if (isFirstFile) {
+              responses.push(...parsedData);
+              isFirstFile = false;
+          } else {
+              responses.push(...parsedData.slice(1));
+          }
         } else if (contentType === 'application/pdf') { 
-          
-          // this is the file path - this needs to be a url
           const baseUrl = process.env.NODE_ENV === 'production'
             ? 'https://magic-extractor-v2.herokuapp.com'
             : 'http://localhost:591';
@@ -37,14 +34,6 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
           const response = await axios.get(`${url}/api/fetch_file/${encodeURIComponent(dataObject)}`, {
             responseType: 'blob',
           });
-          
-          // Send the delete request after the file has been fetched successfully
-          // try {
-          //   await axios.get(`${url}/api/delete_file/${encodeURIComponent(dataObject)}`);
-          //   console.log('File deleted successfully');
-          // } catch (error) {
-          //   console.error('Error deleting file:', error);
-          // }
 
           return response.data;
 
@@ -58,18 +47,11 @@ const processAllFiles = async (files: File[], option: string): Promise<string> =
     }
   }
 
+  console.log(responses);
 
-  
-  const combinedResponses = responses.flat();
-  console.log(combinedResponses);
-  
-  // Handle combinedResponses appropriately
-  // e.g., convert it to CSV or combine JSON and PDF data, depending on your requirements
-  const combinedString = combinedResponses.join(','); // concatenate array elements with a comma separator
-  
-  // return combinedResponses;
+  const combinedString = responses.join("\r\n"); // Concatenate array elements with newline.
+
   return combinedString;
-
 };
 
 export default processAllFiles;
