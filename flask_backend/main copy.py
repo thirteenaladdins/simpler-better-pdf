@@ -17,6 +17,9 @@ from numpy import extract, full
 # get only matches after -Tariff Code- # get descriptions from each invoice from this point forward 
 # get net weight from this point forward
 
+# remove the 
+# also I can use pypdf or whatever the other thing is
+
 def load_pdf(path_to_pdf):
     doc = fitz.open(path_to_pdf)
     

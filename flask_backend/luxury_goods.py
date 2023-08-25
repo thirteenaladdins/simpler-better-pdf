@@ -3,7 +3,10 @@ import re
 from itertools import combinations
 import pandas as pd
 from utils.helpers import Helpers
+import unittest
 
+# remove asterisks in invoice numbers
+# add conversion of country of origins to 2 letter country codes
 
 alpha = re.compile('[a-zA-Z]')
 num = re.compile('\d')
@@ -19,13 +22,17 @@ def extract_invoice_no(path_to_pdf):
 
     split = first_page.split('\n')
 
-    try: 
+    try:
         index_no = split.index('INVOICE')
         invoice_no = split[index_no + 1]
-        return invoice_no
-    except:
-        # return 'No Invoice Number found'
-        return 'No invoice number found'
+        new_invoice_no = invoice_no.replace('*', '')
+        return new_invoice_no
+    
+    except ValueError:
+        return "INVOICE not found in list"
+    
+    except IndexError:
+        return "No element after INVOICE in list"
 
 
 # 'TOTAL NW'
@@ -40,7 +47,7 @@ def extract_net_weight(full_text):
 # 'TOTAL GW'
 def extract_gross_weight(full_text):
     search_gross_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
-    print(search_gross_weight, flush=True)
+    # print(search_gross_weight, flush=True)
 
     # this does not always get the correct data
     gross_weight = search_gross_weight[0].split('\n')[-4]
@@ -61,7 +68,6 @@ def find_value(items_list):
     # print(items_list, flush=True)
     number_array = []
 
-    
     for value in items_list:
         if ',' in value:
             if not re.search(alpha, value):
@@ -195,40 +201,104 @@ def filter_numbers(item_list):
     return filtered_list
 
 def find_quantity_in_list(item_list, value):
+
+    # change this. we need to do this in reverse
+    def apply_discount(value, discount):
+        return value * (1 - discount)
+
+    # what does this do?
+    def approximate_equal(a, b, tolerance=0.01):
+        return abs(a - b) <= tolerance
+
+    def parse_discount(discount_str):
+        # Convert comma to dot and remove % sign, then split on slash
+        return [float(d.replace(',', '.')) for d in discount_str.replace('%', '').split('/')]
+    
+    def apply_all_discounts(value, discounts):
+        if not discounts:
+            return value
+        
+        discount = discounts[0]
+        discounted_value = apply_discount(value, discount / 100)
+        return apply_all_discounts(discounted_value, discounts[1:])
+
+
+    def find_quantity_and_unit_price(numbers, total_value, full_list):
+
+        # Extract integers from the full_list
+        # int_values = [float(item) for item in full_list if re.match(r'^\d+$', item)]
+        print('total_value', total_value)
+        # Get all combinations of two numbers from the list
+        for a, b in combinations(numbers, 2):
+            product = float(a) * float(b)
+            # print(product, a, b)
+            if abs(product - total_value) < 0.01:
+                # so return both a and b here - as these will be the correct values
+                # return the quantity here?
+                string_a = str(a)
+                string_b = str(b)
+                
+                # keep only integers, then fetch the final number from the list
+                if '.' in string_a:
+                    quantity = string_a
+                
+                else:
+                    quantity = string_b
+                # if the strings are exact then return
+
+
+                return quantity
+                
+        # If direct multiplication didn't give the expected total_value, consider the discounts
+        discounts = [item for item in full_list if '%' in item]
+        
+        discount_values = parse_discount(discounts[0])
+        print("discounts", discount_values)
+
+        # for each combination of the values, apply the discounts
+        for a, b in combinations(numbers, 2):
+            product = float(a) * float(b)
+            discounted_value = apply_all_discounts(product, discount_values)
+            
+            if approximate_equal(total_value, discounted_value):
+                # here - remove the final value from a and b
+                # retain only the integer
+                if '.' not in a:
+                    print('a', a)
+                    return a
+                
+                else:
+                    print('b', b)
+                    return b
+                
+        return None
+
     final_list = []
 
     for item in item_list:
         new_list = item.split('\n')
-        item_list_to_process = [k for k in new_list if '%' not in k]
+        full_list = [k for k in new_list if not re.fullmatch(r'\d{8}', k)] # retain discounts for later use
+        item_list_to_process = [k for k in full_list if '%' not in k]
+
         value = find_value(item_list_to_process)
 
         filtered_list = filter_numbers(item_list_to_process)
         remove_duplicates = sorted(set(filtered_list))
+
+        value_str = "{:.2f}".format(float(value))
+        while value_str in remove_duplicates:
+            remove_duplicates.remove(value_str)
+
+        print('Processed items:', remove_duplicates)
         remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
 
-        all_combinations = list(combinations(remove_leading_zeroes, 2))  
+        potential_quantity = find_quantity_and_unit_price(remove_leading_zeroes, float(value), full_list)
 
-        list_calculated_values = {}
-        list_compare_values = {}
-
-        for each_value in all_combinations:
-            x, y = each_value
-            multiply_value = float(x) * float(y)
-            list_calculated_values[multiply_value] = each_value
-
-            for key in list_calculated_values.keys():
-                difference = float(key) - float(value)
-                list_compare_values[abs(difference)] = key
-
-        value_closest_to_zero = min(list_compare_values.keys())
-        get_delta_key = list_compare_values[value_closest_to_zero]
-        quantity_pair = list_calculated_values[get_delta_key]
-
-        for y in quantity_pair:
-            if '.' not in y:
-                final_list.append(y)
+        if potential_quantity: 
+            final_list.append(potential_quantity)
 
     return final_list
+
 
 def match_descriptions(all_items, descriptions):
     final_list = []
@@ -275,6 +345,7 @@ def extract_luxury_goods_data(file):
         item.append(invoice_no)
 
     # run the below and output into excel format
+
     quantity = find_quantity_in_list(all_matches, 1)
     
     add_descriptions = match_descriptions(formatted_items, descriptions_list)
@@ -284,7 +355,7 @@ def extract_luxury_goods_data(file):
         i.append(j)
         item_list.append(i)
         
-    print("item_list:", item_list)
+    # print("item_list:", item_list)
 
     df = pd.DataFrame(item_list)
     
@@ -302,8 +373,9 @@ def extract_luxury_goods_data(file):
     # Calculate the pro-rated weights
     total_value = df['Value'].sum()
 
-    pro_rated_net_weight = (float(df.at[0, 'Total Net Weight']) / total_value) * df['Value']
-    pro_rated_gross_weight = (float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value']
+    pro_rated_net_weight = round((float(df.at[0, 'Total Net Weight']) / total_value) * df['Value'], 3)
+    pro_rated_gross_weight = round((float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value'], 3)
+
 
     # Insert the pro-rated weight columns at loc 6 and 7
     df.insert(loc=6, column='Pro-rated Net Weight', value=pro_rated_net_weight)
@@ -315,142 +387,3 @@ def extract_luxury_goods_data(file):
     # df.drop("Quantity")
     # print(df)
     return df
-
-
-# # TODO: reimplement quantity extraction:
-# def find_quantity_in_list(item_list, value):
-#     # first - get only the numbers - so where there is an alpha - remove it
-#     # filtered_list = [i for i in item_list if not i.isalpha()]
-    
-#     final_list = []
-
-#     # item list? What is item list? 
-#     for item in item_list:
-#         filtered_list = []
-#         new_list = item.split('\n')
-        
-#         # FIND VALUE - have to remove percent
-#         # percent always refers to a discount value
-#         item_list_to_process = [k for k in new_list if '%' not in k]
-#         # print(item_list_to_process)
-        
-#         # discount = [k for k in new_list if '%' in k]
-
-#         # index = item_list_to_process.index('Made in')
-#         value = find_value(item_list_to_process)
-#         # print('VALUE', value, flush=True)
-
-#         for new_item in item_list_to_process:
-#             if not re.search(alpha, new_item):
-#                 if re.search(num, new_item):
-#                     if not re.search(tariff, new_item):
-                        
-#                         # TODO filter any characters that aren't commas and full stops?
-#                         filtered_list.append(new_item.replace(' ', '').replace('_', '').replace('.', '').replace(',', '.'))
-#                         remove_duplicates = sorted(set(filtered_list))
-#                         remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
-        
-
-#                         #  the biggest problem is my code is hard to follow
-#                         # none of it makes senses 
-#         all_combinations = list(combinations(remove_leading_zeroes, 2))  
-#         # print(all_combinations, flush=True)
-
-#         # this is for each item - a number of combinations for each item.
-#         list_calculated_values = {}
-#         list_compare_values = {}
-
-#         # these seems to work anyway, because when I multiply the values out
-#         # the correct value is always the smallest somehow
-#         for ind, each_value in enumerate(all_combinations):
-#             x, y = each_value
-            
-#             # that might bring me closer to the correct value
-#             multiply_value = float(x) * float(y)
-#             # store this value and the tuple together
-#             list_calculated_values[multiply_value] = each_value
-            
-#             # list of calculated values 
-#             keys_list = list(list_calculated_values.keys()) 
-#             # the difference that is closest to zero is the winner
-#             for key in keys_list:
-#                 # this should equal zero or be close to zero
-#                 # for each 
-#                 difference = float(key) - float(value)
-#                 # print("key", float(key), "value", float(value), "difference", difference, flush=True)
-#                 # print(difference, flush=True)
-                
-#                 # add the difference here - against the multiplied value
-#                 # add the absolute value of the key here 
-#                 # all that matters is how close the difference is to zero - whether it's positive or negative
-
-#                 list_compare_values[abs(difference)] = key
-            
-#             compare_keys = list(list_compare_values.keys())
-#             # print(compare_keys, flush=True)
-
-#         # TODO: get the smallest value? Or really it should be the one that is closest to zero
-#         # get difference between 0 and the value - the smallest difference is the winner
-
-#         # FIXME: here we get min - but really we want the one that is closest to zero
-#         # simplest way is to make all values positive - but in case the smallest value is the negative
-#         # - think about this a bit more. 
-
-#         # i know what to do. don't turn them all positive but instead get the absolute value
-#         # FIXME: it works in some cases but not in others - look at this tomorrow. 
-
-#         value_closest_to_zero = min(compare_keys)
-#         # value_closest_to_zero = min(compare_keys)
-#         # value_closest_to_zero = min(get_absolute_values)
-#         # print(value_closest_to_zero, flush=True)
-
-#         # get the key of the value that is closest to zero
-#         get_delta_key = list_compare_values[value_closest_to_zero]
-        
-#         # what's this?
-#         quantity_pair = list_calculated_values[get_delta_key]
-        
-#         # this is a complicated process - but it works
-#         # at this point in our journey we have a whole number and a number with a decimal
-#         # I want the one that has no dot
-#         # print(quantity_pair)
-                
-#         for y in quantity_pair:
-#             if '.' not in y:
-#                 final_list.append(y)
-
-#         # list_types = [type(k) for k in compare_keys]
-
-#     return final_list
-
-
-
-
-
-# ''' COMPARE TOTALS HERE '''
-# TODO: Extra function here
-#  items_sort = df.sort_values(by=['Commodity Code'])
-
-#     # items_sort['Quantity'] = items_sort["Quantity"].apply(lambda x: float(x))
-#     cols = ['Commodity Code', 'Quantity', 'Value']
-#     items_sort[cols] = items_sort[cols].apply(pd.to_numeric, errors='coerce', axis=1)
-
-#     manually_extracted_totals = items_sort.groupby(['Commodity Code'], as_index=False).sum()
-
-#     manually_extracted_totals =  manually_extracted_totals.reindex(columns=['Commodity Code', 'Quantity', 'Value'])
-#     print(manually_extracted_totals)
-    
-#     totals = extract_total_table_data(full_text)
-    
-#     totals = totals.drop(columns=['Description', 'Net Weight'])
-#     totals[cols] = totals[cols].apply(pd.to_numeric, errors='coerce', axis=1)
-    
-#     # validate function here 
-#     # compared = manually_extracted_totals.compare(totals, align_axis=0, keep_shape=False, keep_equal=False)
-#     # print(compared)
-#     manually_extracted_totals['quantities_match'] = np.where(manually_extracted_totals['Quantity'] == totals['Quantity'], 'True', 'False')
-#     manually_extracted_totals['value_match'] = np.where(manually_extracted_totals['Value'] == totals['Value'], 'True', 'False')
-#     # compare the two dataframes here - add an extra column to the totals dataframe
-    
-#     # this is complete spaghetti 
-#     print(manually_extracted_totals)
