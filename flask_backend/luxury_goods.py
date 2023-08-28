@@ -249,17 +249,19 @@ def find_quantity_in_list(item_list, value):
                 # return the quantity here?
                 string_a = str(a)
                 string_b = str(b)
-                
+                print('candidates', string_a, string_b)
                 # keep only integers, then fetch the final number from the list
-                if '.' in string_a:
+                if '.' not in string_a:
                     quantity = string_a
+                    return quantity
                 
                 else:
                     quantity = string_b
+                    return quantity
                 # if the strings are exact then return
 
 
-                return quantity
+                
                 
         # If direct multiplication didn't give the expected total_value, consider the discounts
         discounts = [item for item in full_list if '%' in item]
