@@ -5,8 +5,9 @@ import pandas as pd
 from utils.helpers import Helpers
 import unittest
 
-# remove asterisks in invoice numbers
 # add conversion of country of origins to 2 letter country codes
+# change output file name 
+# output worksheet - give a second option to output ASM worksheet
 
 alpha = re.compile('[a-zA-Z]')
 num = re.compile('\d')
@@ -39,30 +40,41 @@ def extract_invoice_no(path_to_pdf):
 def extract_net_weight(full_text):
     search_net_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
 
-    # this does not always get the correct data
-    net_weight = search_net_weight[0].split('\n')[-1]
-    formatted_net_weight = net_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
-    return formatted_net_weight
+    # TODO: fix - this does not always get the correct data
+    if search_net_weight:
+        net_weight = search_net_weight[0].split('\n')[-1]
+        formatted_net_weight = net_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
+        return formatted_net_weight
+    else:
+        formatted_net_weight = None
     
 # 'TOTAL GW'
 def extract_gross_weight(full_text):
     search_gross_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
     # print(search_gross_weight, flush=True)
 
-    # this does not always get the correct data
-    gross_weight = search_gross_weight[0].split('\n')[-4]
-    formatted_gross_weight = gross_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
-    return formatted_gross_weight
+    # TODO: fix - this does not always get the correct data
+    if search_gross_weight:
+        gross_weight = search_gross_weight[0].split('\n')[-4]
+        formatted_gross_weight = gross_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
+        return formatted_gross_weight
+    else: 
+        formatted_gross_weight = None
 
+
+# 'TOTAL PACKAGES'
 def extract_total_packages(full_text):
 
     search_total_packages = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
 
-    # this does not always get the correct data
-    total_packages = search_total_packages[0].split('\n')[-7]
-    formatted_total_packages = total_packages.replace(',', '.').replace('KG', ' ')    
-    
-    return formatted_total_packages
+    # TODO: fix - this does not always get the correct data
+    if search_total_packages:
+        total_packages = search_total_packages[0].split('\n')[-7]
+        formatted_total_packages = total_packages.replace(',', '.').replace('KG', ' ')    
+        
+        return formatted_total_packages
+    else: 
+        formatted_total_packages = None
     
 def find_value(items_list):
     # print(items_list, flush=True)
@@ -135,22 +147,22 @@ def extract_total_table_data(full_text):
     return df
 
 def extract_descriptions(full_text):
-    
     tariff_code_segment = full_text.split('\n')
+    rejoined_text = ""  # Default value
+
     try:
         index_of = tariff_code_segment.index("ENCLOSED TARIFF CODE")
         tariff_page_segment = tariff_code_segment[index_of:]
-        rejoined_text =' '.join(tariff_page_segment)
-    except:
-        pass
+        rejoined_text = ' '.join(tariff_page_segment)
+    except ValueError as e:
+        print(f"Error: {e}. 'ENCLOSED TARIFF CODE' not found.")
+        return []  # Return an empty list
 
     description_list = []
-
     all_items = re.findall(r'\d{8} .*?GBP .*?Kg', rejoined_text)
     
     for item in all_items:
         split = item.split(' ')
-
         try:
             GBP_index = split.index("GBP")
             description_list.append(split[:GBP_index-1])
@@ -252,24 +264,25 @@ def find_quantity_in_list(item_list, value):
         # If direct multiplication didn't give the expected total_value, consider the discounts
         discounts = [item for item in full_list if '%' in item]
         
-        discount_values = parse_discount(discounts[0])
-        print("discounts", discount_values)
+        if discounts:
+            discount_values = parse_discount(discounts[0])
+            print("discounts", discount_values)
 
-        # for each combination of the values, apply the discounts
-        for a, b in combinations(numbers, 2):
-            product = float(a) * float(b)
-            discounted_value = apply_all_discounts(product, discount_values)
-            
-            if approximate_equal(total_value, discounted_value):
-                # here - remove the final value from a and b
-                # retain only the integer
-                if '.' not in a:
-                    print('a', a)
-                    return a
+            # for each combination of the values, apply the discounts
+            for a, b in combinations(numbers, 2):
+                product = float(a) * float(b)
+                discounted_value = apply_all_discounts(product, discount_values)
                 
-                else:
-                    print('b', b)
-                    return b
+                if approximate_equal(total_value, discounted_value):
+                    # here - remove the final value from a and b
+                    # retain only the integer
+                    if '.' not in a:
+                        print('a', a)
+                        return a
+                    
+                    else:
+                        print('b', b)
+                        return b
                 
         return None
 
@@ -364,22 +377,27 @@ def extract_luxury_goods_data(file):
     df.at[0, 'Total Gross Weight'] = total_gross_weight
     df.at[0, 'Total Cartons'] = total_cartons
 
-    # Rename the columns
-    df.columns = [
-        "Commodity Code", "Value", "Country of Origin", "Invoice", "Description",
-        "Quantity", "Total Net Weight", "Total Gross Weight", "Total Cartons"
-    ]
+
+    new_columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description",
+        "Quantity", "Total Net Weight", "Total Gross Weight", "Total Cartons"]
     
+    # Rename the columns
+    if len(new_columns) == len(df.columns):
+        df.columns = new_columns
+    else:
+        print(f"Length mismatch: DataFrame has {len(df.columns)} columns, but you're trying to assign {len(new_columns)} new column names.")
+
     # Calculate the pro-rated weights
-    total_value = df['Value'].sum()
+    if 'Value' in df.columns:
+        total_value = df['Value'].sum()
 
-    pro_rated_net_weight = round((float(df.at[0, 'Total Net Weight']) / total_value) * df['Value'], 3)
-    pro_rated_gross_weight = round((float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value'], 3)
+        pro_rated_net_weight = round((float(df.at[0, 'Total Net Weight']) / total_value) * df['Value'], 3)
+        pro_rated_gross_weight = round((float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value'], 3)
 
 
-    # Insert the pro-rated weight columns at loc 6 and 7
-    df.insert(loc=6, column='Pro-rated Net Weight', value=pro_rated_net_weight)
-    df.insert(loc=7, column='Pro-rated Gross Weight', value=pro_rated_gross_weight)
+        # Insert the pro-rated weight columns at loc 6 and 7
+        df.insert(loc=6, column='Pro-rated Net Weight', value=pro_rated_net_weight)
+        df.insert(loc=7, column='Pro-rated Gross Weight', value=pro_rated_gross_weight)
 
     # remove this as the value is not always calculated correctly
     # df.drop(['Quantity'], axis=1, inplace=True)
