@@ -1,20 +1,23 @@
 <script>
-    import { page } from "$app/stores";
+    import { goto } from '$app/navigation'
+
     import DownloadButton from "./DownloadButton.svelte";
     import RefreshIcon from "../icons/refresh-cw.svelte";
+    import { sessionData } from '../store/sessionStore';
 
-    export let data = {}; 
+    let sessionResponse;
 
-    let fileData;
-    let fileType;
-    let fileName;
+    sessionData.subscribe(value => {
+        sessionResponse = value;
+    });
 
-    $: fileData = data.data;
-    $: fileName = data.filename;
-    $: fileType = data.filetype;
-    
+    // Instead of directly binding data to these, you should derive them from sessionResponse.
+    let fileData = sessionResponse?.data;
+    let fileType = sessionResponse?.filetype;
+    let fileName = sessionResponse?.filename;
+
     function refreshPage() {
-        location.reload();
+        goto('/')
     } 
 </script>
 
@@ -63,6 +66,7 @@
     }
 </style>
 
+<!-- TODO: move this to the right side  -->
 <div class="download-section">
     <DownloadButton data={fileData} filename={fileName} filetype={fileType}  />
     <button class="refresh-icon" on:click={() => refreshPage()}>

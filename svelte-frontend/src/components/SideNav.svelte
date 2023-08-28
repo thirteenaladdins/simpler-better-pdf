@@ -153,13 +153,14 @@
 
     <div class="sidenav">
         <span class="sidebar-title font-sans">TOOLS</span>
-    
+        <!-- <span class="sidebar-title font-sans">Extraction</span> -->
         <button 
             on:click={() => toggleHighlight('Luxury Goods')} 
             class="sidebar-button font-sans {$selectedItem === 'Luxury Goods' ? 'on-selected-sidebar' : ''}">
             Luxury Goods
         </button>
-             
+        
+        <!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
         <button 
             on:click={() => toggleHighlight('ALS Header')} 
             class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}">

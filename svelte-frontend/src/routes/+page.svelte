@@ -1,10 +1,18 @@
 <script>
+    
+    import { goto } from '$app/navigation';
+
+
 	import SideNav from "../components/SideNav.svelte";
 	import DropAreaFileUpload from "../components/DropAreaFileUpload.svelte";
     import NavigationBar from "../components/NavigationBar.svelte";
     import SuccessComponent from "../components/SuccessComponent.svelte";
-    import SuccessPage from "../components/SuccessPage.svelte";
+    import SuccessPage from "../components/DownloadSection.svelte";
     import Footer from "../components/Footer.svelte";
+
+
+    import { sessionData } from '../store/sessionStore.js'
+
 
     import { version } from "../utils/version.js"
 
@@ -18,6 +26,11 @@
     function handleSuccess(event) {
         uploadSuccessful = true; // Set to true on successful upload
         responseData = event.detail
+
+        // Set the session data.
+        sessionData.set(responseData)
+
+        goto('/results')
     }
 
     function handleError(event) {
@@ -61,7 +74,6 @@
 
     }
 
-
     .successWrapper {
         display: flex;
         /* flex-direction: column; */
@@ -79,14 +91,15 @@
 
 <!-- TODO: implement "success" notification at the top of the page -->
 
-<NavigationBar></NavigationBar>
+<!-- <NavigationBar></NavigationBar> -->
 <div class="content">
     <SideNav></SideNav>
     <div class="container uniformWidth">
         {#if uploadSuccessful}
+
             <div class="successWrapper"> <!-- Apply the common class here -->
                 
-                <SuccessPage data={responseData} />
+                <!-- <SuccessPage data={responseData} /> -->
             </div>
         {:else}
             <div class="dropArea uniformWidth"> <!-- Apply the common class here too -->
