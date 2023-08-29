@@ -5,6 +5,13 @@ from als_header.pdf_add_header_footer import add_header_footer_to_pdf
 
 import base64
 
+# TODO: migrate to FastAPI?
+
+# from fastapi import FastAPI
+# from mangum import Mangum
+
+# fastapi_app = FastAPI()
+
 # create a route that sends the information over from flask
 
 # from send_data import dataframe_handler
@@ -184,6 +191,11 @@ def process():
             return error_response, 400
 
         return jsonify(response_data)
+
+# PING when the website is loaded to start up 
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({'status': 'success', 'message': 'pong'}), 200
 
 
 @app.errorhandler(404)
