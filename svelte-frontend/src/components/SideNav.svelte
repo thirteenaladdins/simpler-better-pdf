@@ -68,6 +68,7 @@
 .sidenav {
     display: flex;
     padding-top: 16px;
+    
     /* background-color: #E7491D; */
     /* background-color: rgb(255, 117, 4); */
     /* border-right: 1px solid black; */
@@ -90,6 +91,7 @@
     border: 1px solid transparent;
     border-radius: 4px;
     /* background-color: transparent; */
+    background-color: transparent;
     padding: 0 10px;
     margin: 4px;
     /* margin-top: 10px; */
@@ -111,7 +113,8 @@
 .sidenav button:hover {
 
     /* background-color: rgb(255, 165, 92); */
-    background-color: rgb(225, 232, 240);
+    /* background-color: rgb(225, 232, 240); */
+    border: 1px solid rgb(42,91,252);
     color: rgb(42,91,252);
     /* background-color: aliceblue; */
 }

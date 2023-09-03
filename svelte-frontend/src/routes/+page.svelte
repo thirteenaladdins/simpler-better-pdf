@@ -1,114 +1,204 @@
 <script>
-    
-    import { goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
+	import { sessionData } from '../store/sessionStore.js';
+	import { version } from '../utils/version.js';
+	import { onMount, onDestroy } from 'svelte';
+	import { loading } from '../store/loadingStore.js';
+	import { duplicateError } from '../store/duplicateErrorStore.js';
 
+	// this is used for duplicates at the moment should I change this?
+	import { errorMessage } from '../store/errorMessageStore.js';
 
-	import SideNav from "../components/SideNav.svelte";
-	import DropAreaFileUpload from "../components/DropAreaFileUpload.svelte";
-    import NavigationBar from "../components/NavigationBar.svelte";
-    import SuccessComponent from "../components/SuccessComponent.svelte";
-    import SuccessPage from "../components/DownloadSection.svelte";
-    import Footer from "../components/Footer.svelte";
+	import SideNav from '../components/SideNav.svelte';
+	import DropAreaFileUpload from '../components/DropAreaFileUpload.svelte';
+	// import Footer from "../components/Footer.svelte";
 
+	let serverAwake = false; // Initially set to false
+	let uploadSuccessful = false;
+	let responseData = null;
+	let isError;
+	// let isDuplicate;
 
-    import { sessionData } from '../store/sessionStore.js'
+	errorMessage.subscribe((value) => (isError = value));
 
+	let dots = 3;
+	let interval;
 
-    import { version } from "../utils/version.js"
+	onMount(() => {
+		interval = setInterval(() => {
+			if (dots < 3) {
+				dots += 1;
+			} else {
+				dots = 1;
+			}
+		}, 500); // Change the interval as per your requirement
+	});
 
-    console.log("App version:", version);
+	onDestroy(() => {
+		clearInterval(interval); // Cleanup to avoid memory leaks
+	});
 
+	let showSuccessMessage = false;
 
-    let uploadSuccessful = false; // Indicate if the upload was successful
-    let responseData = null
-    let errorMessage = ""
+	onMount(async () => {
+		try {
+			const response = await fetch('https://magic-extractor-v2.herokuapp.com/ping');
+			const data = await response.json();
 
-    function handleSuccess(event) {
-        uploadSuccessful = true; // Set to true on successful upload
-        responseData = event.detail
+			if (data.message === 'pong') {
+				console.log(data);
+				serverAwake = true;
+				showSuccessMessage = true;
 
-        // Set the session data.
-        sessionData.set(responseData)
+				setTimeout(() => {
+					showSuccessMessage = false;
+				}, 2000); // Message will disappear after 2 seconds
+			} else {
+				console.error('Ping failed!');
+			}
+		} catch (error) {
+			console.error('Error pinging server:', error);
+			// handleError(
+			// 	'Failed to connect to the server. Please check your internet connection and try again.'
+			// );
+		}
+	});
 
-        goto('/results')
-    }
+	// this actually runs after the thing has processed
+	// maybe loading should start immediately and then error or success after
+	function handleSuccess(event) {
+		uploadSuccessful = true;
+		responseData = event.detail;
+		sessionData.set(responseData);
+		loading.set(true);
 
-    function handleError(event) {
-        errorMessage = event.detail.message || "An error occurred.";
-    }   
+		// Add a delay of 2 seconds before navigating to the results page
+		// TODO: add results/UUID.
+		setTimeout(() => {
+			goto('/results').then(() => {
+				loading.set(false);
+			});
+		}, 2500);
+	}
+
+	function handleError(event) {
+		let error = event.detail.message || 'An error occurred.';
+		errorMessage.set(error); // This sets the error in the store which should trigger the alert to show
+	}
+
+	// import { slide } from 'svelte/transition';
+
+	function slideRight(node, { delay = 0, duration = 400 }) {
+		const style = getComputedStyle(node);
+		const transform = style.transform === 'none' ? '' : style.transform;
+
+		return {
+			delay,
+			duration,
+			css: (t) => `
+            transform: ${transform} translateX(${(1 - t) * 100}%)`
+		};
+	}
 </script>
 
-<style>
+<!-- Success alert - or error alert that appears at the top of the page -->
 
-    body {
-        background:#fafafa;
-    }
+<div class="outerContainer">
+	<!-- Left column -->
+	<div class="column">
+		<div class="side-nav">
+			<SideNav />
+		</div>
+	</div>
 
-    body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow-y: auto;
-}
+	<!-- Middle column -->
+	<div class="middleColumn">
+		<!-- Top part of the middle column -->
+		<div class="middleTop server-message-wrapper">
+			{#if !serverAwake}
+				<p>Waking up server, please wait{'.'.repeat(dots)}</p>
+			{/if}
 
+			{#if showSuccessMessage}
+				<p>Server connection established.</p>
+			{/if}
 
-    .uniformWidth {
-        width: 100%; /* Set to the desired width, using 100% as an example here */
-        max-width: 40rem; /* Assuming you want a maximum width. Adjust as per your requirement. */
-    }
+			{#if $duplicateError}
+				<p class="duplicate-error">{$duplicateError}</p>
+			{/if}
 
+			{#if isError}
+				<div transition:slideRight class="error-alert">
+					{$errorMessage}
+				</div>
+			{/if}
+		</div>
 
-    .container {
-        display: flex;
-        align-items: center; /* Vertically center content */
-        padding-top: 15vh;
-        justify-content: center;
-        margin: 0 auto;
+		<div class="middle">
+			<div class="dropArea uniformWidth">
+				<DropAreaFileUpload on:uploadSuccess={handleSuccess} on:uploadFailed={handleError} />
+			</div>
+		</div>
 
-    }
+		<!-- Bottom part of the middle column -->
+		<div class="middleBottom" />
+	</div>
 
-    .content {
-        flex: 1;
-        display: flex;
-        /* justify-content: space-between; */
-
-    }
-
-    .successWrapper {
-        display: flex;
-        /* flex-direction: column; */
-        justify-content: center;
-        width: 100%;
-    }
-
-    .dropArea {
-        flex: 1; 
-        display: flex;
-        align-items: center; 
-        justify-content: center;
-    }
-</style>
-
-<!-- TODO: implement "success" notification at the top of the page -->
-
-<!-- <NavigationBar></NavigationBar> -->
-<div class="content">
-    <SideNav></SideNav>
-    <div class="container uniformWidth">
-        {#if uploadSuccessful}
-
-            <div class="successWrapper"> <!-- Apply the common class here -->
-                
-                <!-- <SuccessPage data={responseData} /> -->
-            </div>
-        {:else}
-            <div class="dropArea uniformWidth"> <!-- Apply the common class here too -->
-                <DropAreaFileUpload on:uploadSuccess={handleSuccess} on:uploadFailed={handleError}></DropAreaFileUpload>
-            </div>
-        {/if}
-
-        {#if errorMessage}
-            <p>{errorMessage}</p>
-        {/if}
-    </div>
+	<!-- Right column -->
+	<div class="column" />
 </div>
+
+<style>
+	body {
+		background: #fafafa;
+	}
+
+	body,
+	html {
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		overflow-y: auto;
+	}
+
+	.outerContainer {
+		display: flex;
+		height: 80vh;
+	}
+
+	.column {
+		flex: 1; /* This ensures each column takes equal width */
+		/* padding: 1rem; */
+	}
+
+	.middleColumn {
+		display: flex;
+		flex-direction: column; /* Divides the middle column horizontally */
+	}
+
+	.middleTop,
+	.middle,
+	.middleBottom {
+		flex: 1; /* Each part of the middle column takes equal height */
+		padding: 1rem;
+		border: 1px solid black; /* Just for visualization */
+	}
+
+	.side-nav {
+		width: 120px;
+	}
+
+	/* message-wrapper {
+
+    } */
+
+	.duplicate-error {
+		color: red;
+	}
+
+	.server-message-wrapper {
+		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
+			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+		font-size: 14px;
+	}
+</style>
