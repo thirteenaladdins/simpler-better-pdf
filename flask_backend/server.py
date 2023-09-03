@@ -83,9 +83,10 @@ app.secret_key = os.urandom(12)
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
-# Is this necessary?
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except: 
+    pass
 
 # reorder this list. 
 headers_list = ["tariff", "description", "quantity", "gross", "net", "value", "invoice"]
