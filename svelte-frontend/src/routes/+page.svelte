@@ -42,7 +42,14 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('https://magic-extractor-v2.herokuapp.com/ping');
+			// const response = await fetch('https://als-toolkit-518aa93f7ddc.herokuapp.com/ping');
+
+			const baseUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://als-toolkit-518aa93f7ddc.herokuapp.com/'
+					: 'http://localhost:591';
+
+			const response = await fetch(`${baseUrl}/ping`);
 			const data = await response.json();
 
 			if (data.message === 'pong') {
@@ -181,7 +188,6 @@
 	.middleBottom {
 		flex: 1; /* Each part of the middle column takes equal height */
 		padding: 1rem;
-		border: 1px solid black; /* Just for visualization */
 	}
 
 	.side-nav {

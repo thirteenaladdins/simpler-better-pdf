@@ -5,7 +5,7 @@
 
 <svelte:head>
 	<!-- Google tag (gtag.js) -->
-
+	<!-- Google tag (gtag.js) -->
 	<!-- Google tag (gtag.js) -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-2X85K1KEH5"></script>
 	<script>

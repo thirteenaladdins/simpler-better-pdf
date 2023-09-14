@@ -32,7 +32,7 @@ const processAllFiles = async (files: File[], option: string): Promise<{ data: s
                     filetype = 'text/csv'; // Assume CSV for JSON data
                 } else if (contentType === 'application/pdf') {
                     const baseUrl = process.env.NODE_ENV === 'production'
-                        ? 'https://magic-extractor-v2.herokuapp.com'
+                        ? 'https://als-toolkit-518aa93f7ddc.herokuapp.com/'
                         : 'http://localhost:591';
                     const url = `${baseUrl}`;
 
