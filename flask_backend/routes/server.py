@@ -1,24 +1,12 @@
 import os
+import logging
+import json 
+import pandas as pd
+import fitz 
+
 from luxury_goods import extract_luxury_goods_data
 from siemens import Siemens
 from als_header.pdf_add_header_footer import add_header_footer_to_pdf
-
-import base64
-
-# TODO: migrate to FastAPI?
-
-# from fastapi import FastAPI
-# from mangum import Mangum
-
-# fastapi_app = FastAPI()
-
-# create a route that sends the information over from flask
-
-# from send_data import dataframe_handler
-
-from flask_cors import CORS, cross_origin
-import json 
-
 from flask import (
     Flask,
     jsonify,
@@ -26,67 +14,53 @@ from flask import (
     redirect,
     Response,
     send_file,
-    send_from_directory,
-    abort,
-    url_for,
-    render_template,
-    flash,
+    make_response  # moved from flask.helpers to simplify
 )
-
-from flask.helpers import make_response
-
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 
-# from dotenv import load_dotenv
-# load_dotenv(find_dotenv())
+from routes.ocr import ocr_blueprint
 
-# use pyPDF2 instead of fitz?
+# Load the .env file
+load_dotenv()
 
-# from PyPDF2 import PdfFileReader, PdfFileWriter
-# from processing.script import parse_args
-# from processing.main import process_file
-# from processing.Generation.export_template import generate_RX_template
-
-import pandas as pd
-import fitz 
-
-# TODO: change to pymupdf - add existing scripts library
-
-
-UPLOAD_FOLDER = os.path.dirname(os.path.abspath(__file__)) + "/tmp/"
-DOWNLOAD_FOLDER = os.path.dirname(os.path.abspath(__file__)) + "/downloads/"
-OUTPUT_FOLDER = os.path.dirname(os.path.abspath(__file__)) + "/output/"
-
+# Constants
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp/")
 ALLOWED_EXTENSIONS = {"pdf"}
 
-""" production build """
-app = Flask(
-    __name__,
-    # static_url_path="",
-    # static_folder="frontend/build",
-    # template_folder="frontend/build",
-)
+# App Setup
+app = Flask(__name__)
 
-# app.run(debug=True)
+app.register_blueprint(ocr_blueprint, url_prefix='/ocr')
 
-# comment out in production
 CORS(app, resources={r"/*": {"origins": "*"}})
-CORS(app)
 
-# app.config["CORS_HEADERS"] = "Content-Type"
-# errors.init_handler(app)
-# cors = CORS(app, resource={r"/*": {"origins": "*"}})
+# Fetch or create a secret key
+SECRET_KEY_ENV_VAR = "FLASK_APP_SECRET_KEY"
 
-# TODO ?
-app.secret_key = os.urandom(12)
+def get_or_create_secret_key():
+    # Attempt to fetch the secret key from environment variables
+    secret_key = os.environ.get(SECRET_KEY_ENV_VAR)
+    
+    # If it doesn't exist, generate a new one and prompt the user to set it
+    if not secret_key:
+        secret_key = os.urandom(32).hex()  # Generate a 256-bit key and convert it to hexadecimal for easier handling
+        print(f"Generated a new secret key: {secret_key}")
+        print(f"Please set the environment variable {SECRET_KEY_ENV_VAR} for consistent secret key across restarts.")
+        
+    return secret_key
 
+app.secret_key = get_or_create_secret_key()
 
-DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-
+# Ensure UPLOAD_FOLDER exists
 try:
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-except: 
-    pass
+except OSError as e:
+    logging.error(f"Error creating directory {UPLOAD_FOLDER}: {str(e)}")
+
+
+
 
 # reorder this list. 
 headers_list = ["tariff", "description", "quantity", "gross", "net", "value", "invoice"]
@@ -95,7 +69,6 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 # limit upload size upto 8mb
 app.config["MAX_CONTENT_LENGTH"] = 8 * 1024 * 1024
-
 
 # extensions that are allowed to be processed
 def allowed_file(filename):
@@ -107,15 +80,7 @@ def index():
     # return ('', 204)
     return 'Magic Extractor api deployed'   
 
-# TODO: add all the checks and balances here
-# so pass the file to this route on the backend
-
-# we ping the api once per file and wait until each file has been processed, ,
-
-# http://localhost:591/api/fetch_file/2022_9_20800.PDF_modified.pdf
-
-# I want to remove the file from the directory after
-# is this a security risk?
+# TODO: CHANGE THIS
 @app.route('/api/delete_file/<path:filename>')
 def delete_file(filename):
     als_header_dir = os.path.join(os.getcwd(), 'als_header')
@@ -204,29 +169,5 @@ def not_found(e):
     # return render_template("index.html")
     return "404"
 
-
-# if __name__ == "__main__":
-#     port = int(os.environ.get("PORT", 3000))
-#     app.run(threaded=True, host="0.0.0.0", port=port)
-
-# TODO these files are in the form 
-        # if request.form["options"] == "CSV":
-        #     # TODO do we return the file from here as json?
-
-        #     # resp = make_response(processed_file.to_csv())
-            
-        #     if isinstance(processed_file, list):
-        #         # row_json_data = json.dumps(process_file)
-        #         # return row_json_data
-        #         print(processed_file)
-        #         return json.dumps(processed_file)
-
-        #     else:
-        #         print(type(processed_file))
-        #         row_json_data = processed_file.to_json(orient="records")
-        #         return row_json_data
-
-        # TODO add a simpler way to - to what? not even sure what we're rendering here. 
-        # return "Hello there"
 
 

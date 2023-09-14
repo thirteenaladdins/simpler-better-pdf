@@ -239,7 +239,7 @@ def find_quantity_in_list(item_list, value):
 
         # Extract integers from the full_list
         # int_values = [float(item) for item in full_list if re.match(r'^\d+$', item)]
-        print('total_value', total_value)
+        print('quantity function total_value', total_value)
         # Get all combinations of two numbers from the list
         for a, b in combinations(numbers, 2):
             product = float(a) * float(b)
@@ -259,9 +259,6 @@ def find_quantity_in_list(item_list, value):
                     quantity = string_b
                     return quantity
                 # if the strings are exact then return
-
-
-                
                 
         # If direct multiplication didn't give the expected total_value, consider the discounts
         discounts = [item for item in full_list if '%' in item]
@@ -300,9 +297,10 @@ def find_quantity_in_list(item_list, value):
         filtered_list = filter_numbers(item_list_to_process)
         remove_duplicates = sorted(set(filtered_list))
 
-        value_str = "{:.2f}".format(float(value))
-        while value_str in remove_duplicates:
-            remove_duplicates.remove(value_str)
+        # I think this was added because I wanted to make sure all "values" had 2 digits after the dp
+        # value_str = "{:.2f}".format(float(value))
+        # while value_str in remove_duplicates:
+        #     remove_duplicates.remove(value_str)
 
         print('Processed items:', remove_duplicates)
         remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
@@ -340,11 +338,11 @@ def extract_luxury_goods_data(file):
     # for path in files:
     full_text = Helpers.convert_all_pages_to_text(file)
     invoice_no = extract_invoice_no(file)
-
+    print(invoice_no)
     descriptions_list = extract_descriptions(full_text)
-    
+    print(descriptions_list)
     all_matches = extract_items(full_text)
-
+    print(all_matches)
     # extract net weight
     total_net_weight = extract_net_weight(full_text)
 
@@ -355,13 +353,15 @@ def extract_luxury_goods_data(file):
     # print(total_net_weight, total_gross_weight, total_cartons)
     
     formatted_items = format_items(all_matches)
-    
+    print("formatted_items", formatted_items)
     for item in formatted_items:
         item.append(invoice_no)
 
+    print('item', item)
     # run the below and output into excel format
 
     quantity = find_quantity_in_list(all_matches, 1)
+    print('quantity', quantity)
     
     add_descriptions = match_descriptions(formatted_items, descriptions_list)
     
@@ -370,15 +370,14 @@ def extract_luxury_goods_data(file):
         i.append(j)
         item_list.append(i)
         
-    # print("item_list:", item_list)
+    print("item_list:", item_list)
 
     df = pd.DataFrame(item_list)
-    
+    print(df)
     # Set initial values for Total Net Weight, Total Gross Weight, and Total Cartons
     df.at[0, 'Total Net Weight'] = total_net_weight
     df.at[0, 'Total Gross Weight'] = total_gross_weight
     df.at[0, 'Total Cartons'] = total_cartons
-
 
     new_columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description",
         "Quantity", "Total Net Weight", "Total Gross Weight", "Total Cartons"]
@@ -387,8 +386,10 @@ def extract_luxury_goods_data(file):
     if len(new_columns) == len(df.columns):
         df.columns = new_columns
     else:
+        # df.columns = new_columns
         print(f"Length mismatch: DataFrame has {len(df.columns)} columns, but you're trying to assign {len(new_columns)} new column names.")
 
+    
     # Calculate the pro-rated weights
     if 'Value' in df.columns:
         total_value = df['Value'].sum()
