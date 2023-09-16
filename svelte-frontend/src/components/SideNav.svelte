@@ -1,37 +1,113 @@
 <script>
-    
-    import { selectedItem } from '../store/selectedItemStore.js';
+	import { selectedItem } from '../store/selectedItemStore.js';
+	import { theme } from '../store/themeStore.js';
 
-    function toggleHighlight(itemName) {
-        if ($selectedItem !== itemName) {
-        selectedItem.set(itemName);
-        }
-  }
+	import Moon from '../icons/moon.svelte';
+	import Sun from '../icons/sun.svelte';
+	import Serpent from '../icons/serpent.svelte';
+	import Settings from '../icons/settings.svelte';
 
-    let isNavOpen = false;
-    let showTools = true;
-    let isDarkMode = false;
+	function toggleHighlight(itemName) {
+		if ($selectedItem !== itemName) {
+			selectedItem.set(itemName);
+		}
+	}
 
+	// function toggleHighlightTheme(itemName) {
+	// 	if ($theme !== itemName) {
+	// 		theme.set(itemName);
+	// 	}
 
-    // let highlightedItem = 'luxuryGoods';
+	function toggleHighlightTheme(themeName) {
+		theme.set(themeName);
+	}
 
-    // function toggleHighlight(itemName) {
-    // if (highlightedItem !== itemName) {
-    //     highlightedItem = itemName;
-    //     }
-    // }
+	let isNavOpen = false;
+	let showTools = true;
+	let isDarkMode = false;
 
+	// Reactively update the data-theme attribute
+	$: {
+		if (typeof window !== 'undefined') {
+			document.documentElement.setAttribute('data-theme', $theme);
+		}
+	}
 
-    // function toggleTheme() {
-    //     isDarkMode = !isDarkMode;
-    //     document.body.classList.toggle('dark-mode', isDarkMode);
-    // }
+	// let highlightedItem = 'luxuryGoods';
 
+	// function toggleHighlight(itemName) {
+	// if (highlightedItem !== itemName) {
+	//     highlightedItem = itemName;
+	//     }
+	// }
+
+	// function toggleTheme() {
+	//     isDarkMode = !isDarkMode;
+	//     document.body.classList.toggle('dark-mode', isDarkMode);
+	// }
 </script>
 
+<!-- <button on:click={() => isNavOpen = !isNavOpen}>{isNavOpen ? 'Close' : 'Open'} Side Nav</button> -->
+
+<!-- maybe the toggle is what I want -->
+<!-- <div class="sidenav" class:active={isNavOpen}> -->
+
+<div class="sidenav">
+	<span class="sidebar-title font-sans">TOOLS</span>
+	<!-- <span class="sidebar-title font-sans">Extraction</span> -->
+	<button
+		on:click={() => toggleHighlight('Luxury Goods')}
+		class="sidebar-button font-sans {$selectedItem === 'Luxury Goods' ? 'on-selected-sidebar' : ''}"
+	>
+		Luxury Goods
+	</button>
+
+	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
+	<button
+		on:click={() => toggleHighlight('ALS Header')}
+		class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
+	>
+		ALS Header
+	</button>
+
+	<div class="theme-button-container">
+		<button
+			on:click={() => toggleHighlightTheme('Light')}
+			class="sidebar-button font-sans {$theme === 'Light' ? 'on-selected-sidebar' : ''}"
+		>
+			<Sun />
+		</button>
+		<button
+			on:click={() => toggleHighlightTheme('Dark')}
+			class="sidebar-button font-sans disabled-icon {$theme === 'Dark'
+				? 'on-selected-sidebar'
+				: ''}"
+		>
+			<Moon />
+		</button>
+
+		<!-- this will be a separate page -->
+		<button
+			on:click={() => toggleHighlightTheme('Settings')}
+			class="sidebar-button font-sans disabled-icon {$theme === 'Settings'
+				? 'on-selected-sidebar'
+				: ''}"
+		>
+			<Settings />
+		</button>
+		<!-- implement this later -->
+		<button
+			on:click={() => toggleHighlightTheme('Serpent')}
+			class="sidebar-button font-sans {$theme === 'Serpent' ? 'on-selected-sidebar' : ''}"
+		>
+			<Serpent />
+		</button>
+	</div>
+</div>
+
 <style>
-    /* Small devices (landscape phones, 576px and up) */
-/* @media only screen and (max-width: 576px) {  
+	/* Small devices (landscape phones, 576px and up) */
+	/* @media only screen and (max-width: 576px) {  
   .sidebar-list {
     display: flex;
     align-items: center;
@@ -39,154 +115,137 @@
   }
 } */
 
-/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
-/* @media (min-width: 768px) {
+	/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
+	/* @media (min-width: 768px) {
   
 } */
 
-/* Large devices (desktops, 992px and up) */
-/* @media only screen and (min-width: 992px) {
+	/* Large devices (desktops, 992px and up) */
+	/* @media only screen and (min-width: 992px) {
 } */
 
-/* Extra large devices (large desktops, 1200px and up) */
-/* @media (min-width: 1200px) {} */
+	/* Extra large devices (large desktops, 1200px and up) */
+	/* @media (min-width: 1200px) {} */
 
+	.font-sans {
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
+			Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+			Noto Color Emoji;
+	}
 
+	.sidebar-hidden {
+		visibility: hidden;
+	}
 
-.font-sans {
-    font-family: system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
-}
+	.sidebar-item {
+		list-style: none;
+	}
 
-.sidebar-hidden {
-  visibility: hidden;
-} 
+	.sidenav {
+		display: flex;
+		padding-top: 16px;
+		width: 126px;
+		/* background-color: #E7491D; */
+		/* background-color: rgb(255, 117, 4); */
+		/* border-right: 1px solid black; */
+		flex-direction: column; /* Stacks children vertically */
+		/* justify-content: space-between;  */
+		height: 100%; /* Use 100% of the parent's height */
+		overflow: auto;
+		border-right: 1px solid #d3d3d3;
+	}
 
-.sidebar-item {
-  list-style: none;
-}
+	/* Centering text inside .sidebar-button */
+	.sidebar-button {
+		/* ... (your existing styles inside this class) ... */
+		line-height: 36px;
+	}
 
-.sidenav {
-    display: flex;
-    padding-top: 16px;
-    
-    /* background-color: #E7491D; */
-    /* background-color: rgb(255, 117, 4); */
-    /* border-right: 1px solid black; */
-    flex-direction: column; /* Stacks children vertically */
-    /* justify-content: space-between;  */
-    height: 100%; /* Use 100% of the parent's height */
-}
+	/* Style the settings button similar to .sidebar-button */
+	.sidenav button {
+		display: inline-block;
+		list-style: none;
+		border: 1px solid transparent;
+		border-radius: 4px;
+		/* background-color: transparent; */
+		background-color: transparent;
+		padding: 0 10px;
+		margin: 4px;
+		/* margin-top: 10px; */
+		/* min-width: 8rem; */
+		/* height: 36px; */
+		line-height: 36px;
+		vertical-align: middle;
+		/* text-align: center; */
+		/* background-color: #fff; */
+		color: rgb(var(--pure-material-primary-rgb, 115, 125, 176));
+		color: rgb(134, 143, 186);
+		font-size: 14px;
+		font-weight: 400;
+		cursor: pointer;
+		transition: box-shadow 0.2s;
+		text-decoration: none; /* To remove the underline from the anchor tag */
+		display: flex;
+		justify-content: left;
+		align-items: center; /* center vertically */
+	}
 
+	.sidenav button:hover {
+		/* background-color: rgb(255, 165, 92); */
+		/* background-color: rgb(225, 232, 240); */
+		/* border: 1px solid rgb(42, 91, 252); */
+		color: rgb(42, 91, 252);
+		/* background-color: aliceblue; */
+	}
 
-/* Centering text inside .sidebar-button */
-.sidebar-button {
-    /* ... (your existing styles inside this class) ... */
-    line-height: 36px; /* This should match the height of the button for vertical centering */
-}
-
-/* Style the settings button similar to .sidebar-button */
-.sidenav button {
-    display: inline-block;
-    list-style: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    /* background-color: transparent; */
-    background-color: transparent;
-    padding: 0 10px;
-    margin: 4px;
-    /* margin-top: 10px; */
-    /* min-width: 8rem; */
-    /* height: 36px; */
-    line-height: 36px;
-    vertical-align: middle;
-    /* text-align: center; */
-    /* background-color: #fff; */
-    color: rgb(var(--pure-material-primary-rgb,115,125,176));
-    color: rgb(134,143,186);
-    font-size: 14px;
-    font-weight: 400;
-    cursor: pointer;
-    transition: box-shadow .2s;
-    text-decoration: none; /* To remove the underline from the anchor tag */
-}
-
-.sidenav button:hover {
-
-    /* background-color: rgb(255, 165, 92); */
-    /* background-color: rgb(225, 232, 240); */
-    border: 1px solid rgb(42,91,252);
-    color: rgb(42,91,252);
-    /* background-color: aliceblue; */
-}
-
-/* .sidenav button:active {
+	/* .sidenav button:active {
     background-color: rgb(225, 232, 240);
     color: rgb(42,91,252);
 } */
 
-.sidebar-title {
-    font-size: 0.75rem;
-    padding: 0 10px;
-    margin: 4px;
-    color: rgb(167,175,215);
-    
-}
+	.sidebar-title {
+		font-size: 0.75rem;
+		padding: 0 10px;
+		margin: 4px;
+		color: rgb(167, 175, 215);
+	}
 
-/* if sidebar links clicked */
-.sidenav button.on-selected-sidebar {
-    background-color: rgb(225, 232, 240);
-    color: rgb(42,91,252);
-}
+	/* if sidebar links clicked */
+	.sidenav button.on-selected-sidebar {
+		/* background-color: rgb(225, 232, 240); */
+		border: 1px solid transparent;
+		color: rgb(42, 91, 252);
+		font-weight: 500;
+	}
 
-/* .on-selected-sidebar {
-    background-color: rgb(225, 232, 240);
-    color: rgb(42,91,252);
-} */
+	.theme-button-container {
+		display: flex;
+		width: 100%;
+		flex-wrap: wrap;
+		margin-top: auto;
+		margin-bottom: 10px;
+	}
 
-.tools-content {
-    /* width: 10px; */
-}
+	.theme-button-container button {
+		padding: 10px;
+		border: 1px solid transparent;
+	}
 
+	.theme-button-container button:hover {
+		padding: 10px;
+		color: rgb(167, 175, 215);
+		border: 1px solid rgb(167, 175, 215);
+	}
+
+	.theme-button-container button.on-selected-sidebar {
+		color: rgb(42, 91, 252);
+		border: 1px solid rgb(42, 91, 252);
+	}
+
+	.disabled-icon {
+		filter: grayscale(100%);
+		opacity: 0.6; /* Optional: to reduce the opacity for a more "disabled" look */
+		pointer-events: none; /* Disables any mouse interactions */
+		cursor: not-allowed; /* Indicates the item is not clickable */
+	}
 </style>
-
-<!-- <button on:click={() => isNavOpen = !isNavOpen}>{isNavOpen ? 'Close' : 'Open'} Side Nav</button> -->
-
-<!-- maybe the toggle is what I want -->
-<!-- <div class="sidenav" class:active={isNavOpen}> -->
-
-    <div class="sidenav">
-        <span class="sidebar-title font-sans">TOOLS</span>
-        <!-- <span class="sidebar-title font-sans">Extraction</span> -->
-        <button 
-            on:click={() => toggleHighlight('Luxury Goods')} 
-            class="sidebar-button font-sans {$selectedItem === 'Luxury Goods' ? 'on-selected-sidebar' : ''}">
-            Luxury Goods
-        </button>
-        
-        <!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
-        <button 
-            on:click={() => toggleHighlight('ALS Header')} 
-            class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}">
-            ALS Header
-        </button>
-    </div>
-                      
-
-
-
-    <!-- </div> -->
-
-
-    <!-- come back and implement this -->
-    <!-- <button on:click={toggleTheme}>Toggle Theme</button> -->
-
-    <!-- TODO: add scrolling to this and implement -->
-    <!-- <a href="#">Settings</a> -->
-
-    
-    <!-- add toggle here -->
-    
-
-
-
-

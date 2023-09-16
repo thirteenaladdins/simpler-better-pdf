@@ -13,10 +13,13 @@
 	import DropAreaFileUpload from '../components/DropAreaFileUpload.svelte';
 	// import Footer from "../components/Footer.svelte";
 
+	import { fileCount } from '../store/fileCountStore.js';
+
 	let serverAwake = false; // Initially set to false
 	let uploadSuccessful = false;
 	let responseData = null;
 	let isError;
+
 	// let isDuplicate;
 
 	errorMessage.subscribe((value) => (isError = value));
@@ -106,16 +109,29 @@
             transform: ${transform} translateX(${(1 - t) * 100}%)`
 		};
 	}
+
+	import { writable } from 'svelte/store';
+	let showError = writable(false); // store to control if the error is shown or not
+
+	function displayError() {
+		$showError = true;
+		setTimeout(() => {
+			$showError = false;
+		}, 3000); // auto-hide after 3 seconds, adjust as needed
+	}
 </script>
 
 <!-- Success alert - or error alert that appears at the top of the page -->
 
+<!-- {#if  -->
+
+<!-- <button on:click={displayError}>Trigger Error</button> -->
+<!-- just an example button to trigger the error -->
+
 <div class="outerContainer">
 	<!-- Left column -->
-	<div class="column">
-		<div class="side-nav">
-			<SideNav />
-		</div>
+	<div class="left-column">
+		<SideNav />
 	</div>
 
 	<!-- Middle column -->
@@ -135,9 +151,11 @@
 			{/if}
 
 			{#if isError}
-				<div transition:slideRight class="error-alert">
-					{$errorMessage}
-				</div>
+				<div class="error-alert active">{$errorMessage}</div>
+			{/if}
+
+			{#if $fileCount}
+				<p>You have selected {$fileCount} file{$fileCount === 1 ? '' : 's'}</p>
 			{/if}
 		</div>
 
@@ -152,28 +170,21 @@
 	</div>
 
 	<!-- Right column -->
-	<div class="column" />
+	<div class="right-column" />
 </div>
 
 <style>
-	body {
-		background: #fafafa;
-	}
-
-	body,
-	html {
+	/* * {
 		margin: 0;
 		padding: 0;
-		height: 100%;
-		overflow-y: auto;
-	}
+	} */
 
 	.outerContainer {
 		display: flex;
-		height: 80vh;
+		height: 90vh;
 	}
 
-	.column {
+	.left-column {
 		flex: 1; /* This ensures each column takes equal width */
 		/* padding: 1rem; */
 	}
@@ -183,20 +194,17 @@
 		flex-direction: column; /* Divides the middle column horizontally */
 	}
 
+	.right-column {
+		flex: 1; /* This ensures each column takes equal width */
+		/* padding: 1rem; */
+	}
+
 	.middleTop,
 	.middle,
 	.middleBottom {
 		flex: 1; /* Each part of the middle column takes equal height */
 		padding: 1rem;
 	}
-
-	.side-nav {
-		width: 120px;
-	}
-
-	/* message-wrapper {
-
-    } */
 
 	.duplicate-error {
 		color: red;
@@ -206,5 +214,27 @@
 		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
 			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 		font-size: 14px;
+	}
+
+	.error-alert {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		background-color: #f44336;
+		color: white;
+		text-align: center;
+		padding: 16px 0; /* same as navbar */
+		z-index: 1000;
+		transform: translateY(-100%);
+		transition: transform 0.3s ease-in-out;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
+			Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+			Noto Color Emoji; /* now matching the navbar font */
+		font-size: 14px; /* adjust if necessary to match navbar text size */
+	}
+
+	.error-alert.active {
+		transform: translateY(0); /* slide it into view */
 	}
 </style>

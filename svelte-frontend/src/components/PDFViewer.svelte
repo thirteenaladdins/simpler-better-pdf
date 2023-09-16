@@ -189,7 +189,7 @@
 				formData.append('file', file);
 
 				// TODO:
-
+				// test server
 				const response = await fetch('http://localhost:591/ocr/upload', {
 					method: 'POST',
 					body: formData
@@ -239,9 +239,14 @@
 	let pdfDoc = null;
 	let pageNum = 1; // Default page to display is the first one
 
-	const canvas = document.createElement('canvas');
-	const ctx = canvas.getContext('2d');
-	document.getElementById('pdf-container').appendChild(canvas);
+	let canvas;
+	let ctx;
+
+	onMount(() => {
+		canvas = document.createElement('canvas');
+		ctx = canvas.getContext('2d');
+		document.getElementById('pdf-container').appendChild(canvas);
+	});
 
 	function renderPage(num) {
 		pdfDoc.getPage(num).then(function (page) {
@@ -259,10 +264,10 @@
 	}
 
 	// Load the PDF
-	pdfjsLib.getDocument('path/to/your/document.pdf').promise.then(function (pdfDoc_) {
-		pdfDoc = pdfDoc_;
-		renderPage(pageNum);
-	});
+	// pdfjsLib.getDocument('path/to/your/document.pdf').promise.then(function (pdfDoc_) {
+	// 	pdfDoc = pdfDoc_;
+	// 	renderPage(pageNum);
+	// });
 
 	function handleFileChange(event) {
 		uploadedFile = event.target.files[0];

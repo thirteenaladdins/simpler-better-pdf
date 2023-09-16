@@ -22,6 +22,7 @@ when the duplicate is removed then remove the notification from the top
 
 	// STORE
 	import { selectedItem } from '../store/selectedItemStore';
+	import { fileCount } from '../store/fileCountStore';
 
 	let currentSelectedItem = $selectedItem;
 
@@ -108,8 +109,9 @@ when the duplicate is removed then remove the notification from the top
 		event.preventDefault();
 		event.stopPropagation();
 		selectedFiles = [...selectedFiles, ...Array.from(event.dataTransfer.files)];
-		// Array.prototype.push.apply(selectedFiles, event.dataTransfer.files);
 
+		// add count to variable
+		fileCount.set(selectedFiles.length);
 		markDuplicates();
 
 		// Reset the counter and unhighlight the drop area
@@ -145,9 +147,12 @@ when the duplicate is removed then remove the notification from the top
 			}
 		}
 
+		console.log(duplicates.size);
 		// Update errorMessage based on the presence of duplicates
 		if (duplicates.size > 0) {
 			duplicateError.set('One or more files is a duplicate marked in red below.');
+		} else {
+			duplicateError.set('');
 		}
 	}
 
@@ -155,10 +160,10 @@ when the duplicate is removed then remove the notification from the top
 		const filesFromInput = Array.from(event.target.files);
 		selectedFiles = [...selectedFiles, ...filesFromInput];
 
+		// add file count to store
+		fileCount.set(selectedFiles.length);
 		// Mark the duplicates
 		markDuplicates();
-
-		console.log(selectedFiles);
 
 		// Reset the file input for the next use
 		event.target.value = '';
@@ -167,6 +172,8 @@ when the duplicate is removed then remove the notification from the top
 	function removeFile(index) {
 		selectedFiles.splice(index, 1);
 		selectedFiles = [...selectedFiles]; // Reassign to trigger Svelte's reactivity
+		fileCount.set(selectedFiles.length);
+		markDuplicates();
 	}
 
 	// get duplicates list
@@ -177,8 +184,6 @@ when the duplicate is removed then remove the notification from the top
 	// 	return duplicatedFilenames.has(filename);
 	// }
 </script>
-
-<!-- REWORK THIS - add feature to add additional files into dropbox -->
 
 <div class="file-upload-container font-sans">
 	<p class="title">File Upload</p>

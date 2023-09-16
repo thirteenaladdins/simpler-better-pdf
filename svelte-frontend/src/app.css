@@ -1,0 +1,14 @@
+/* Light Theme */
+:root {
+    /* --background-color: white; */
+    --text-color: black;
+    /* ... other variables for the light theme ... */
+}
+
+/* TODO: implement theme */
+/* Dark Theme */
+[data-theme='Dark'] {
+    background-color: black;
+    color: white;
+    /* ... other variables for the dark theme ... */
+}
