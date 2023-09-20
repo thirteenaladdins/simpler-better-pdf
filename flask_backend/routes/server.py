@@ -7,6 +7,8 @@ import fitz
 from luxury_goods import extract_luxury_goods_data
 from siemens import Siemens
 from als_header.pdf_add_header_footer import add_header_footer_to_pdf
+from als_header.pdf_add_header import add_header_footer
+
 from flask import (
     Flask,
     jsonify,
@@ -102,7 +104,7 @@ def fetch_file(filename):
 
     return send_file(file_path)
 
-
+# change to process_file
 @app.route("/api/processfile", methods=["POST"])
 def process():
     if request.method == "POST":
@@ -124,39 +126,79 @@ def process():
 
         if request.form["option"] == "Siemens Regex":
             processed_file = Siemens.extract_siemens(file)
-            response_data = {"type": "csv", "data": processed_file.to_json(orient="records")}
+            response_data = {"type": "csv", "data": processed_file.to_json(orient="records"), 
+                             "processType": "Siemens Regex"}
+            response = jsonify(response_data)
+            return response
+        
 
         elif request.form["option"] == "Luxury Goods":
             processed_file = extract_luxury_goods_data(file)
-            response_data = {"type": "csv", "data": processed_file.to_json(orient="records")}
-
-        elif request.form["option"] == "ALS Header":
-            # returns the file name, side effect of writing the file to the 
-            # script directory
-            processed_file = add_header_footer_to_pdf(file_name, file)
-            
-            # response_data = {"type": "PDF", "data": processed_file}
-            # run script, write file, fetch file from the server
-            # sent to frontend
-
-            # script_dir = os.path.dirname(os.path.abspath(__file__))
-
-            # als_header_dir = os.path.join(script_dir, 'als_header')
-            # # print(processed_file, font_dir)
-            # header_file_path = als_header_dir + processed_file
-            
-            # this is just a string, but could I tag the type as application/pdf?
-            return Response(response=processed_file, content_type='application/pdf')
+            response_data = {"type": "csv", "data": processed_file.to_json(orient="records"), 
+                             "processType": "Luxury Goods"}
+            response = jsonify(response_data)
+            return response
         
-            # return Response(response=processed_file, content_type='application/pdf')
-            # return Response(response=pdf_data_base64, content_type='application/pdf')
-
         else: 
             # Return an error if form option is invalid
             error_response = {"error": "Invalid form option"}
             return error_response, 400
 
-        return jsonify(response_data)
+
+@app.route("/api/process_pdf", methods=["POST"])
+def process_pdf():
+    if request.method == "POST":
+        print(request.files)
+        if "file" not in request.files:
+            print("No file attached in request")
+            return jsonify({"error": "No file attached in request"}), 400
+
+        # Check if form option is provided
+        if "option" not in request.form or not request.form["option"]:
+            return jsonify({"error": "Missing form option"}), 400
+
+        # Read the file data
+        file = request.files["file"].read()
+        file_name = request.files["file"].filename
+
+        if request.form["option"] == "ALS Header":
+            # Process the file
+            processed_file = add_header_footer_to_pdf(file_name, file)
+            
+            # Return a JSON response with a URL to the actual PDF data
+            response_data = {
+                "type": "pdf",
+                "url": processed_file,  # Assuming file_name can be used to identify the PDF
+                "processType": "ALS Header"
+            }
+            return jsonify(response_data)
+
+        # now we want to return 
+        # now we want to return 
+        elif request.form["option"] == "ALS Header New":
+            # Process the file
+            import base64
+            processed_file = add_header_footer(file_name, file)
+            
+            # Convert bytes to Base64 encoded string
+            encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
+            
+            # Return a JSON response with a URL to the actual PDF data
+            # return data instead of file name
+            response_data = {
+                "type": "pdf",
+                "url": encoded_pdf,
+                "processType": "ALS Header New"
+            }
+            return jsonify(response_data)
+
+
+        else:
+            # Return an error if form option is invalid
+            return jsonify({"error": "Invalid form option"}), 400
+
+
+        
 
 # PING when the website is loaded to start up 
 @app.route('/ping', methods=['GET'])
