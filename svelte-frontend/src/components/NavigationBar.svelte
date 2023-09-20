@@ -1,8 +1,23 @@
 <!-- Add version to the top left and link to github -->
+<script>
+	import { goto } from '$app/navigation';
+
+	function handleClick() {
+		goto('/');
+	}
+</script>
 
 <div class="navbar">
 	<!-- come back - this should also be a home button and across multiple pages -->
-	<div class="title font-sans">Magic Extractor</div>
+	<div
+		role="button"
+		tabindex="0"
+		on:click={handleClick}
+		on:keydown={handleClick}
+		class="home-button font-sans"
+	>
+		Magic Extractor
+	</div>
 </div>
 
 <style>
@@ -18,5 +33,12 @@
 	.navbar {
 		border-bottom: 1px solid #d3d3d3;
 		padding: 10px;
+	}
+
+	.home-button {
+		cursor: pointer;
+		border-radius: 4px;
+		padding: 4px;
+		display: inline-block;
 	}
 </style>

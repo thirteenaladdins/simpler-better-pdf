@@ -15,14 +15,16 @@ when the duplicate is removed then remove the notification from the top
 	import UploadIcon from '../icons/upload.svg';
 	import FileIcon from '../components/FileIcon.svelte';
 	import processAllFiles from '../utils/processAllFiles';
-	import { errorMessage } from '../store/errorMessageStore';
-	import { duplicateError } from '../store/duplicateErrorStore';
+	// import processAllFiles from '../utils/processFiles';
 
 	const dispatch = createEventDispatcher();
 
 	// STORE
 	import { selectedItem } from '../store/selectedItemStore';
 	import { fileCount } from '../store/fileCountStore';
+	import { errorMessage } from '../store/errorMessageStore';
+	import { duplicateError } from '../store/duplicateErrorStore';
+	import { loading } from '../store/loadingStore';
 
 	let currentSelectedItem = $selectedItem;
 
@@ -51,6 +53,7 @@ when the duplicate is removed then remove the notification from the top
 
 	async function handleFileUpload(selectedFiles, selectedOption) {
 		try {
+			loading.set(true);
 			const responseData = await processAllFiles(selectedFiles, selectedOption);
 			console.log(responseData);
 
@@ -114,6 +117,9 @@ when the duplicate is removed then remove the notification from the top
 		fileCount.set(selectedFiles.length);
 		markDuplicates();
 
+		// TODO: finish implementing this
+		// validateFileSize(selectedFiles);
+
 		// Reset the counter and unhighlight the drop area
 		dragCounter = 0;
 		unhighlight();
@@ -156,6 +162,23 @@ when the duplicate is removed then remove the notification from the top
 		}
 	}
 
+	function validateFileSize(files) {
+		if (files.length > 0) {
+			// Check if there are any files in the array
+			for (let file of files) {
+				// Loop through each file in the array
+				if (file.size > 0) {
+					console.log('file is good');
+				} else {
+					alert('File contains no data.');
+					return false; // Exit the function and indicate a bad file was found
+				}
+			}
+			return true; // All files are good
+		}
+		return false; // No files to validate
+	}
+
 	function handleFiles(event) {
 		const filesFromInput = Array.from(event.target.files);
 		selectedFiles = [...selectedFiles, ...filesFromInput];
@@ -164,6 +187,9 @@ when the duplicate is removed then remove the notification from the top
 		fileCount.set(selectedFiles.length);
 		// Mark the duplicates
 		markDuplicates();
+
+		// TODO: finish implementing this
+		// validateFileSize(selectedFiles);
 
 		// Reset the file input for the next use
 		event.target.value = '';
@@ -176,12 +202,11 @@ when the duplicate is removed then remove the notification from the top
 		markDuplicates();
 	}
 
-	// get duplicates list
-
-	// $: duplicatedFilenames = getDuplicateFilenames(selectedFiles);
-
-	// function isFilenameDuplicate(filename) {
-	// 	return duplicatedFilenames.has(filename);
+	// let file = document.querySelector('input[type="file"]').files[0];
+	// if (file && file.size > 0) {
+	// 	// Proceed with the upload or processing
+	// } else {
+	// 	alert('The file is empty or invalid.');
 	// }
 </script>
 
@@ -272,6 +297,7 @@ when the duplicate is removed then remove the notification from the top
 		width: 40rem;
 		border: 1px solid black;
 		border-radius: 10px;
+		background-color: white;
 	}
 
 	.drop-area-full {
@@ -293,6 +319,7 @@ when the duplicate is removed then remove the notification from the top
 		/* background-color: #f5f7fd;  */
 		/* Light background color for better contrast */
 		transition: background-color 0.3s; /* Smooth transition for hover effect */
+		background-color: white;
 	}
 
 	.drop-area-full:hover {
@@ -315,11 +342,6 @@ when the duplicate is removed then remove the notification from the top
 		/* background-color: #f5f7fd;  */
 		/* Light background color for better contrast */
 		transition: background-color 0.3s; /* Smooth transition for hover effect */
-	}
-
-	.drop-area-full.file-selected:hover {
-		/* background-color: #fafafa; */
-		/* cursor: pointer; */
 	}
 
 	.highlighted {
@@ -358,5 +380,21 @@ when the duplicate is removed then remove the notification from the top
 	.font-sans {
 		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
 			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+	}
+
+	:global(body[data-theme='Serpent'] .drop-area-full) {
+		position: relative;
+	}
+
+	:global(body[data-theme='Serpent'] .drop-area-full .hidden-photo) {
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		transition: opacity 0.3s;
+	}
+
+	:global(body[data-theme='Serpent'] .drop-area-full:hover .hidden-photo) {
+		opacity: 1;
 	}
 </style>

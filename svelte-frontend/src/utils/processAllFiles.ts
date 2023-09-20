@@ -13,15 +13,22 @@ const processAllFiles = async (files: File[], option: string): Promise<{ data: s
     for (const file of files) {
         try {
             const responseData = await uploadFile(file, option);
-
+            // const headers = responseData.headers
+            // console.log(responseData)
+            // console.log(headers)
+            console.log(responseData.processType)
+            
             if (responseData.error) {
                 console.error(`Error: Something went wrong with file ${file.name}:`, responseData.error);
                 throw new Error(responseData.error);
             } else {
-                const { contentType, dataObject } = responseData;
+                // const { contentType, dataObject, headers } = await uploadFile(file, option);
+                // const processType = headers['x-process-type'];
+                const { contentType, dataObject, processType } = responseData;
 
-                if (contentType === 'application/json') {
-                    const parsedData = parseJsonData(JSON.parse(dataObject.data)).split("\r\n");
+                // instead read content header 
+                if (processType === 'Luxury Goods') {
+                    const parsedData = parseJsonData(JSON.parse(responseData.dataObject.data)).split("\r\n");
 
                     if (isFirstFile) {
                         responses.push(...parsedData);
@@ -30,13 +37,18 @@ const processAllFiles = async (files: File[], option: string): Promise<{ data: s
                         responses.push(...parsedData.slice(1));
                     }
                     filetype = 'text/csv'; // Assume CSV for JSON data
-                } else if (contentType === 'application/pdf') {
+                } else if (processType === 'ALS Header') {
                     const baseUrl = process.env.NODE_ENV === 'production'
                         ? 'https://als-toolkit-518aa93f7ddc.herokuapp.com/'
                         : 'http://localhost:591';
                     const url = `${baseUrl}`;
+                    
+                    // instead of fetching the file we want to return the blob
+                    // const response = await axios.get(`${url}/api/fetch_file/${encodeURIComponent(dataObject.url)}`, {
+                    //     responseType: 'blob',
+                    // });
 
-                    const response = await axios.get(`${url}/api/fetch_file/${encodeURIComponent(dataObject)}`, {
+                    const response = await axios.get(`${url}/api/fetch_file/${encodeURIComponent(dataObject.url)}`, {
                         responseType: 'blob',
                     });
 
@@ -44,8 +56,27 @@ const processAllFiles = async (files: File[], option: string): Promise<{ data: s
                         data: response.data, // This would be the blob
                         filetype: 'application/pdf'
                     };
-                } else {
-                    throw new Error(`Unsupported content type: ${contentType}`);
+                } else if (processType === 'ALS Header New') {
+                    // this shouldn't be called url
+                    let encodedPdf = responseData.dataObject.url;
+                    let decodedPdf = atob(encodedPdf);  // Decode Base64 string to character string
+                
+                    // Convert character string to Uint8Array
+                    const uint8Array = new Uint8Array(decodedPdf.length);
+                    for (let i = 0; i < decodedPdf.length; i++) {
+                        uint8Array[i] = decodedPdf.charCodeAt(i);
+                    }
+                
+                    // Convert Uint8Array to Blob
+                    const blob = new Blob([uint8Array], { type: 'application/pdf' });
+                
+                    return {
+                        data: blob, // This would be the blob
+                        filetype: 'application/pdf'
+                    };
+                }
+                  else {
+                    throw new Error(`Unsupported content type: ${processType}`);
                 }
             }
         } catch (error) {

@@ -63,11 +63,30 @@
 	</button>
 
 	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
-	<button
+	<!-- <button
 		on:click={() => toggleHighlight('ALS Header')}
 		class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
 	>
 		ALS Header
+	</button> -->
+
+	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
+	<button
+		on:click={() => toggleHighlight('ALS Header New')}
+		class="sidebar-button font-sans {$selectedItem === 'ALS Header New'
+			? 'on-selected-sidebar'
+			: ''}"
+	>
+		ALS Header
+	</button>
+
+	<button
+		on:click={() => toggleHighlight('Annotate')}
+		class="sidebar-button font-sans disabled-icon {$selectedItem === 'Annotate'
+			? 'on-selected-sidebar'
+			: ''}"
+	>
+		Annotate
 	</button>
 
 	<div class="theme-button-container">
@@ -98,7 +117,9 @@
 		<!-- implement this later -->
 		<button
 			on:click={() => toggleHighlightTheme('Serpent')}
-			class="sidebar-button font-sans {$theme === 'Serpent' ? 'on-selected-sidebar' : ''}"
+			class="sidebar-button font-sans disabled-icon {$theme === 'Serpent'
+				? 'on-selected-sidebar'
+				: ''}"
 		>
 			<Serpent />
 		</button>
@@ -153,6 +174,7 @@
 		height: 100%; /* Use 100% of the parent's height */
 		overflow: auto;
 		border-right: 1px solid #d3d3d3;
+		background-color: #fff;
 	}
 
 	/* Centering text inside .sidebar-button */

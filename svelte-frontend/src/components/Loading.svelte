@@ -32,7 +32,12 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(255, 255, 255, 0.8);
+		color: #4463ff;
+		font-weight: bold;
+		background-color: rgba(255, 255, 255, 0.5);
+		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
+			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+		font-size: 14px;
 		display: flex;
 		justify-content: center;
 		align-items: center;

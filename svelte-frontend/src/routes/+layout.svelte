@@ -1,5 +1,5 @@
 <script>
-	import './layout.js'; // This imports and runs the layout.js file
+	// import './+layout.js'; // This imports and runs the layout.js file
 	import '../app.css';
 	import Loading from '../components/Loading.svelte';
 	import { loading } from '../store/loadingStore.js';

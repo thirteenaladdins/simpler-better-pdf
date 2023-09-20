@@ -239,14 +239,14 @@
 	let pdfDoc = null;
 	let pageNum = 1; // Default page to display is the first one
 
-	let canvas;
-	let ctx;
+	// let canvas;
+	// let ctx;
 
-	onMount(() => {
-		canvas = document.createElement('canvas');
-		ctx = canvas.getContext('2d');
-		document.getElementById('pdf-container').appendChild(canvas);
-	});
+	// onMount(() => {
+	// 	canvas = document.createElement('canvas');
+	// 	ctx = canvas.getContext('2d');
+	// 	document.getElementById('pdf-container').appendChild(canvas);
+	// });
 
 	function renderPage(num) {
 		pdfDoc.getPage(num).then(function (page) {
@@ -424,6 +424,20 @@
 				Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 		}
 
+		/* PDF Viewer */
+		#canvas-container {
+			flex: 3;
+			position: relative;
+			overflow: hidden;
+		}
+
+		/* Action Bar */
+		.action-bar-container {
+			display: flex;
+			align-items: stretch;
+			flex: 2;
+		}
+
 		ul {
 			list-style-type: none;
 			padding: 0;
@@ -454,20 +468,6 @@
 
 		.active-cell {
 			background-color: #f5f5f5;
-		}
-
-		/* PDF Viewer */
-		#canvas-container {
-			flex: 3;
-			position: relative;
-			overflow: hidden;
-		}
-
-		/* Action Bar */
-		.action-bar-container {
-			display: flex;
-			align-items: stretch;
-			flex: 2;
 		}
 
 		.action-bar {
@@ -506,8 +506,8 @@
 			background: linear-gradient(
 				to right,
 				transparent 10px,
-				blue 10px,
-				blue 12px,
+				rgb(42, 91, 252) 10px,
+				rgb(42, 91, 252) 12px,
 				transparent 12px
 			);
 			cursor: ew-resize;

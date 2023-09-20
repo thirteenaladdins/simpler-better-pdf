@@ -74,21 +74,28 @@
 		}
 	});
 
-	// this actually runs after the thing has processed
-	// maybe loading should start immediately and then error or success after
+	let showLoading = false;
+	let startTime;
+
+	$: if ($loading && !showLoading) {
+		showLoading = true;
+		startTime = Date.now();
+	}
+
 	function handleSuccess(event) {
 		uploadSuccessful = true;
 		responseData = event.detail;
 		sessionData.set(responseData);
-		loading.set(true);
 
-		// Add a delay of 2 seconds before navigating to the results page
-		// TODO: add results/UUID.
+		const elapsedTime = Date.now() - startTime;
+		const delay = Math.max(0, 1500 - elapsedTime);
+
 		setTimeout(() => {
 			goto('/results').then(() => {
 				loading.set(false);
+				showLoading = false;
 			});
-		}, 2500);
+		}, delay);
 	}
 
 	function handleError(event) {
@@ -98,19 +105,20 @@
 
 	// import { slide } from 'svelte/transition';
 
-	function slideRight(node, { delay = 0, duration = 400 }) {
-		const style = getComputedStyle(node);
-		const transform = style.transform === 'none' ? '' : style.transform;
+	// function slideRight(node, { delay = 0, duration = 400 }) {
+	// 	const style = getComputedStyle(node);
+	// 	const transform = style.transform === 'none' ? '' : style.transform;
 
-		return {
-			delay,
-			duration,
-			css: (t) => `
-            transform: ${transform} translateX(${(1 - t) * 100}%)`
-		};
-	}
+	// 	return {
+	// 		delay,
+	// 		duration,
+	// 		css: (t) => `
+	//         transform: ${transform} translateX(${(1 - t) * 100}%)`
+	// 	};
+	// }
 
 	import { writable } from 'svelte/store';
+	import Loading from '../components/Loading.svelte';
 	let showError = writable(false); // store to control if the error is shown or not
 
 	function displayError() {
@@ -127,6 +135,14 @@
 
 <!-- <button on:click={displayError}>Trigger Error</button> -->
 <!-- just an example button to trigger the error -->
+
+<!-- {#if loading}
+	<Loading />
+{/if} -->
+
+{#if showLoading}
+	<Loading />
+{/if}
 
 <div class="outerContainer">
 	<!-- Left column -->
@@ -182,6 +198,7 @@
 	.outerContainer {
 		display: flex;
 		height: 90vh;
+		background-color: #fafafa;
 	}
 
 	.left-column {

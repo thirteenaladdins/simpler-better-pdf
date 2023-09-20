@@ -5,7 +5,7 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function handleLoad(fetchLogic) {
+export async function _handleLoad(fetchLogic) {
     loading.set(true);
 
     const dataPromise = fetchLogic();
