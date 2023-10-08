@@ -35,9 +35,11 @@ origins = ["http://localhost:5173",  # Replace with your local client's address
     "http://127.0.0.1:5173",
     "http://0.0.0.0:5173",]
 
+# TODO: amend origins later
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allow specific origin
+    allow_origins=["*"],  # Allow specific origin
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
