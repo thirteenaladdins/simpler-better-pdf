@@ -102,7 +102,7 @@ def fetch_file(filename):
     return send_file(file_path)
 
 # change to process_file
-@app.route("/api/processfile", methods=["POST"])
+@app.route("/api/process_file", methods=["POST"])
 def process():
     if request.method == "POST":
         print(request.files)

@@ -11,9 +11,17 @@
 
 	import SideNav from '../components/SideNav.svelte';
 	import DropAreaFileUpload from '../components/DropAreaFileUpload.svelte';
+	import { selectedItem } from '../store/selectedItemStore.js';
 	// import Footer from "../components/Footer.svelte";
 
 	import { fileCount } from '../store/fileCountStore.js';
+
+	const baseUrl = import.meta.env.DEV
+		? import.meta.env.VITE_BASE_URL_DEVELOPMENT
+		: import.meta.env.VITE_BASE_URL_PRODUCTION;
+
+	console.log(import.meta.env);
+	console.log('Base URL:', baseUrl);
 
 	let serverAwake = false; // Initially set to false
 	let uploadSuccessful = false;
@@ -45,12 +53,10 @@
 
 	onMount(async () => {
 		try {
-			// const response = await fetch('https://als-toolkit-518aa93f7ddc.herokuapp.com/ping');
-
-			const baseUrl =
-				process.env.NODE_ENV === 'production'
-					? 'https://als-toolkit-518aa93f7ddc.herokuapp.com/'
-					: 'http://localhost:591';
+			// const baseUrl =
+			// 	process.env.NODE_ENV === 'production'
+			// 		? VITE_BASE_URL_PRODUCTION
+			// 		: VITE_BASE_URL_DEVELOPMENT;
 
 			const response = await fetch(`${baseUrl}/ping`);
 			const data = await response.json();
@@ -89,13 +95,21 @@
 
 		const elapsedTime = Date.now() - startTime;
 		const delay = Math.max(0, 1500 - elapsedTime);
-
-		setTimeout(() => {
-			goto('/results').then(() => {
-				loading.set(false);
-				showLoading = false;
-			});
-		}, delay);
+		if ($selectedItem === 'Annotate') {
+			setTimeout(() => {
+				goto('/pdf').then(() => {
+					loading.set(false);
+					showLoading = false;
+				});
+			}, delay);
+		} else {
+			setTimeout(() => {
+				goto('/results').then(() => {
+					loading.set(false);
+					showLoading = false;
+				});
+			}, delay);
+		}
 	}
 
 	function handleError(event) {

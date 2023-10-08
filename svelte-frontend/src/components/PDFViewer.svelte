@@ -1,11 +1,12 @@
 <!-- Here we'll run the new script against the upload script -->
+<!-- Go to pdf -  -->
 
 <script>
 	import { onMount } from 'svelte';
-	// import { createWorker } from 'tesseract.js';
 	import * as pdfjs from 'pdfjs-dist';
 
 	// import { mockResponseJson } from '../data/data.js';
+	import { sessionData } from '../store/sessionStore.js';
 
 	let ocrText = '';
 	let pdfDimensions;
@@ -26,8 +27,24 @@
 	function toggleResults() {
 		isOCREnabled = !isOCREnabled;
 	}
+	console.log('pdf viewer', $sessionData);
 
 	onMount(() => {
+		let { pdfBase64 } = $sessionData;
+
+		let decodedPdf = atob(pdfBase64); // Decode Base64 string to character string
+
+		// Convert character string to Uint8Array
+		const uint8Array = new Uint8Array(decodedPdf.length);
+		for (let i = 0; i < decodedPdf.length; i++) {
+			uint8Array[i] = decodedPdf.charCodeAt(i);
+		}
+
+		// Convert Uint8Array to Blob
+		const uploadedFile = new Blob([uint8Array], { type: 'application/pdf' });
+		rawWords = [];
+		processPDF(uploadedFile);
+
 		const firstCell = document.querySelector('.entity-table td');
 		if (firstCell) {
 			firstCell.classList.add('active-cell');
@@ -176,34 +193,7 @@
 
 			// Run OCR only if rawWords array is empty
 			if (!rawWords.length) {
-				// const worker = await createWorker();
-				// await worker.loadLanguage('eng');
-				// await worker.initialize('eng');
-				// const {
-				// 	data: { text, words: ocrWords }
-				// } = await worker.recognize(canvasElement);
-				// ocrText = text;
-				// rawWords = ocrWords; // Store the raw results
-				// await worker.terminate();
-				const formData = new FormData();
-				formData.append('file', file);
-
-				// TODO:
-				// test server
-				const response = await fetch('http://localhost:591/ocr/upload', {
-					method: 'POST',
-					body: formData
-				});
-
-				const responseJson = await response.json();
-
-				console.log('Full response:', responseJson);
-				console.log('Response status:', response.status);
-				console.log('Response headers:', response.headers);
-
-				const { data: ocrWords, dimensions } = responseJson;
-
-				// ocrText = text; change to ocrResults
+				let { data: ocrWords, dimensions } = $sessionData;
 				rawWords = ocrWords; // Store the raw resultsff
 				console.log(rawWords);
 				pdfDimensions = dimensions;
@@ -269,13 +259,18 @@
 	// 	renderPage(pageNum);
 	// });
 
-	function handleFileChange(event) {
-		uploadedFile = event.target.files[0];
-		rawWords = []; // Reset rawWords when new file is uploaded
-		if (uploadedFile) {
-			processPDF(uploadedFile);
-		}
-	}
+	// TODO:  so this used to be triggered upon the upload of the file
+	// now we want to view the session data
+	// instead, we need to handle the event when we navigate to this page.
+	//
+
+	// function handleFileChange(event) {
+	// 	uploadedFile = event.target.files[0];
+	// 	rawWords = []; // Reset rawWords when new file is uploaded
+	// 	if (uploadedFile) {
+
+	// 	}
+	// }
 
 	function setScale(newScale) {
 		scale = newScale;
@@ -367,10 +362,10 @@
 <div id="pdf-container">
 	<div id="canvas-container" bind:this={canvasContainer}>
 		<canvas bind:this={canvasElement} />
-		<input type="file" id="pdf-upload" accept=".pdf" on:change={handleFileChange} />
+		<!-- <input type="file" id="pdf-upload" accept=".pdf" on:change={handleFileChange} />
 		<button on:click={toggleResults}>
 			{isOCREnabled ? 'Show Native Text' : 'Show OCR Results'}
-		</button>
+		</button> -->
 		<button id="prev">Previous</button>
 		<button id="next">Next</button>
 		<div id="pdf-container" />

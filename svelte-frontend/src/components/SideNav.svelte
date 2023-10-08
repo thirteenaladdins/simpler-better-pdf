@@ -82,9 +82,7 @@
 
 	<button
 		on:click={() => toggleHighlight('Annotate')}
-		class="sidebar-button font-sans disabled-icon {$selectedItem === 'Annotate'
-			? 'on-selected-sidebar'
-			: ''}"
+		class="sidebar-button font-sans {$selectedItem === 'Annotate' ? 'on-selected-sidebar' : ''}"
 	>
 		Annotate
 	</button>
