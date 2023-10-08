@@ -5,6 +5,8 @@ interface UploadFileResponseData {
   contentType: string;
   dataObject?: any;
   processType: string;
+  json?: any;
+  // json
 }
 
 // ocr extraction
@@ -15,9 +17,12 @@ const uploadFile = async (file: File, option: string): Promise<UploadFileRespons
     : 'http://localhost:591';
 
   // Dynamically select the endpoint based on the processing option
-  let endpoint = '/api/processfile';
+  let endpoint = '/api/process_file';
   if (option === 'ALS Header' || option === 'ALS Header New') {
     endpoint = '/api/process_pdf';
+  }
+  else if (option == 'Annotate' ) {
+    endpoint = '/ocr/upload'
   }
 
   const url = `${baseUrl}${endpoint}`;

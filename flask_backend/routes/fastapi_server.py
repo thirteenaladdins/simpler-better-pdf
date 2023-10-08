@@ -77,7 +77,7 @@ async def fetch_file(filename: str):
     return FileResponse(file_path)
 
 # TODO: update this to process_file
-@app.post("/api/processfile")
+@app.post("/api/process_file")
 async def process_file(file: UploadFile = File(...), option: Optional[str] = Form(None)):
     # Check if file is attached
     if file is None:
