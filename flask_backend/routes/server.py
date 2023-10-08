@@ -1,8 +1,6 @@
 import os
 import logging
-import json 
 import pandas as pd
-import fitz 
 
 from luxury_goods import extract_luxury_goods_data
 from siemens import Siemens
@@ -14,7 +12,6 @@ from flask import (
     jsonify,
     request,
     redirect,
-    Response,
     send_file,
     make_response  # moved from flask.helpers to simplify
 )

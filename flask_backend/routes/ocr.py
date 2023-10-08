@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from pdf2image import convert_from_path
 import pytesseract
 from PIL import Image
+import base64
 
 # Blueprint configuration
 ocr_blueprint = Blueprint('ocr', __name__)
@@ -77,10 +78,15 @@ def process_file(filepath):
 
             ocr_results.extend(formatted_results)
 
+        # we have to open the file here instead 
+        with open(filepath, 'rb') as pdf_file:
+            encoded_pdf = base64.b64encode(pdf_file.read()).decode('utf-8')
+
         os.remove(filepath)  # remove the saved file
         logging.info(f"Processed and removed file: {filepath}")
-
-        return jsonify({"data": ocr_results, "dimensions": first_page_dimensions})
+        
+        return jsonify({"data": ocr_results, "pdfBase64": encoded_pdf,
+                         "dimensions": first_page_dimensions, "processType": "Annotate"})
 
     except Exception as e:
         logging.error(f"Error processing file: {filepath}. Error: {str(e)}")
