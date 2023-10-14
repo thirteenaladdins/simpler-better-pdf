@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from logging_utils.logger import LoggingMiddleware, log_processed_data
 
 from luxury_goods import extract_luxury_goods_data
 from siemens import Siemens
@@ -37,6 +38,9 @@ origins = ["http://localhost:5173",  # Replace with your local client's address
 
 # TODO: amend origins later
 
+
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow specific origin
@@ -44,6 +48,8 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+app.add_middleware(LoggingMiddleware)
 
 # Constants
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp/")
@@ -79,6 +85,8 @@ async def fetch_file(filename: str):
     return FileResponse(file_path)
 
 # TODO: update this to process_file
+# what is the difference between process_file and process_pdf
+# not clear
 @app.post("/api/process_file")
 async def process_file(file: UploadFile = File(...), option: Optional[str] = Form(None)):
     # Check if file is attached
@@ -101,6 +109,8 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
             "data": processed_file.to_json(orient="records"),  # Assuming processed_file is a Pandas DataFrame
             "processType": "Siemens Regex"
         }
+
+        log_processed_data(file.filename, option, response_data)
         return JSONResponse(content=response_data)
 
     elif option == "Luxury Goods":
@@ -110,6 +120,8 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
             "data": processed_file.to_json(orient="records"),  # Assuming processed_file is a Pandas DataFrame
             "processType": "Luxury Goods"
         }
+
+        log_processed_data(file.filename, option, response_data)
         return JSONResponse(content=response_data)
 
     else:
