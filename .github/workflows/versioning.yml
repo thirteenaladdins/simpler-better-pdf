@@ -30,7 +30,7 @@ jobs:
           echo "VITE_GIT_DESCRIBE_OUTPUT=$GIT_DESCRIBE_OUTPUT" >> $GITHUB_ENV
 
       - name: Print GIT_DESCRIBE_OUTPUT
-        run: echo $GIT_DESCRIBE_OUTPUT
+        run: echo ${{ env.VITE_GIT_DESCRIBE_OUTPUT }}
 
       # Step 4: Update Vercel Environment Variable
       - name: Set git describe output for Vercel
@@ -40,7 +40,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "key": "VITE_GIT_DESCRIBE_OUTPUT",
-              "value": "'"$GIT_DESCRIBE_OUTPUT"'",
+              "value": "'"${{ env.VITE_GIT_DESCRIBE_OUTPUT }}"'",
               "type": "plain",
               "target": ["production", "preview"],
               "comment": "Description or comment for the environment variable"
