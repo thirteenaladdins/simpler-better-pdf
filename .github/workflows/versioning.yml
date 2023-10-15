@@ -3,8 +3,7 @@ name: Auto versioning and Set Latest Tag
 on:
   push:
     branches:
-      # - main # Or the branch you want to auto-version
-      - testing
+      - testing # Or the branch you want to auto-version
 
 jobs:
   build:
@@ -24,8 +23,12 @@ jobs:
           DEFAULT_BUMP: patch # default type of bump, can be one of: major, minor, patch
           RELEASE_BRANCHES: main # branch where versioning happens
 
-      # Step 3: Set latest tag as an environment variable
-      - name: Set latest tag as env variable
+      # Step 3: Set full git describe output as an environment variable
+      - name: Set git describe output as env variable
         run: |
-          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-          echo "VITE_LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          GIT_DESCRIBE_OUTPUT=$(git describe --tags)
+          echo "VITE_LATEST_TAG=$GIT_DESCRIBE_OUTPUT" >> $GITHUB_ENV
+
+      # Step 4: Debug - Print GIT_DESCRIBE_OUTPUT
+      - name: Debug - Print GIT_DESCRIBE_OUTPUT
+        run: echo $VITE_GIT_DESCRIBE_OUTPUT
