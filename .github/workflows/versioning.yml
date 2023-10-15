@@ -1,0 +1,21 @@
+name: Auto versioning
+on:
+  push:
+    branches:
+      - main # Or the branch you want to auto-version
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Auto versioning
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch # default type of bump, can be one of: major, minor, patch
+          RELEASE_BRANCHES: main # branch where versioning happens
