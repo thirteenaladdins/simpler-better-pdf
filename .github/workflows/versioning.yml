@@ -29,6 +29,9 @@ jobs:
           GIT_DESCRIBE_OUTPUT=$(git describe --tags)
           echo "VITE_GIT_DESCRIBE_OUTPUT=$GIT_DESCRIBE_OUTPUT" >> $GITHUB_ENV
 
+      - name: Print GIT_DESCRIBE_OUTPUT
+        run: echo $GIT_DESCRIBE_OUTPUT
+
       # Step 4: Update Vercel Environment Variable
       - name: Set git describe output for Vercel
         run: |
