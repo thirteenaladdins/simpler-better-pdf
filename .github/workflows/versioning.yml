@@ -27,8 +27,20 @@ jobs:
       - name: Set git describe output as env variable
         run: |
           GIT_DESCRIBE_OUTPUT=$(git describe --tags)
-          echo "VITE_LATEST_TAG=$GIT_DESCRIBE_OUTPUT" >> $GITHUB_ENV
+          echo "VITE_GIT_DESCRIBE_OUTPUT=$GIT_DESCRIBE_OUTPUT" >> $GITHUB_ENV
 
-      # Step 4: Debug - Print GIT_DESCRIBE_OUTPUT
-      - name: Debug - Print GIT_DESCRIBE_OUTPUT
-        run: echo $VITE_GIT_DESCRIBE_OUTPUT
+      # Step 4: Update Vercel Environment Variable
+      - name: Set git describe output for Vercel
+        run: |
+          curl -X PATCH "https://api.vercel.com/v5/projects/$VERCEL_PROJECT_ID/env" \
+          -H "Authorization: Bearer $VERCEL_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "key": "VITE_GIT_DESCRIBE_OUTPUT",
+            "value": "'"$GIT_DESCRIBE_OUTPUT"'",
+            "target": ["production", "preview"]
+          }'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: "prj_hxy6qsKh9ugPTmDzkUFpZaG8vsH5" # Replace with your Vercel project's ID
+

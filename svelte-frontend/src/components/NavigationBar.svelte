@@ -6,7 +6,7 @@
 		goto('/');
 	}
 
-	const latestTag = import.meta.env.VITE_LATEST_TAG;
+	const latestTag = import.meta.env.VITE_GIT_DESCRIBE_OUTPUT;
 </script>
 
 <div class="navbar font-sans">
