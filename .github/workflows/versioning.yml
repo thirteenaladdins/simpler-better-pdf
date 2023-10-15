@@ -21,7 +21,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: patch # default type of bump, can be one of: major, minor, patch
-          RELEASE_BRANCHES: main # branch where versioning happens
+          RELEASE_BRANCHES: testing # Changed to testing since that's the branch this workflow triggers on
 
       # Step 3: Set full git describe output as an environment variable
       - name: Set git describe output as env variable
@@ -32,15 +32,16 @@ jobs:
       # Step 4: Update Vercel Environment Variable
       - name: Set git describe output for Vercel
         run: |
-          curl -X PATCH "https://api.vercel.com/v5/projects/$VERCEL_PROJECT_ID/env" \
-          -H "Authorization: Bearer $VERCEL_TOKEN" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "key": "VITE_GIT_DESCRIBE_OUTPUT",
-            "value": "'"$GIT_DESCRIBE_OUTPUT"'",
-            "target": ["production", "preview"]
-          }'
+          curl -X POST "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "key": "VITE_GIT_DESCRIBE_OUTPUT",
+              "value": "'"$GIT_DESCRIBE_OUTPUT"'",
+              "type": "plain",
+              "target": ["production", "preview"],
+              "comment": "Description or comment for the environment variable"
+            }'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_PROJECT_ID: "prj_hxy6qsKh9ugPTmDzkUFpZaG8vsH5" # Replace with your Vercel project's ID
-
+          VERCEL_PROJECT_ID: "prj_hxy6qsKh9ugPTmDzkUFpZaG8vsH5" # Your Vercel project's ID
