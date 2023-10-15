@@ -12,3 +12,15 @@
     color: white;
     /* ... other variables for the dark theme ... */
 }
+
+/* THIS IS FOR LIGHT THEME */
+/* Change the background color of the highlighted text */
+::selection {
+    background-color: #7AFFE1; 
+}
+
+/* For browsers that don't support ::selection, use Mozilla's pseudo-element */
+::-moz-selection {
+    background-color: #7AFFE1;
+}
+

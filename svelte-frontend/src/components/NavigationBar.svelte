@@ -5,19 +5,22 @@
 	function handleClick() {
 		goto('/');
 	}
+
+	const latestTag = import.meta.env.VITE_LATEST_TAG;
 </script>
 
-<div class="navbar">
+<div class="navbar font-sans">
 	<!-- come back - this should also be a home button and across multiple pages -->
 	<div
 		role="button"
 		tabindex="0"
 		on:click={handleClick}
 		on:keydown={handleClick}
-		class="home-button font-sans"
+		class="home-button"
 	>
 		Magic Extractor
 	</div>
+	{latestTag}
 </div>
 
 <style>

@@ -1,17 +1,21 @@
-name: Auto versioning
+name: Auto versioning and Set Latest Tag
+
 on:
   push:
     branches:
-      - main # Or the branch you want to auto-version
+      # - main # Or the branch you want to auto-version
+      - testing
 
 jobs:
   build:
-    name: Create Release
+    name: Create Release and Set Tag
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Auto versioning
       - name: Auto versioning
         uses: anothrNick/github-tag-action@1.67.0
         env:
@@ -19,3 +23,9 @@ jobs:
           WITH_V: true
           DEFAULT_BUMP: patch # default type of bump, can be one of: major, minor, patch
           RELEASE_BRANCHES: main # branch where versioning happens
+
+      # Step 3: Set latest tag as an environment variable
+      - name: Set latest tag as env variable
+        run: |
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          echo "VITE_LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
