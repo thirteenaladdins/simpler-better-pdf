@@ -3,7 +3,7 @@ name: Auto versioning and Set Latest Tag
 on:
   push:
     branches:
-      - testing # Or the branch you want to auto-version
+      - mains # Or the branch you want to auto-version
 
 jobs:
   build:
@@ -42,9 +42,17 @@ jobs:
               "key": "VITE_GIT_DESCRIBE_OUTPUT",
               "value": "'"${{ env.VITE_GIT_DESCRIBE_OUTPUT }}"'",
               "type": "plain",
-              "target": ["production", "preview"],
-              "comment": "Description or comment for the environment variable"
+              "target": ["production"],
+              "comment": "Updating version number"
             }'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_PROJECT_ID: "prj_hxy6qsKh9ugPTmDzkUFpZaG8vsH5" # Your Vercel project's ID
+          VERCEL_PROJECT_ID: "prj_UvM6m13CfQSTM3kdhKTgxwP0aayn" # Your Vercel project's ID
+
+# this is the update route instead but it must already exist
+# curl -X PATCH "https://api.vercel.com/v9/projects/prj_hxy6qsKh9ugPTmDzkUFpZaG8vsH5/env/MzIVqhub1KGZmR5A  -H "Authorization: Bearer MzIVqhub1KGZmR5A" \
+# -d '{
+# "comment": "Updating version number",
+# "type": "plain",
+# "value": "3.2.4"
+# }'
