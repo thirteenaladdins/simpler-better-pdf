@@ -239,7 +239,7 @@ def find_quantity_in_list(item_list, value):
 
         # Extract integers from the full_list
         # int_values = [float(item) for item in full_list if re.match(r'^\d+$', item)]
-        print('quantity function total_value', total_value)
+        # print('quantity function total_value', total_value)
         # Get all combinations of two numbers from the list
         for a, b in combinations(numbers, 2):
             product = float(a) * float(b)
@@ -249,7 +249,7 @@ def find_quantity_in_list(item_list, value):
                 # return the quantity here?
                 string_a = str(a)
                 string_b = str(b)
-                print('candidates', string_a, string_b)
+                # print('candidates', string_a, string_b)
                 # keep only integers, then fetch the final number from the list
                 if '.' not in string_a:
                     quantity = string_a
@@ -265,7 +265,7 @@ def find_quantity_in_list(item_list, value):
         
         if discounts:
             discount_values = parse_discount(discounts[0])
-            print("discounts", discount_values)
+            # print("discounts", discount_values)
 
             # for each combination of the values, apply the discounts
             for a, b in combinations(numbers, 2):
@@ -276,11 +276,11 @@ def find_quantity_in_list(item_list, value):
                     # here - remove the final value from a and b
                     # retain only the integer
                     if '.' not in a:
-                        print('a', a)
+                        # print('a', a)
                         return a
                     
                     else:
-                        print('b', b)
+                        # print('b', b)
                         return b
                 
         return None
@@ -302,7 +302,7 @@ def find_quantity_in_list(item_list, value):
         # while value_str in remove_duplicates:
         #     remove_duplicates.remove(value_str)
 
-        print('Processed items:', remove_duplicates)
+        # print('Processed items:', remove_duplicates)
         remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
 
         potential_quantity = find_quantity_and_unit_price(remove_leading_zeroes, float(value), full_list)

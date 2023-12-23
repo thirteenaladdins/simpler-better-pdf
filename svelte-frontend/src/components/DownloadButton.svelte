@@ -46,6 +46,7 @@
 		width: 200px;
 		text-overflow: ellipsis;
 		background: linear-gradient(145deg, #6366f1, #0156d0); /* Modern gradient */
+		transition: background 0.3s; /* Smooth transition for the background */
 		color: #fff;
 		font-family: 'Arial', sans-serif;
 		font-size: 14px;
@@ -60,6 +61,10 @@
 	}
 
 	.download-button:hover {
+		background: linear-gradient(145deg, #5255d1, #0045bf);
+	}
+
+	/* .download-button:hover {
 		transform: translateY(-2px);
 		box-shadow: 0px 6px 8px rgba(0, 85, 255, 0.15);
 	}
@@ -67,5 +72,5 @@
 	.download-button:active {
 		transform: translateY(1px);
 		box-shadow: 0px 2px 4px rgba(0, 85, 255, 0.15);
-	}
+	} */
 </style>

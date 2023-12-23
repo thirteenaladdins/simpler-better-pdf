@@ -1,24 +1,29 @@
 import os
 import logging
+import uuid
+import datetime
+import base64
+import json
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi.responses import FileResponse, JSONResponse
+
 from logging_utils.logger import LoggingMiddleware, log_processed_data
+from logging_utils.database_handler import DatabaseLogHandler
 
 from luxury_goods import extract_luxury_goods_data
+from cct_processing.map_to_cct_json import map_df_to_cct_json
 from siemens import Siemens
 from als_header.pdf_add_header_footer import add_header_footer_to_pdf
 from als_header.pdf_add_header import add_header_footer
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse, JSONResponse
-import os
+from starlette.requests import Request
 
 from typing import Optional
-import base64
 
-import json
 from dotenv import load_dotenv
 
 # TODO: equivalent
@@ -37,9 +42,6 @@ origins = ["http://localhost:5173",  # Replace with your local client's address
     "http://0.0.0.0:5173",]
 
 # TODO: amend origins later
-
-
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -115,6 +117,28 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
 
     elif option == "Luxury Goods":
         processed_file = extract_luxury_goods_data(file_content)  # Adjust function to handle bytes if necessary
+        converted_file = map_df_to_cct_json(processed_file)
+
+        folder = 'tmp'
+        # generate file name
+
+        myuuid = uuid.uuid4()
+        # UUID
+        filename = f'VECTORAI_LUXURY_GOODS_{myuuid}.json' 
+        # save data to file
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        
+        # Construct the full file path
+        filepath = os.path.join(folder, filename)
+        
+        # Write the data to a JSON file
+        with open(filepath, 'w') as json_file:
+
+            json.dump(converted_file, json_file)
+
+        print(f"File saved at {filepath}")
+
         response_data = {
             "type": "csv",
             "data": processed_file.to_json(orient="records"),  # Assuming processed_file is a Pandas DataFrame
@@ -122,6 +146,7 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
         }
 
         log_processed_data(file.filename, option, response_data)
+
         return JSONResponse(content=response_data)
 
     else:
@@ -170,5 +195,24 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
  
 
 @app.get("/ping")
-async def ping():
+async def ping(request: Request):
+    # Get IP address and user agent from the request
+    ip_address = request.client.host
+    user_agent = request.headers.get('user-agent')
+    access_time = datetime.datetime.now()
+
+    # get from .env 
+    environment = "dev"  # adjust accordingly based on your setup
+    
+    # Log the access details
+    try:
+        DatabaseLogHandler.log_access(access_time, ip_address, user_agent, environment)
+        # notify me when someone uses the application
+        
+
+
+    except Exception as e:
+        # Consider logging the exception here for debugging purposes
+        pass
+
     return {"status": "success", "message": "pong"}

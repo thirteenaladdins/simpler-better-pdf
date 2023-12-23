@@ -9,6 +9,7 @@ import numpy as np
 import pdb
 
 # come back to this, refactor
+# TERMINAL BASED PROCESSOR FOR HB FULLER
 
 HBF_CUSTOMERS = ['HBF912UK', 'HBF914UK']
 
