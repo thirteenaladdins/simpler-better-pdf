@@ -4,6 +4,7 @@ import axios from 'axios';
 const uploadFile = async (file, option) => {
 	let baseUrl;
 
+	console.log(import.meta.env);
 	switch (import.meta.env.VITE_ENV) {
 		case 'development':
 			baseUrl = import.meta.env.VITE_BASE_URL_DEVELOPMENT;
@@ -15,7 +16,7 @@ const uploadFile = async (file, option) => {
 			baseUrl = import.meta.env.VITE_BASE_URL_PRODUCTION;
 			break;
 		default:
-			// default case if environment is not set properly
+			// production - default case if environment is not set properly
 			baseUrl = 'https://als-toolkit-518aa93f7ddc.herokuapp.com';
 	}
 
