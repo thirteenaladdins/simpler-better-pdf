@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// dev, test, prod
+// dev, test, prod,
 const uploadFile = async (file, option) => {
 	let baseUrl;
 
