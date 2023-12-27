@@ -1,23 +1,10 @@
 import axios from 'axios';
 
+import { getBaseUrl } from '../utils/config';
+
 // dev, test, prod,
 const uploadFile = async (file, option) => {
-	let baseUrl;
-
-	switch (import.meta.env.VITE_ENV) {
-		case 'development':
-			baseUrl = import.meta.env.VITE_BASE_URL_DEVELOPMENT;
-			break;
-		case 'test':
-			baseUrl = import.meta.env.VITE_BASE_URL_TEST;
-			break;
-		case 'production':
-			baseUrl = import.meta.env.VITE_BASE_URL_PRODUCTION;
-			break;
-		default:
-			// production - default case if environment is not set properly
-			baseUrl = 'https://als-toolkit-518aa93f7ddc.herokuapp.com';
-	}
+	const baseUrl = getBaseUrl();
 
 	let endpoint = '/api/process_file';
 	if (option === 'ALS Header' || option === 'ALS Header New') {

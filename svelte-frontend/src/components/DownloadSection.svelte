@@ -7,6 +7,7 @@
 	import RefreshIcon from '../icons/refresh-cw.svelte';
 	import SendIcon from '../icons/send.svelte';
 	import { sessionData } from '../store/sessionStore';
+	import refreshPage from '../utils/refreshPage';
 
 	let sessionResponse;
 
@@ -31,10 +32,6 @@
 
 	// 	return formattedFileName;
 	// }
-
-	function refreshPage() {
-		goto('/');
-	}
 </script>
 
 <!-- TODO: move this to the right side  -->

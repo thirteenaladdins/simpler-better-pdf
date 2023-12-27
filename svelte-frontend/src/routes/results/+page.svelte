@@ -1,12 +1,38 @@
 <script>
 	import TableDataViewer from '../../components/TableDataViewer.svelte';
 	import DownloadSection from '../../components/DownloadSection.svelte';
+
+	import { sessionData } from '../../store/sessionStore';
+
+	// TODO: render
+	import PdfViewer from '../../components/PDFViewer.svelte';
+
+	let sessionResponse;
+
+	sessionData.subscribe((value) => {
+		sessionResponse = value;
+	});
+
+	// Use reactive statements so these always reflect sessionResponse's current state
+	$: fileData = sessionResponse?.data;
+	$: fileType = sessionResponse?.filetype;
+	// $: fileName = formatFileName(sessionResponse?.filename);
+	$: fileName = sessionResponse?.filename;
+
+	console.log(fileType);
 </script>
 
 <div class="container">
 	<div class="left-div">
-		<TableDataViewer />
+		{#if fileType === 'text/csv'}
+			<TableDataViewer />
+		{:else if fileType === 'pdf'}
+			<!-- <PDFViewer /> -->
+		{:else}
+			<div class="file-not-supported">File type not supported for viewer.</div>
+		{/if}
 	</div>
+
 	<div class="right-div">
 		<DownloadSection />
 	</div>

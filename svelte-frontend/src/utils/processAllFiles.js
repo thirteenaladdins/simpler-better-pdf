@@ -1,6 +1,7 @@
 import parseJsonData from './parseJsonData';
 import uploadFile from '../api/uploadFile';
 import axios from 'axios';
+import { getBaseUrl } from './config';
 
 const processAllFiles = async (files, option) => {
 	const responses = [];
@@ -30,9 +31,7 @@ const processAllFiles = async (files, option) => {
 					}
 					filetype = 'text/csv'; // Assume CSV for JSON data
 				} else if (processType === 'ALS Header') {
-					const baseUrl = import.meta.env.DEV
-						? import.meta.env.VITE_BASE_URL_DEVELOPMENT
-						: import.meta.env.VITE_BASE_URL_PRODUCTION;
+					const baseUrl = getBaseUrl();
 
 					const response = await axios.get(
 						`${baseUrl}/api/fetch_file/${encodeURIComponent(dataObject.url)}`,

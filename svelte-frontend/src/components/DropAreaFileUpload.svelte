@@ -15,7 +15,6 @@ when the duplicate is removed then remove the notification from the top
 	import UploadIcon from '../icons/upload.svg';
 	import FileIcon from '../components/FileIcon.svelte';
 	import processAllFiles from '../utils/processAllFiles';
-	// import processAllFiles from '../utils/processFiles';
 
 	const dispatch = createEventDispatcher();
 

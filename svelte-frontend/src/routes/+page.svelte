@@ -15,27 +15,11 @@
 	// import Footer from "../components/Footer.svelte";
 
 	import { fileCount } from '../store/fileCountStore.js';
+	import { writable } from 'svelte/store';
+	import Loading from '../components/Loading.svelte';
+	import { getBaseUrl } from '../utils/config.js';
 
-	let baseUrl;
-
-	switch (import.meta.env.VITE_ENV) {
-		case 'development':
-			baseUrl = import.meta.env.VITE_BASE_URL_DEVELOPMENT;
-			break;
-		case 'test':
-			baseUrl = import.meta.env.VITE_BASE_URL_TEST;
-			break;
-		case 'production':
-			baseUrl = import.meta.env.VITE_BASE_URL_PRODUCTION;
-			break;
-		default:
-			// production - default case if environment is not set properly
-			baseUrl = 'https://als-toolkit-518aa93f7ddc.herokuapp.com';
-	}
-
-	// const baseUrl = import.meta.env.DEV
-	// 	? import.meta.env.VITE_BASE_URL_DEVELOPMENT
-	// 	: import.meta.env.VITE_BASE_URL_PRODUCTION;
+	const baseUrl = getBaseUrl();
 
 	console.log(import.meta.env);
 	console.log('Base URL:', baseUrl);
@@ -70,11 +54,6 @@
 
 	onMount(async () => {
 		try {
-			// const baseUrl =
-			// 	process.env.NODE_ENV === 'production'
-			// 		? VITE_BASE_URL_PRODUCTION
-			// 		: VITE_BASE_URL_DEVELOPMENT;
-
 			const response = await fetch(`${baseUrl}/ping`);
 			const data = await response.json();
 
@@ -148,8 +127,6 @@
 	// 	};
 	// }
 
-	import { writable } from 'svelte/store';
-	import Loading from '../components/Loading.svelte';
 	let showError = writable(false); // store to control if the error is shown or not
 
 	function displayError() {

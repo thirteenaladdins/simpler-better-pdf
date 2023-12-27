@@ -1,10 +1,6 @@
 <!-- Add version to the top left and link to github -->
 <script>
-	import { goto } from '$app/navigation';
-
-	function handleClick() {
-		goto('/');
-	}
+	import refreshPage from '../utils/refreshPage';
 
 	const latestTag = import.meta.env.VITE_GIT_DESCRIBE_OUTPUT;
 </script>
@@ -14,8 +10,8 @@
 	<div
 		role="button"
 		tabindex="0"
-		on:click={handleClick}
-		on:keydown={handleClick}
+		on:click={refreshPage}
+		on:keydown={refreshPage}
 		class="home-button"
 	>
 		Magic Extractor
