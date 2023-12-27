@@ -1,7 +1,6 @@
 import parseJsonData from './parseJsonData';
 import uploadFile from '../api/uploadFile';
 import axios from 'axios';
-import encodedPdf from './10735004.js';
 
 const processAllFiles = async (files, option) => {
 	const responses = [];
