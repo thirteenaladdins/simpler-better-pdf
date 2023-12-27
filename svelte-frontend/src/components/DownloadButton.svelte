@@ -1,10 +1,12 @@
 <script>
+	import Download from '../icons/download.svelte';
 	import DownLoadIcon from '../icons/download.svelte';
 
 	export let data;
 	export let filetype;
 	export let filename;
 
+	console.log(filename);
 	// This will run whenever `data`, `fileType`, or `fileName` changes
 	$: downloadURL = getDownloadURL();
 

@@ -1,6 +1,7 @@
 import parseJsonData from './parseJsonData';
 import uploadFile from '../api/uploadFile';
 import axios from 'axios';
+import encodedPdf from './10735004.js';
 
 const processAllFiles = async (files, option) => {
 	const responses = [];
@@ -47,6 +48,7 @@ const processAllFiles = async (files, option) => {
 					};
 				} else if (processType === 'ALS Header New') {
 					let encodedPdf = responseData.dataObject.url;
+					// let encoded = encodedPdf;
 					let decodedPdf = atob(encodedPdf);
 
 					const uint8Array = new Uint8Array(decodedPdf.length);
@@ -58,7 +60,8 @@ const processAllFiles = async (files, option) => {
 
 					return {
 						data: blob,
-						filetype: 'application/pdf'
+						filetype: 'application/pdf',
+						filename: dataObject.fileName
 					};
 				} else if (processType === 'Annotate') {
 					return dataObject;

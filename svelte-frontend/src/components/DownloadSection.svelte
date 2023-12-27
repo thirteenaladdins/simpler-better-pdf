@@ -17,9 +17,20 @@
 	// Use reactive statements so these always reflect sessionResponse's current state
 	$: fileData = sessionResponse?.data;
 	$: fileType = sessionResponse?.filetype;
+	// $: fileName = formatFileName(sessionResponse?.filename);
 	$: fileName = sessionResponse?.filename;
 
-	$: console.log('Filename:', fileName);
+	// function formatFileName2(originalFileName) {
+	// 	// check if the file
+	// 	// split the file name based on the extension,
+	// 	// anything after the dot is kept
+
+	// 	// Get current date and time
+	// 	const now = new Date();
+	// 	const formattedDateTime = now.toISOString().replace(/[-:T]/g, '').slice(0, 15); // 'YYYYMMDDHHMMSS'
+
+	// 	return formattedFileName;
+	// }
 
 	function refreshPage() {
 		goto('/');
@@ -28,6 +39,7 @@
 
 <!-- TODO: move this to the right side  -->
 <div class="download-section">
+	<!-- <DownloadButton data={fileData} filename={fileName} filetype={fileType} /> -->
 	<DownloadButton data={fileData} filename={fileName} filetype={fileType} />
 
 	<!-- Transmit data -->
