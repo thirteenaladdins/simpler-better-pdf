@@ -16,9 +16,26 @@
 
 	import { fileCount } from '../store/fileCountStore.js';
 
-	const baseUrl = import.meta.env.DEV
-		? import.meta.env.VITE_BASE_URL_DEVELOPMENT
-		: import.meta.env.VITE_BASE_URL_PRODUCTION;
+	let baseUrl;
+
+	switch (import.meta.env.VITE_ENV) {
+		case 'development':
+			baseUrl = import.meta.env.VITE_BASE_URL_DEVELOPMENT;
+			break;
+		case 'test':
+			baseUrl = import.meta.env.VITE_BASE_URL_TEST;
+			break;
+		case 'production':
+			baseUrl = import.meta.env.VITE_BASE_URL_PRODUCTION;
+			break;
+		default:
+			// production - default case if environment is not set properly
+			baseUrl = 'https://als-toolkit-518aa93f7ddc.herokuapp.com';
+	}
+
+	// const baseUrl = import.meta.env.DEV
+	// 	? import.meta.env.VITE_BASE_URL_DEVELOPMENT
+	// 	: import.meta.env.VITE_BASE_URL_PRODUCTION;
 
 	console.log(import.meta.env);
 	console.log('Base URL:', baseUrl);

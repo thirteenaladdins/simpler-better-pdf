@@ -4,7 +4,6 @@ import axios from 'axios';
 const uploadFile = async (file, option) => {
 	let baseUrl;
 
-	console.log(import.meta.env);
 	switch (import.meta.env.VITE_ENV) {
 		case 'development':
 			baseUrl = import.meta.env.VITE_BASE_URL_DEVELOPMENT;
