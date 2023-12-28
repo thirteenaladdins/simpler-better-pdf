@@ -1,26 +1,56 @@
+
 /* Light Theme */
 :root {
-    /* --background-color: white; */
-    --text-color: black;
-    /* ... other variables for the light theme ... */
+    --primary-color: #007ACC;
+    --secondary-color: #D4E6FB;
+    --accent-color: #D18616;
+    --background-color: #F3F3F3; /* Soft background color */
+    --text-color: #333333; /* Dark grey text for better readability */
+    --error-color: #D16969; /* Soft red for errors or warnings */
+    --selection-background: #7AFFE1; /* cyan for text selection */
 }
 
-/* TODO: implement theme */
 /* Dark Theme */
-[data-theme='Dark'] {
-    background-color: black;
-    color: white;
-    /* ... other variables for the dark theme ... */
+[data-theme='dark'] {
+    --primary-color: #1E1E1E;
+    --secondary-color: #252526;
+    --accent-color: #569CD6;
+    --background-color: #1E1E1E; /* Dark grey almost black background */
+    --text-color: #D4D4D4; /* Light grey text for dark background */
+    --error-color: #F48771; /* Brighter red for errors or warnings */
+    --selection-background: #264F78; /* Dark blue for text selection */
 }
 
-/* THIS IS FOR LIGHT THEME */
-/* Change the background color of the highlighted text */
+/* Serpent Theme */
+[data-theme='serpent'] {
+    --primary-color: #1E1E1E;
+}
+
+/* Apply variables */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+/* Other elements here that use the theme colors */
+a, .button-primary {
+    background-color: var(--accent-color);
+    color: white; /* Ensure text on accent is readable */
+}
+
+/* Errors and warnings */
+.error, .warning {
+    color: var(--error-color);
+}
+
+/* Change the background color of the highlighted text for light theme */
 ::selection {
-    background-color: #7AFFE1; 
+    background-color: var(--selection-background);
 }
 
 /* For browsers that don't support ::selection, use Mozilla's pseudo-element */
 ::-moz-selection {
-    background-color: #7AFFE1;
+    background-color: var(--selection-background);
 }
 
+/* Add styles for other elements that will use these colors */

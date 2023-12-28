@@ -80,23 +80,36 @@
 		ALS Header
 	</button>
 
-	<button
-		on:click={() => toggleHighlight('Annotate')}
-		class="sidebar-button font-sans {$selectedItem === 'Annotate' ? 'on-selected-sidebar' : ''}"
-	>
-		Annotate
-	</button>
+	{#if import.meta.env.VITE_ENV === 'development'}
+		<button
+			on:click={() => toggleHighlight('Re-Save PDF')}
+			class="sidebar-button font-sans {$selectedItem === 'Re-Save PDF'
+				? 'on-selected-sidebar'
+				: ''}"
+		>
+			Re-Save PDF
+		</button>
+
+		<button
+			on:click={() => toggleHighlight('Annotate')}
+			class="sidebar-button font-sans disabled-icon {$selectedItem === 'Annotate'
+				? 'on-selected-sidebar'
+				: ''}"
+		>
+			Annotate
+		</button>
+	{/if}
 
 	<div class="theme-button-container">
 		<button
-			on:click={() => toggleHighlightTheme('Light')}
-			class="sidebar-button font-sans {$theme === 'Light' ? 'on-selected-sidebar' : ''}"
+			on:click={() => toggleHighlightTheme('light')}
+			class="sidebar-button font-sans {$theme === 'light' ? 'on-selected-sidebar' : ''}"
 		>
 			<Sun />
 		</button>
 		<button
-			on:click={() => toggleHighlightTheme('Dark')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'Dark'
+			on:click={() => toggleHighlightTheme('dark')}
+			class="sidebar-button font-sans disabled-icon {$theme === 'dark'
 				? 'on-selected-sidebar'
 				: ''}"
 		>
@@ -105,7 +118,7 @@
 
 		<!-- this will be a separate page -->
 		<button
-			on:click={() => toggleHighlightTheme('Settings')}
+			on:click={() => toggleHighlightTheme('settings')}
 			class="sidebar-button font-sans disabled-icon {$theme === 'Settings'
 				? 'on-selected-sidebar'
 				: ''}"
@@ -114,7 +127,7 @@
 		</button>
 		<!-- implement this later -->
 		<button
-			on:click={() => toggleHighlightTheme('Serpent')}
+			on:click={() => toggleHighlightTheme('serpent')}
 			class="sidebar-button font-sans disabled-icon {$theme === 'Serpent'
 				? 'on-selected-sidebar'
 				: ''}"

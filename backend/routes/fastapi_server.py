@@ -24,7 +24,7 @@ from siemens import Siemens
 from als_header.pdf_add_header_footer import add_header_footer_to_pdf
 # from als_header.pdf_add_header import add_header_footer
 from als_header.pdf_add_header_fixed import add_header_footer
-
+from processing import resave_file
 
 from starlette.requests import Request
 
@@ -212,8 +212,18 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
         return JSONResponse(content=response_data)
 
     # TODO: auto-save files for Raft
-    elif option == "Rewrite File":
-        return
+    elif option == "Re-Save File":
+        processed_file = resave_file(file_name, file_content)
+        # Convert bytes to Base64 encoded string
+
+        encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
+        response_data = {
+            "type": "pdf",
+            "url": encoded_pdf,
+            "processType": "Re-Save File",
+            "fileName": file_name
+        }
+        return JSONResponse(content=response_data)
 
     else:
         return JSONResponse(content={"error": "Invalid form option"}, status_code=400)
