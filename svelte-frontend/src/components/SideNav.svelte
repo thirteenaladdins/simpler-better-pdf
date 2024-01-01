@@ -19,10 +19,8 @@
 				? 'dark'
 				: 'light';
 			theme.set({ selected: 'system', actual: systemTheme });
-			// theme.set(systemTheme);
 		} else {
 			theme.set({ selected: themeName, actual: themeName });
-			// theme.set(themeName);
 		}
 	}
 

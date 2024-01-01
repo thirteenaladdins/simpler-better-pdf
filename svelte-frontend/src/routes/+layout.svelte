@@ -8,7 +8,7 @@
 	import { theme } from '../store/themeStore';
 
 	$: if (typeof window !== 'undefined' && $theme) {
-		document.documentElement.setAttribute('data-theme', $theme);
+		document.documentElement.setAttribute('data-theme', $theme.actual);
 	}
 </script>
 
@@ -23,13 +23,6 @@
 
 		gtag('config', 'G-2X85K1KEH5');
 	</script>
-	<script>
-	</script>
-	<!-- <script>
-		// Set the initial theme based on local storage
-		const theme = localStorage.getItem('theme') || 'light';
-		document.documentElement.setAttribute('data-theme', theme);
-	</script> -->
 </svelte:head>
 
 <!-- Add version to the top left and link to github -->
