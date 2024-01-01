@@ -3,7 +3,7 @@ import logging
 from PyPDF2 import PdfReader, PdfWriter
 
 
-def resave_file(file_name, input_file):
+def resave_pdf(file_name, input_file):
     logging.info("Starting to resave the file")
     try:
         reader = PdfReader(io.BytesIO(input_file))

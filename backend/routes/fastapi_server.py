@@ -24,7 +24,7 @@ from siemens import Siemens
 from als_header.pdf_add_header_footer import add_header_footer_to_pdf
 # from als_header.pdf_add_header import add_header_footer
 from als_header.pdf_add_header_fixed import add_header_footer
-from processing import resave_file
+from processing.pdf_processing import resave_pdf
 
 from starlette.requests import Request
 
@@ -97,6 +97,8 @@ async def fetch_file(filename: str):
 # TODO: update this to process_file
 # what is the difference between process_file and process_pdf
 # not clear
+
+# returns CSV
 
 
 @app.post("/api/process_file")
@@ -184,18 +186,8 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
     print(file_name)
 
     # Processing the file based on the option provided
-    if option == "ALS Header":
-        # Process the file
-        processed_file = add_header_footer_to_pdf(
-            file_name, file_content)  # Ensure this function handles bytes
-        response_data = {
-            "type": "pdf",
-            "url": processed_file,  # Modify if necessary to represent the correct path or URL
-            "processType": "ALS Header"
-        }
-        return JSONResponse(content=response_data)
 
-    elif option == "ALS Header New":
+    if option == "ALS Header New":
         # Process the file
         # Ensure this function handles bytes
 
@@ -204,23 +196,24 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
 
         encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
         response_data = {
-            "type": "pdf",
+            "type": "application/pdf",
             "url": encoded_pdf,
-            "processType": "ALS Header New",
+            "processType": option,
             "fileName": file_name
         }
         return JSONResponse(content=response_data)
 
     # TODO: auto-save files for Raft
-    elif option == "Re-Save File":
-        processed_file = resave_file(file_name, file_content)
+    elif option == "Re-Save PDF":
+        print(option, flush=True)
+        processed_file = resave_pdf(file_name, file_content)
         # Convert bytes to Base64 encoded string
 
         encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
         response_data = {
-            "type": "pdf",
+            "type": "application/pdf",
             "url": encoded_pdf,
-            "processType": "Re-Save File",
+            "processType": option,
             "fileName": file_name
         }
         return JSONResponse(content=response_data)
