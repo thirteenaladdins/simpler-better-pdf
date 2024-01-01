@@ -40,9 +40,12 @@
 	<DownloadButton data={fileData} filename={fileName} filetype={fileType} />
 
 	<!-- Transmit data -->
-	<button class="send">
-		<SendIcon /> Send to ASM
-	</button>
+	{#if import.meta.env.VITE_ENV === 'development'}
+		<button class="send">
+			<SendIcon /> Send to ASM
+		</button>
+	{/if}
+
 	<button class="refresh" on:click={() => refreshPage()}>
 		<RefreshIcon /> Start Over
 	</button>
@@ -93,7 +96,6 @@
 		text-overflow: ellipsis;
 		background: linear-gradient(145deg, #ff8db4, #e6007a); /* Complementary pink gradient */
 		transition: background 0.3s; /* Smooth transition for the background */
-		color: #fff;
 		font-family: 'Arial', sans-serif;
 		font-size: 14px;
 		font-weight: 500;

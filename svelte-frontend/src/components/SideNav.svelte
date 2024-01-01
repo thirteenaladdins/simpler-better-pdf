@@ -13,13 +13,17 @@
 		}
 	}
 
-	// function toggleHighlightTheme(itemName) {
-	// 	if ($theme !== itemName) {
-	// 		theme.set(itemName);
-	// 	}
-
 	function toggleHighlightTheme(themeName) {
-		theme.set(themeName);
+		if (themeName === 'system') {
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+				? 'dark'
+				: 'light';
+			theme.set({ selected: 'system', actual: systemTheme });
+			// theme.set(systemTheme);
+		} else {
+			theme.set({ selected: themeName, actual: themeName });
+			// theme.set(themeName);
+		}
 	}
 
 	let isNavOpen = false;
@@ -28,23 +32,11 @@
 
 	// Reactively update the data-theme attribute
 	$: {
-		if (typeof window !== 'undefined') {
-			document.documentElement.setAttribute('data-theme', $theme);
+		if (typeof window !== 'undefined' && $theme) {
+			console.log('theme', $theme.actual);
+			document.documentElement.setAttribute('data-theme', $theme.actual);
 		}
 	}
-
-	// let highlightedItem = 'luxuryGoods';
-
-	// function toggleHighlight(itemName) {
-	// if (highlightedItem !== itemName) {
-	//     highlightedItem = itemName;
-	//     }
-	// }
-
-	// function toggleTheme() {
-	//     isDarkMode = !isDarkMode;
-	//     document.body.classList.toggle('dark-mode', isDarkMode);
-	// }
 </script>
 
 <!-- <button on:click={() => isNavOpen = !isNavOpen}>{isNavOpen ? 'Close' : 'Open'} Side Nav</button> -->
@@ -61,14 +53,6 @@
 	>
 		Luxury Goods
 	</button>
-
-	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
-	<!-- <button
-		on:click={() => toggleHighlight('ALS Header')}
-		class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
-	>
-		ALS Header
-	</button> -->
 
 	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
 	<button
@@ -103,34 +87,27 @@
 	<div class="theme-button-container">
 		<button
 			on:click={() => toggleHighlightTheme('light')}
-			class="sidebar-button font-sans {$theme === 'light' ? 'on-selected-sidebar' : ''}"
+			class="sidebar-button font-sans {$theme.selected === 'light' ? 'on-selected-sidebar' : ''}"
 		>
 			<Sun />
 		</button>
 		<button
 			on:click={() => toggleHighlightTheme('dark')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'dark'
-				? 'on-selected-sidebar'
-				: ''}"
+			class="sidebar-button font-sans {$theme.selected === 'dark' ? 'on-selected-sidebar' : ''}"
 		>
 			<Moon />
 		</button>
-
-		<!-- this will be a separate page -->
 		<button
-			on:click={() => toggleHighlightTheme('settings')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'Settings'
-				? 'on-selected-sidebar'
-				: ''}"
+			on:click={() => toggleHighlightTheme('system')}
+			class="sidebar-button font-sans {$theme.selected === 'system' ? 'on-selected-sidebar' : ''}"
 		>
 			<Settings />
 		</button>
+
 		<!-- implement this later -->
 		<button
 			on:click={() => toggleHighlightTheme('serpent')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'Serpent'
-				? 'on-selected-sidebar'
-				: ''}"
+			class="sidebar-button font-sans {$theme.selected === 'serpent' ? 'on-selected-sidebar' : ''}"
 		>
 			<Serpent />
 		</button>
@@ -185,7 +162,6 @@
 		height: 100%; /* Use 100% of the parent's height */
 		overflow: auto;
 		border-right: 1px solid #d3d3d3;
-		background-color: #fff;
 	}
 
 	/* Centering text inside .sidebar-button */

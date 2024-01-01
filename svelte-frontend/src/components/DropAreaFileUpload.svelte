@@ -296,7 +296,6 @@ when the duplicate is removed then remove the notification from the top
 		width: 40rem;
 		border: 1px solid black;
 		border-radius: 10px;
-		background-color: white;
 	}
 
 	.drop-area-full {
@@ -318,7 +317,6 @@ when the duplicate is removed then remove the notification from the top
 		/* background-color: #f5f7fd;  */
 		/* Light background color for better contrast */
 		transition: background-color 0.3s; /* Smooth transition for hover effect */
-		background-color: white;
 	}
 
 	.drop-area-full:hover {
@@ -368,7 +366,6 @@ when the duplicate is removed then remove the notification from the top
 	}
 
 	.upload-button:disabled {
-		background-color: #d1d5db;
 		cursor: not-allowed;
 	}
 

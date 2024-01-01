@@ -7,7 +7,8 @@ const uploadFile = async (file, option) => {
 	const baseUrl = getBaseUrl();
 
 	let endpoint = '/api/process_file';
-	if (option === 'ALS Header' || option === 'ALS Header New') {
+
+	if (option === 'ALS Header' || option === 'ALS Header New' || option === 'Re-Save PDF') {
 		endpoint = '/api/process_pdf';
 	} else if (option === 'Annotate') {
 		endpoint = '/ocr/upload';

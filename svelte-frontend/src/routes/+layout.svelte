@@ -4,6 +4,12 @@
 	import Loading from '../components/Loading.svelte';
 	import { loading } from '../store/loadingStore.js';
 	import NavigationBar from '../components/NavigationBar.svelte';
+	// import { theme } from '../store/themeStore';
+	import { theme } from '../store/themeStore';
+
+	$: if (typeof window !== 'undefined' && $theme) {
+		document.documentElement.setAttribute('data-theme', $theme);
+	}
 </script>
 
 <svelte:head>
@@ -17,12 +23,13 @@
 
 		gtag('config', 'G-2X85K1KEH5');
 	</script>
-
 	<script>
-		// Set the initial theme based on local storage
-		const theme = localStorage.getItem('theme') || 'Light';
-		document.documentElement.setAttribute('data-theme', theme);
 	</script>
+	<!-- <script>
+		// Set the initial theme based on local storage
+		const theme = localStorage.getItem('theme') || 'light';
+		document.documentElement.setAttribute('data-theme', theme);
+	</script> -->
 </svelte:head>
 
 <!-- Add version to the top left and link to github -->

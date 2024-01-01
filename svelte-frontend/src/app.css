@@ -23,7 +23,13 @@
 
 /* Serpent Theme */
 [data-theme='serpent'] {
-    --primary-color: #1E1E1E;
+    --primary-color: #357a38; /* Dark green, like forest foliage */
+    --secondary-color: #a8deb0; /* Lighter green for secondary elements */
+    --accent-color: #607d3b; /* Muted green for accents */
+    --background-color: #4f7942; /* Shade of green reminiscent of snake skin */
+    --text-color: #fafafa; /* Off white for readability on dark green background */
+    --error-color: #e57373; /* Soft red for errors or warnings */
+    --selection-background: #8bc34a; /* A bright lime green for text selection */
 }
 
 /* Apply variables */

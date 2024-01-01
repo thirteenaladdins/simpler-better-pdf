@@ -206,7 +206,6 @@
 	.outerContainer {
 		display: flex;
 		height: 90vh;
-		background-color: #fafafa;
 	}
 
 	.left-column {
