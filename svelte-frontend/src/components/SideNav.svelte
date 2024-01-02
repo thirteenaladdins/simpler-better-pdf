@@ -61,17 +61,14 @@
 	>
 		ALS Header
 	</button>
+	<button
+		on:click={() => toggleHighlight('Re-Save PDF')}
+		class="sidebar-button font-sans {$selectedItem === 'Re-Save PDF' ? 'on-selected-sidebar' : ''}"
+	>
+		Re-Save PDF
+	</button>
 
 	{#if import.meta.env.VITE_ENV === 'development'}
-		<button
-			on:click={() => toggleHighlight('Re-Save PDF')}
-			class="sidebar-button font-sans {$selectedItem === 'Re-Save PDF'
-				? 'on-selected-sidebar'
-				: ''}"
-		>
-			Re-Save PDF
-		</button>
-
 		<button
 			on:click={() => toggleHighlight('Annotate')}
 			class="sidebar-button font-sans disabled-icon {$selectedItem === 'Annotate'

@@ -21,10 +21,9 @@ from logging_utils.database_handler import DatabaseLogHandler
 from luxury_goods import extract_luxury_goods_data
 from cct_processing.map_to_cct_json import map_df_to_cct_json
 from siemens import Siemens
-from als_header.pdf_add_header_footer import add_header_footer_to_pdf
-# from als_header.pdf_add_header import add_header_footer
 from als_header.pdf_add_header_fixed import add_header_footer
-from processing.pdf_processing import resave_pdf
+from processing.file_processing import resave_pdf
+from services import process_als_header
 
 from starlette.requests import Request
 
@@ -43,6 +42,7 @@ load_dotenv()
 
 app = FastAPI()
 
+# TODO: adjust origins for test and prod
 origins = ["http://localhost:5173",  # Replace with your local client's address
            "http://127.0.0.1:5173",
            "http://0.0.0.0:5173",]
@@ -188,20 +188,8 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
     # Processing the file based on the option provided
 
     if option == "ALS Header New":
-        # Process the file
-        # Ensure this function handles bytes
-
-        processed_file = add_header_footer(file_name, file_content)
-        # Convert bytes to Base64 encoded string
-
-        encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
-        response_data = {
-            "type": "application/pdf",
-            "url": encoded_pdf,
-            "processType": option,
-            "fileName": file_name
-        }
-        return JSONResponse(content=response_data)
+        processed_file = process_als_header(file_name, file_content, option)
+        return processed_file
 
     # TODO: auto-save files for Raft
     elif option == "Re-Save PDF":

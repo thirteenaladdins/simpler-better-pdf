@@ -7,8 +7,52 @@ import JSZip from 'jszip';
 // Add an example object at the top or somewhere
 // JSDoc annotations
 
+/**
+ * Processes the response data for luxury goods.
+ * @param {Object} responseData - The response data to process.
+ * @param {Array} responses - The array to accumulate responses.
+ * @param {boolean} isFirstFile - Indicates if it's the first file.
+ */
+
 function handleLuxuryGoods(responseData, responses, isFirstFile) {
-	// ... code for Luxury Goods ...
+	if (processType === 'Luxury Goods') {
+		const parsedData = parseJsonData(JSON.parse(responseData.dataObject.data)).split('\r\n');
+
+		if (isFirstFile) {
+			responses.push(...parsedData);
+			isFirstFile = false;
+		} else {
+			responses.push(...parsedData.slice(1));
+		}
+		filetype = 'text/csv';
+	}
+}
+
+/**
+ * Decodes a PDF from a base64 encoded string.
+ * @param {string} encodedPdf - The base64 encoded PDF.
+ * @returns {Blob} - The decoded PDF as a Blob.
+ */
+function decodePdf(encodedPdf) {
+	let decodedPdf = atob(encodedPdf);
+	const uint8Array = new Uint8Array(decodedPdf.length);
+	for (let i = 0; i < decodedPdf.length; i++) {
+		uint8Array[i] = decodedPdf.charCodeAt(i);
+	}
+	return new Blob([uint8Array], { type: 'application/pdf' });
+}
+
+/**
+ * Creates an error result object.
+ * @param {string} errorMessage - The error message.
+ * @returns {Object} - The error result object.
+ */
+function createErrorResult(errorMessage) {
+	console.error(errorMessage);
+	return {
+		success: false,
+		errorMessage: errorMessage
+	};
 }
 
 // decode PDF
