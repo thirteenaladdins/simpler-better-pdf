@@ -294,8 +294,9 @@ when the duplicate is removed then remove the notification from the top
 		align-items: center;
 		height: 25rem;
 		width: 40rem;
-		border: 1px solid black;
+		border: 1px solid var(--accent-color);
 		border-radius: 10px;
+		background-color: var(--secondary-color);
 	}
 
 	.drop-area-full {

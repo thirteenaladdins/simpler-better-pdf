@@ -14,15 +14,9 @@
 	}
 
 	function toggleHighlightTheme(themeName) {
-		if (themeName === 'system') {
-			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-				? 'dark'
-				: 'light';
-			theme.set({ selected: 'system', actual: systemTheme });
-		} else {
 			theme.set({ selected: themeName, actual: themeName });
 		}
-	}
+	
 
 	let isNavOpen = false;
 	let showTools = true;
