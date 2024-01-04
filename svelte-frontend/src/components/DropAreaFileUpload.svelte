@@ -211,7 +211,7 @@ when the duplicate is removed then remove the notification from the top
 
 <div class="file-upload-container font-sans">
 	<p class="title">File Upload</p>
-	<button class="upload-button" on:click={onClickHandler}>Browse</button>
+	<button class="browse-button" on:click={onClickHandler}>Browse</button>
 	<div
 		role="button"
 		bind:this={dropArea}
@@ -294,7 +294,7 @@ when the duplicate is removed then remove the notification from the top
 		align-items: center;
 		height: 25rem;
 		width: 40rem;
-		border: 1px solid var(--accent-color);
+		border: 2px solid var(--accent-color);
 		border-radius: 10px;
 		background-color: var(--secondary-color);
 	}
@@ -313,17 +313,17 @@ when the duplicate is removed then remove the notification from the top
 		overflow-y: auto;
 		overflow-wrap: normal;
 		word-break: normal;
-		border: 2px dashed #a5b4fc;
+		border: 2px dashed var(--accent-color);
 		border-radius: 10px; /* Added for rounded borders */
 		/* background-color: #f5f7fd;  */
 		/* Light background color for better contrast */
 		transition: background-color 0.3s; /* Smooth transition for hover effect */
 	}
 
-	.drop-area-full:hover {
-		/* background-color: #a5b4fc; */
-		/* cursor: pointer; */
-	}
+	/* .drop-area-full:hover {
+		background-color: var(--selection-background); 
+		cursor: pointer;
+	} */
 
 	.drop-area-full.file-selected {
 		/* Override or remove certain styles when a file is selected */
@@ -333,8 +333,8 @@ when the duplicate is removed then remove the notification from the top
 		justify-content: flex-start; /* Start items from the top */
 		overflow-wrap: normal;
 		word-break: normal;
-		border: 2px dashed #a5b4fc;
 
+		/* background-color: var(--primary-color); */
 		/* cursor: pointer; */
 		border-radius: 10px; /* Added for rounded borders */
 		/* background-color: #f5f7fd;  */
@@ -343,7 +343,7 @@ when the duplicate is removed then remove the notification from the top
 	}
 
 	.highlighted {
-		background-color: #a5b4fc;
+		background-color: var(--selection-background);
 	}
 
 	.drop-icon {
@@ -362,8 +362,20 @@ when the duplicate is removed then remove the notification from the top
 		width: 100%;
 	}
 
+	.browse-button {
+		margin: 10px;
+		border-radius: 2px;
+		padding: 2px 6px;
+		font-weight: 400;
+		cursor: pointer;
+	}
+
 	.upload-button {
 		margin: 10px;
+		border-radius: 2px;
+		padding: 2px 6px;
+		font-weight: 400;
+		cursor: pointer;
 	}
 
 	.upload-button:disabled {

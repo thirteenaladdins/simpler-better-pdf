@@ -18,18 +18,18 @@
     --background-color: #1E1E1E; /* Dark grey almost black background */
     --text-color: #D4D4D4; /* Light grey text for dark background */
     --error-color: #F48771; /* Brighter red for errors or warnings */
-    --selection-background: #264F78; /* Dark blue for text selection */
+    --selection-background: #FF7AE8; /* Dark blue for text selection */
 }
 
-/* Serpent Theme */
 [data-theme='serpent'] {
-    --primary-color: #357a38; /* Dark green, like forest foliage */
-    --secondary-color: #a8deb0; /* Lighter green for secondary elements */
-    --accent-color: #607d3b; /* Muted green for accents */
-    --background-color: #4f7942; /* Shade of green reminiscent of snake skin */
-    --text-color: #fafafa; /* Off white for readability on dark green background */
-    --error-color: #e57373; /* Soft red for errors or warnings */
+    --primary-color: #2e7d32; /* Slightly darker green for primary elements for better contrast */
+    --secondary-color: #587c4d; /* A muted green that's closer to the background for a more subtle contrast */
+    --accent-color: #cddc39; /* Mustard yellow for a vibrant accent and outlines */
+    --background-color: #4E7942; /* Maintained the original serpent green for the background */
+    --text-color: #ffffff; /* White for readability on the dark green background */
+    --error-color: #f44336; /* A more vivid red for errors to stand out in the green environment */
     --selection-background: #8bc34a; /* A bright lime green for text selection */
+    --outline-color: #cddc39; /* Mustard yellow for outlines */
 }
 
 /* Apply variables */

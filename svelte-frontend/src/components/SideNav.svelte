@@ -14,9 +14,8 @@
 	}
 
 	function toggleHighlightTheme(themeName) {
-			theme.set({ selected: themeName, actual: themeName });
-		}
-	
+		theme.set({ selected: themeName, actual: themeName });
+	}
 
 	let isNavOpen = false;
 	let showTools = true;
