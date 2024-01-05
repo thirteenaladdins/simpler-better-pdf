@@ -25,6 +25,10 @@ when the duplicate is removed then remove the notification from the top
 	import { duplicateError } from '../store/duplicateErrorStore';
 	import { loading } from '../store/loadingStore';
 
+	// HANDLE DRAG AND DROP 
+	// import { handleDragEnter } from '../utils/dragAndDrop';
+
+
 	let currentSelectedItem = $selectedItem;
 
 	selectedItem.subscribe((value) => {
@@ -201,12 +205,7 @@ when the duplicate is removed then remove the notification from the top
 		markDuplicates();
 	}
 
-	// let file = document.querySelector('input[type="file"]').files[0];
-	// if (file && file.size > 0) {
-	// 	// Proceed with the upload or processing
-	// } else {
-	// 	alert('The file is empty or invalid.');
-	// }
+	// // }
 </script>
 
 <div class="file-upload-container font-sans">
@@ -269,22 +268,6 @@ when the duplicate is removed then remove the notification from the top
 		Upload
 	</button>
 </div>
-
-<!-- when you press upload it transmits the selected files as normal -->
-<!-- processAllfiles, pass selectedFiles to this function -->
-
-<!-- elif request.form["option"] == "ALS Header": -->
-
-<!-- TODO -->
-<!-- by selecting from the navbar we need to figure out how to pass that information here -->
-
-<!-- TODO: 
-  when the
-- Add scrollable div 
-- Add icons
-- Add editing capabilities later on 
-  do not reset file list unless explicitely asked to do so
--->
 
 <style>
 	.file-upload-container {
