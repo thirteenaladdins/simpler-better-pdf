@@ -1,3 +1,32 @@
+<script context="module">
+
+	import { getBaseUrl } from '../utils/config.js';
+
+	const baseUrl = getBaseUrl();
+
+	export async function load({ fetch }) {
+		// Place server-side logic here, such as data fetching
+		const baseUrl = getBaseUrl();
+		let serverAwake = false;
+		let showSuccessMessage = false;
+
+		try {
+			const response = await fetch(`${baseUrl}/ping`);
+			const data = await response.json();
+			if (data.message === 'pong') {
+				serverAwake = true;
+				showSuccessMessage = true;
+			}
+		} catch (error) {
+			console.error('Error pinging server:', error);
+		}
+		return {
+			props: { serverAwake, showSuccessMessage }
+
+		};
+	}
+	</script>
+
 <script>
 	import { goto } from '$app/navigation';
 	import { sessionData } from '../store/sessionStore.js';
@@ -17,16 +46,15 @@
 	import { fileCount } from '../store/fileCountStore.js';
 	import { writable } from 'svelte/store';
 	import Loading from '../components/Loading.svelte';
-	import { getBaseUrl } from '../utils/config.js';
-
-	const baseUrl = getBaseUrl();
-
+	
 	console.log(import.meta.env);
 	console.log('Base URL:', baseUrl);
 
-	let serverAwake = false; // Initially set to false
 	let uploadSuccessful = false;
 	let responseData = null;
+	export let serverAwake;
+    export let showSuccessMessage;
+
 	let isError;
 
 	// let isDuplicate;
@@ -36,23 +64,24 @@
 	let dots = 3;
 	let interval;
 
-	onMount(() => {
-		interval = setInterval(() => {
-			if (dots < 3) {
-				dots += 1;
-			} else {
-				dots = 1;
-			}
-		}, 500); // Change the interval as per your requirement
-	});
+	if (typeof window != undefined) {
+		onMount(() => {
+			interval = setInterval(() => {
+				if (dots < 3) {
+					dots += 1;
+				} else {
+					dots = 1;
+				}
+			}, 500); // Change the interval as per your requirement
+		});
+	}
 
 	onDestroy(() => {
 		clearInterval(interval); // Cleanup to avoid memory leaks
 	});
 
-	let showSuccessMessage = false;
-
-	onMount(async () => {
+	if (typeof window != undefined) {
+		onMount(async () => {
 		try {
 			const response = await fetch(`${baseUrl}/ping`);
 			const data = await response.json();
@@ -74,7 +103,9 @@
 			// 	'Failed to connect to the server. Please check your internet connection and try again.'
 			// );
 		}
-	});
+		});
+	}
+	
 
 	let showLoading = false;
 	let startTime;
@@ -113,20 +144,6 @@
 		errorMessage.set(error); // This sets the error in the store which should trigger the alert to show
 	}
 
-	// import { slide } from 'svelte/transition';
-
-	// function slideRight(node, { delay = 0, duration = 400 }) {
-	// 	const style = getComputedStyle(node);
-	// 	const transform = style.transform === 'none' ? '' : style.transform;
-
-	// 	return {
-	// 		delay,
-	// 		duration,
-	// 		css: (t) => `
-	//         transform: ${transform} translateX(${(1 - t) * 100}%)`
-	// 	};
-	// }
-
 	let showError = writable(false); // store to control if the error is shown or not
 
 	function displayError() {
@@ -138,15 +155,6 @@
 </script>
 
 <!-- Success alert - or error alert that appears at the top of the page -->
-
-<!-- {#if  -->
-
-<!-- <button on:click={displayError}>Trigger Error</button> -->
-<!-- just an example button to trigger the error -->
-
-<!-- {#if loading}
-	<Loading />
-{/if} -->
 
 {#if showLoading}
 	<Loading />
