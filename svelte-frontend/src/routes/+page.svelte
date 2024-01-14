@@ -1,5 +1,4 @@
 <script context="module">
-
 	import { getBaseUrl } from '../utils/config.js';
 
 	const baseUrl = getBaseUrl();
@@ -22,15 +21,14 @@
 		}
 		return {
 			props: { serverAwake, showSuccessMessage }
-
 		};
 	}
-	</script>
+</script>
 
 <script>
 	import { goto } from '$app/navigation';
 	import { sessionData } from '../store/sessionStore.js';
-	import { version } from '../utils/version.js';
+	// import { version } from '../utils/version.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { loading } from '../store/loadingStore.js';
 	import { duplicateError } from '../store/duplicateErrorStore.js';
@@ -46,16 +44,40 @@
 	import { fileCount } from '../store/fileCountStore.js';
 	import { writable } from 'svelte/store';
 	import Loading from '../components/Loading.svelte';
-	
+
+	// HANDLE DRAG AND DROP
+	import {
+		handleDragEnter,
+		handleDragLeave,
+		handleDragEnd,
+		handleDrop
+	} from '../utils/dragAndDrop';
+
+	import {
+		setHighlight,
+		increaseCounter,
+		decreaseCounter,
+		resetCounter
+	} from '../utils/dragState.js';
+
+	import { isHighlighted } from '../utils/dragState.js';
+
+	let highlighted;
+
+	isHighlighted.subscribe((value) => {
+		highlighted = value;
+	});
+
 	console.log(import.meta.env);
 	console.log('Base URL:', baseUrl);
 
 	let uploadSuccessful = false;
 	let responseData = null;
 	export let serverAwake;
-    export let showSuccessMessage;
+	export let showSuccessMessage;
 
 	let isError;
+	let dropArea;
 
 	// let isDuplicate;
 
@@ -80,32 +102,32 @@
 		clearInterval(interval); // Cleanup to avoid memory leaks
 	});
 
+	// add this to a separate file or remove it altogether
 	if (typeof window != undefined) {
 		onMount(async () => {
-		try {
-			const response = await fetch(`${baseUrl}/ping`);
-			const data = await response.json();
+			try {
+				const response = await fetch(`${baseUrl}/ping`);
+				const data = await response.json();
 
-			if (data.message === 'pong') {
-				console.log(data);
-				serverAwake = true;
-				showSuccessMessage = true;
+				if (data.message === 'pong') {
+					console.log(data);
+					serverAwake = true;
+					showSuccessMessage = true;
 
-				setTimeout(() => {
-					showSuccessMessage = false;
-				}, 2000); // Message will disappear after 2 seconds
-			} else {
-				console.error('Ping failed!');
+					setTimeout(() => {
+						showSuccessMessage = false;
+					}, 2000); // Message will disappear after 2 seconds
+				} else {
+					console.error('Ping failed!');
+				}
+			} catch (error) {
+				console.error('Error pinging server:', error);
+				// handleError(
+				// 	'Failed to connect to the server. Please check your internet connection and try again.'
+				// );
 			}
-		} catch (error) {
-			console.error('Error pinging server:', error);
-			// handleError(
-			// 	'Failed to connect to the server. Please check your internet connection and try again.'
-			// );
-		}
 		});
 	}
-	
 
 	let showLoading = false;
 	let startTime;
@@ -152,6 +174,14 @@
 			$showError = false;
 		}, 3000); // auto-hide after 3 seconds, adjust as needed
 	}
+
+	// let isHighlighted = false;
+	// export let isHighlighted = false;
+
+	function highlight(event) {
+		event.preventDefault();
+		setHighlight(true);
+	}
 </script>
 
 <!-- Success alert - or error alert that appears at the top of the page -->
@@ -160,12 +190,23 @@
 	<Loading />
 {/if}
 
-<div class="outerContainer">
+<div
+	class="outerContainer {highlighted ? 'highlighted' : ''}"
+	role="button"
+	bind:this={dropArea}
+	on:dragenter={() => handleDragEnter(event, increaseCounter, setHighlight)}
+	on:dragover={highlight}
+	on:dragleave={() => handleDragLeave(event, decreaseCounter, setHighlight)}
+	on:dragend={() => handleDragEnd(event, resetCounter, setHighlight)}
+	on:drop={() => handleDrop(event, resetCounter, setHighlight)}
+	tabindex="0"
+>
 	<!-- Left column -->
 	<div class="left-column">
 		<SideNav />
 	</div>
 
+	<!-- <div class="dropContainer" /> -->
 	<!-- Middle column -->
 	<div class="middleColumn">
 		<!-- Top part of the middle column -->
@@ -246,6 +287,13 @@
 		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
 			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 		font-size: 14px;
+	}
+
+	/* set this to the selection  */
+	.outerContainer.highlighted {
+		opacity: 0.25;
+		/* opacity: inherit; */
+		/* Additional styles to indicate highlighting */
 	}
 
 	.error-alert {

@@ -22,12 +22,12 @@ when the duplicate is removed then remove the notification from the top
 	import { selectedItem } from '../store/selectedItemStore';
 	import { fileCount } from '../store/fileCountStore';
 	import { errorMessage } from '../store/errorMessageStore';
-	import { duplicateError } from '../store/duplicateErrorStore';
 	import { loading } from '../store/loadingStore';
+	import { duplicateError } from '../store/duplicateErrorStore';
+	import { selectedFilesStore } from '../utils/dragAndDrop';
 
-	// HANDLE DRAG AND DROP 
-	// import { handleDragEnter } from '../utils/dragAndDrop';
-
+	// UTILITY FUNCTIONS
+	import { markDuplicates } from '../utils/markDuplicates';
 
 	let currentSelectedItem = $selectedItem;
 
@@ -36,28 +36,16 @@ when the duplicate is removed then remove the notification from the top
 		// Do something with currentSelectedItem
 	});
 
-	function getDuplicateFilenames(files) {
-		const filenameCounts = new Map();
-
-		for (const file of files) {
-			filenameCounts.set(file.name, (filenameCounts.get(file.name) || 0) + 1);
-		}
-
-		const duplicates = new Set();
-
-		for (const [filename, count] of filenameCounts.entries()) {
-			if (count > 1) {
-				duplicates.add(filename);
-			}
-		}
-
-		return duplicates;
-	}
-
+	// FILE UPLOAD
 	async function handleFileUpload(selectedFiles, selectedOption) {
 		try {
 			loading.set(true);
-			const responseData = await processAllFiles(selectedFiles, selectedOption);
+
+			const filesToUpload = selectedFiles.map((wrapper) => wrapper.file);
+
+			const responseData = await processAllFiles(filesToUpload, selectedOption);
+
+			// const responseData = await processAllFiles(selectedFiles, selectedOption);
 			console.log(responseData);
 
 			if (responseData) {
@@ -71,10 +59,17 @@ when the duplicate is removed then remove the notification from the top
 	}
 
 	let fileInput;
+
 	let selectedFiles = [];
+	// Subscribe to selectedFiles store
+
+	// this wiill be the single source of
+	selectedFilesStore.subscribe((files) => {
+		console.log(files);
+		selectedFiles = files;
+	});
 
 	let dropArea;
-	let dragCounter = 0;
 
 	function onClickHandler() {
 		fileInput.click();
@@ -82,130 +77,42 @@ when the duplicate is removed then remove the notification from the top
 
 	let isHighlighted = false;
 
-	function highlight(event) {
-		event.preventDefault();
-		isHighlighted = true;
-	}
-
-	function unhighlight(event) {
-		if (event) event.preventDefault();
-		isHighlighted = false;
-	}
-
-	function handleDragEnter(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		dragCounter++;
-		if (dragCounter === 1) {
-			// Only highlight once
-			highlight(event);
-		}
-	}
-
-	function handleDragLeave(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		dragCounter--;
-		if (dragCounter === 0) {
-			unhighlight();
-		}
-	}
-
-	function handleDrop(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		selectedFiles = [...selectedFiles, ...Array.from(event.dataTransfer.files)];
-
-		// add count to variable
-		fileCount.set(selectedFiles.length);
-		markDuplicates();
-
-		// TODO: finish implementing this
-		// validateFileSize(selectedFiles);
-
-		// Reset the counter and unhighlight the drop area
-		dragCounter = 0;
-		unhighlight();
-	}
-
-	function handleDragEnd(event) {
-		dragCounter = 0;
-		unhighlight();
-	}
-
-	function markDuplicates() {
-		const seen = new Set();
-		const duplicates = new Set();
-
-		for (const file of selectedFiles) {
-			if (seen.has(file.name)) {
-				duplicates.add(file.name);
-			}
-			seen.add(file.name);
-			file.isDuplicate = false; // Reset the isDuplicate property.
-		}
-
-		let encountered = new Set();
-		for (const file of selectedFiles) {
-			if (duplicates.has(file.name) && !encountered.has(file.name)) {
-				encountered.add(file.name);
-				continue;
-			}
-			if (duplicates.has(file.name) && encountered.has(file.name)) {
-				file.isDuplicate = true;
-			}
-		}
-
-		console.log(duplicates.size);
-		// Update errorMessage based on the presence of duplicates
-		if (duplicates.size > 0) {
-			duplicateError.set('One or more files is a duplicate marked in red below.');
-		} else {
-			duplicateError.set('');
-		}
-	}
-
-	function validateFileSize(files) {
-		if (files.length > 0) {
-			// Check if there are any files in the array
-			for (let file of files) {
-				// Loop through each file in the array
-				if (file.size > 0) {
-					console.log('file is good');
-				} else {
-					alert('File contains no data.');
-					return false; // Exit the function and indicate a bad file was found
-				}
-			}
-			return true; // All files are good
-		}
-		return false; // No files to validate
-	}
-
+	// Does this work for all cases?
 	function handleFiles(event) {
 		const filesFromInput = Array.from(event.target.files);
-		selectedFiles = [...selectedFiles, ...filesFromInput];
-
-		// add file count to store
-		fileCount.set(selectedFiles.length);
-		// Mark the duplicates
-		markDuplicates();
-
-		// TODO: finish implementing this
-		// validateFileSize(selectedFiles);
-
-		// Reset the file input for the next use
-		event.target.value = '';
+		selectedFilesStore.update((currentFiles) => {
+			const updatedFiles = [
+				...currentFiles,
+				...filesFromInput.map((file) => ({
+					file,
+					metadata: {
+						/* Initial metadata setup */
+					}
+				}))
+			];
+			return markDuplicates(updatedFiles).filesWithDuplicates;
+		});
+		event.target.value = ''; // Reset the file input
 	}
 
 	function removeFile(index) {
-		selectedFiles.splice(index, 1);
-		selectedFiles = [...selectedFiles]; // Reassign to trigger Svelte's reactivity
-		fileCount.set(selectedFiles.length);
-		markDuplicates();
-	}
+		selectedFilesStore.update((currentFiles) => {
+			// Filter out the file at the specified index
+			const updatedFiles = currentFiles.filter((_, i) => i !== index);
 
-	// // }
+			// Recheck duplicates with the updated list of files
+			const { filesWithDuplicates } = markDuplicates(updatedFiles.map((wrapper) => wrapper.file));
+			fileCount.set(filesWithDuplicates.length);
+			// Update duplicate error message
+			if (filesWithDuplicates.some((wrapper) => wrapper.metadata.isDuplicate)) {
+				duplicateError.set('One or more files is a duplicate marked in red below.');
+			} else {
+				duplicateError.set('');
+			}
+			// Return the updated list with recalculated duplicate status
+			return filesWithDuplicates;
+		});
+	}
 </script>
 
 <div class="file-upload-container font-sans">
@@ -217,11 +124,6 @@ when the duplicate is removed then remove the notification from the top
 		class="drop-area-full {selectedFiles.length > 0 ? 'file-selected' : ''} {isHighlighted
 			? 'highlighted'
 			: ''}"
-		on:dragenter={handleDragEnter}
-		on:dragover={highlight}
-		on:dragleave={handleDragLeave}
-		on:dragend={handleDragEnd}
-		on:drop={handleDrop}
 		tabindex="0"
 	>
 		<input
@@ -245,13 +147,25 @@ when the duplicate is removed then remove the notification from the top
 		{/if}
 
 		<!-- so here check the list for isDuplicate if the file name already exists -->
-		<div class="file-list">
+		<!-- <div class="file-list">
 			{#each selectedFiles as file, index (index)}
 				<FileIcon
 					filename={file.name}
 					size={file.size}
 					type={file.type}
 					isDuplicate={file.isDuplicate}
+					on:remove={() => removeFile(index)}
+				/>
+			{/each}
+		</div> -->
+
+		<div class="file-list">
+			{#each selectedFiles as fileWrapper, index (index)}
+				<FileIcon
+					filename={fileWrapper.file.name}
+					size={fileWrapper.file.size}
+					type={fileWrapper.file.type}
+					isDuplicate={fileWrapper.metadata.isDuplicate}
 					on:remove={() => removeFile(index)}
 				/>
 			{/each}
