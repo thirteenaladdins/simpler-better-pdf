@@ -14,6 +14,7 @@
 /* Dark Theme */
 [data-theme='dark'] {
     --primary-color: #1E1E1E;
+    --primary-loading: ;
     --secondary-color: #252526;
     --accent-color: #569CD6;
     --background-color: #1E1E1E; /* Dark grey almost black background */
@@ -39,6 +40,7 @@
 body {
     background-color: var(--background-color);
     color: var(--text-color);
+    visibility: hidden;
 }
 
 /* Other elements here that use the theme colors */
