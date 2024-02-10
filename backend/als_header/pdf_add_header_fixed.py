@@ -57,6 +57,38 @@ def draw_wrapped_line(canvas, text, length, x_pos, y_pos, y_offset):
     return y_pos
 
 
+def draw_image_with_border(canvas, image_data, x, y, width=None, height=None, border_thickness=1, border_color=(0, 0, 0)):
+    # Decode the image data
+    decoded_image_data = base64.b64decode(image_data.split(',')[1])
+    image_reader = ImageReader(io.BytesIO(decoded_image_data))
+    img_width, img_height = image_reader.getSize()
+    aspect_ratio = img_width / img_height
+
+    if width is not None and height is not None:
+        # Adjust the size to maintain aspect ratio
+        if width / height > aspect_ratio:
+            width = height * aspect_ratio
+        else:
+            height = width / aspect_ratio
+
+    # Calculate the position to center the image on the page
+    page_width, page_height = A4
+    center_x = page_width / 2
+    x = center_x - (width / 2)
+
+    # Draw the border
+    canvas.setStrokeColorRGB(*border_color)  # Set border color
+    canvas.setLineWidth(border_thickness)  # Set border thickness
+
+    # Draw rectangle for the border slightly larger than the image
+    canvas.rect(x - border_thickness, y - height - border_thickness, width +
+                2*border_thickness, height + 2*border_thickness, stroke=1, fill=0)
+
+    # Draw the image
+    canvas.drawImage(image_reader, x, y - height,
+                     width=width, height=height, mask='auto')
+
+
 def draw_image(canvas, image_data, x, y, width=None, height=None):
     decoded_image_data = base64.b64decode(image_data.split(',')[1])
     image_reader = ImageReader(io.BytesIO(decoded_image_data))
@@ -124,9 +156,10 @@ def add_header_footer(file_name, input_file):
         # Draw the footer text at the bottom center of the page
         canvas_obj.setFont("OpenSans", 8)
 
+        adjustment = 10
         # page_width and page_height are being passed in here
         draw_image(canvas_obj, encoded_image_data,
-                   page_width, page_height, 220, 180)
+                   page_width, page_height - adjustment, 220, 180)
 
         draw_wrapped_line(canvas_obj, footer_text, 150, page_width / 2, 64, 10)
         draw_wrapped_line(canvas_obj, footer_text_2,

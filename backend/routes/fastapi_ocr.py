@@ -1,14 +1,28 @@
-import os
 import logging
 
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, UploadFile, File, HTTPException
+import os
+from typing import Optional
+
+
+# from flask import Blueprint, request, jsonify
 from pdf2image import convert_from_path
 import pytesseract
 from PIL import Image
 import base64
 
 # Blueprint configuration
-ocr_blueprint = Blueprint('ocr', __name__)
+# ocr_blueprint = Blueprint('ocr', __name__)
+
+from fastapi import APIRouter
+
+ocr_router = APIRouter()
+
+
+@ocr_router.get('/item')
+def read_item():
+    return {"item": "Hello"}
+
 
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO,
@@ -24,19 +38,45 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@ocr_blueprint.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    if file and allowed_file(file.filename):
-        filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(filepath)
+# @ocr_blueprint.route('/upload', methods=['POST'])
+# @ocr_router.post('/ocr/upload')
+# def upload_file():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part"}), 400
+#     file = request.files['file']
+#     if file.filename == '':
+#         return jsonify({"error": "No selected file"}), 400
+#     if file and allowed_file(file.filename):
+#         filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+#         file.save(filepath)
+#         return process_file(filepath)
+#     else:
+#         return jsonify({"error": "Unsupported file type"}), 400
+
+
+@ocr_router.post("/ocr/upload")
+async def upload_file(file: Optional[UploadFile] = File(None)):
+    if file is None:
+        raise HTTPException(status_code=400, detail="No file part")
+
+    filename = file.filename
+    if filename == '':
+        raise HTTPException(status_code=400, detail="No selected file")
+
+    if allowed_file(filename):
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+        # Save the file
+        with open(filepath, 'wb') as buffer:
+            while True:
+                data = await file.read(1024)
+                if not data:
+                    break
+                buffer.write(data)
+
         return process_file(filepath)
     else:
-        return jsonify({"error": "Unsupported file type"}), 400
+        raise HTTPException(status_code=400, detail="Unsupported file type")
 
 
 def process_file(filepath):
@@ -88,12 +128,14 @@ def process_file(filepath):
         os.remove(filepath)  # remove the saved file
         logging.info(f"Processed and removed file: {filepath}")
 
-        return jsonify({"data": ocr_results, "pdfBase64": encoded_pdf,
-                        "dimensions": first_page_dimensions, "processType": "Annotate"})
+        # TODO: standardise this with the data format in the main file
+        return {"data": ocr_results, "pdfBase64": encoded_pdf,
+                "dimensions": first_page_dimensions, "processType": "Annotate"}
 
     except Exception as e:
         logging.error(f"Error processing file: {filepath}. Error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        # Using HTTPException for error handling
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Change the function name and the argument type

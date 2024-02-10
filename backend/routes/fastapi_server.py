@@ -1,3 +1,4 @@
+# fmt: off
 import os
 import logging
 import uuid
@@ -12,6 +13,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
+from routes.fastapi_ocr import ocr_router
 
 # LOGGING
 from logging_utils.logger import LoggingMiddleware, log_processed_data
@@ -31,6 +33,8 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
+# fmt: on
+
 # TODO: equivalent
 # from werkzeug.utils import secure_filename
 # TODO: fastAPI equivalent?
@@ -41,6 +45,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+# Include the router
+app.include_router(ocr_router)
 
 # TODO: adjust origins for test and prod
 origins = ["http://localhost:5173",  # Replace with your local client's address
