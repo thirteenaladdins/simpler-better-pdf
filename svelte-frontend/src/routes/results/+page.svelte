@@ -1,58 +1,73 @@
-<!-- come back to this - add the UUID in the URL -->
-<script context="module">
-	export function load({ page }) {
-		const { UUID } = page.params;
-		// Fetch or perform other logic with the UUID here
-		return {
-			props: {
-				UUID
-			}
-		};
-	}
-</script>
-
 <script>
 	import TableDataViewer from '../../components/TableDataViewer.svelte';
 	import DownloadSection from '../../components/DownloadSection.svelte';
 
-	export let UUID;
+	import { sessionData } from '../../store/sessionStore';
+
+	// TODO: render
+	import PdfViewer from '../../components/PDFViewer.svelte';
+
+	let sessionResponse;
+
+	sessionData.subscribe((value) => {
+		sessionResponse = value;
+	});
+
+	// Use reactive statements so these always reflect sessionResponse's current state
+	$: fileData = sessionResponse?.data;
+	$: fileType = sessionResponse?.filetype;
+	// $: fileName = formatFileName(sessionResponse?.filename);
+	$: fileName = sessionResponse?.filename;
+
+	console.log(fileType);
 </script>
 
 <div class="container">
 	<div class="left-div">
-		<TableDataViewer />
+		{#if fileType === 'text/csv'}
+			<TableDataViewer />
+		{:else if fileType === 'pdf'}
+			<!-- <PDFViewer /> -->
+		{:else}
+			<div class="file-not-supported">File type not supported for viewer.</div>
+		{/if}
 	</div>
+
 	<div class="right-div">
 		<DownloadSection />
 	</div>
 </div>
 
 <style>
-	body,
-	html {
+	:global(body),
+	:global(html) {
 		margin: 0;
 		padding: 0;
+		overflow-y: hidden;
 		height: 100%;
-		overflow-y: auto;
 	}
 
 	.container {
 		display: flex;
 		align-items: start;
-		width: 100%;
+		/* margin: 20px; */
+		/* width: 100%; */
+		/* border: 1px solid black; */
+	}
+
+	.left-div,
+	.right-div {
+		height: 100%;
+		margin: 0; /* Reset any potential default margins */
 	}
 
 	.left-div {
 		flex: 4;
-		/* background-color: lightblue; */
-		height: 100%;
 		overflow: auto;
+		padding-left: 16px;
 	}
 
 	.right-div {
 		flex: 1;
-		/* background-color: lightcoral; */
-		height: 100%;
-		padding-left: 16px;
 	}
 </style>

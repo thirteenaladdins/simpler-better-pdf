@@ -1,7 +1,34 @@
+<script context="module">
+	import { getBaseUrl } from '../utils/config.js';
+
+	const baseUrl = getBaseUrl();
+
+	export async function load({ fetch }) {
+		// Place server-side logic here, such as data fetching
+		const baseUrl = getBaseUrl();
+		let serverAwake = false;
+		let showSuccessMessage = false;
+
+		try {
+			const response = await fetch(`${baseUrl}/ping`);
+			const data = await response.json();
+			if (data.message === 'pong') {
+				serverAwake = true;
+				showSuccessMessage = true;
+			}
+		} catch (error) {
+			console.error('Error pinging server:', error);
+		}
+		return {
+			props: { serverAwake, showSuccessMessage }
+		};
+	}
+</script>
+
 <script>
 	import { goto } from '$app/navigation';
 	import { sessionData } from '../store/sessionStore.js';
-	import { version } from '../utils/version.js';
+	// import { version } from '../utils/version.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { loading } from '../store/loadingStore.js';
 	import { duplicateError } from '../store/duplicateErrorStore.js';
@@ -15,18 +42,42 @@
 	// import Footer from "../components/Footer.svelte";
 
 	import { fileCount } from '../store/fileCountStore.js';
+	import { writable } from 'svelte/store';
+	import Loading from '../components/Loading.svelte';
 
-	const baseUrl = import.meta.env.DEV
-		? import.meta.env.VITE_BASE_URL_DEVELOPMENT
-		: import.meta.env.VITE_BASE_URL_PRODUCTION;
+	// HANDLE DRAG AND DROP
+	import {
+		handleDragEnter,
+		handleDragLeave,
+		handleDragEnd,
+		handleDrop
+	} from '../utils/dragAndDrop';
+
+	import {
+		setHighlight,
+		increaseCounter,
+		decreaseCounter,
+		resetCounter
+	} from '../utils/dragState.js';
+
+	import { isHighlighted } from '../utils/dragState.js';
+
+	let highlighted;
+
+	isHighlighted.subscribe((value) => {
+		highlighted = value;
+	});
 
 	console.log(import.meta.env);
 	console.log('Base URL:', baseUrl);
 
-	let serverAwake = false; // Initially set to false
 	let uploadSuccessful = false;
 	let responseData = null;
+	export let serverAwake;
+	export let showSuccessMessage;
+
 	let isError;
+	let dropArea;
 
 	// let isDuplicate;
 
@@ -35,50 +86,48 @@
 	let dots = 3;
 	let interval;
 
-	onMount(() => {
-		interval = setInterval(() => {
-			if (dots < 3) {
-				dots += 1;
-			} else {
-				dots = 1;
-			}
-		}, 500); // Change the interval as per your requirement
-	});
+	if (typeof window != undefined) {
+		onMount(() => {
+			interval = setInterval(() => {
+				if (dots < 3) {
+					dots += 1;
+				} else {
+					dots = 1;
+				}
+			}, 500); // Change the interval as per your requirement
+		});
+	}
 
 	onDestroy(() => {
 		clearInterval(interval); // Cleanup to avoid memory leaks
 	});
 
-	let showSuccessMessage = false;
+	// add this to a separate file or remove it altogether
+	if (typeof window != undefined) {
+		onMount(async () => {
+			try {
+				const response = await fetch(`${baseUrl}/ping`);
+				const data = await response.json();
 
-	onMount(async () => {
-		try {
-			// const baseUrl =
-			// 	process.env.NODE_ENV === 'production'
-			// 		? VITE_BASE_URL_PRODUCTION
-			// 		: VITE_BASE_URL_DEVELOPMENT;
+				if (data.message === 'pong') {
+					console.log(data);
+					serverAwake = true;
+					showSuccessMessage = true;
 
-			const response = await fetch(`${baseUrl}/ping`);
-			const data = await response.json();
-
-			if (data.message === 'pong') {
-				console.log(data);
-				serverAwake = true;
-				showSuccessMessage = true;
-
-				setTimeout(() => {
-					showSuccessMessage = false;
-				}, 2000); // Message will disappear after 2 seconds
-			} else {
-				console.error('Ping failed!');
+					setTimeout(() => {
+						showSuccessMessage = false;
+					}, 2000); // Message will disappear after 2 seconds
+				} else {
+					console.error('Ping failed!');
+				}
+			} catch (error) {
+				console.error('Error pinging server:', error);
+				// handleError(
+				// 	'Failed to connect to the server. Please check your internet connection and try again.'
+				// );
 			}
-		} catch (error) {
-			console.error('Error pinging server:', error);
-			// handleError(
-			// 	'Failed to connect to the server. Please check your internet connection and try again.'
-			// );
-		}
-	});
+		});
+	}
 
 	let showLoading = false;
 	let startTime;
@@ -117,22 +166,6 @@
 		errorMessage.set(error); // This sets the error in the store which should trigger the alert to show
 	}
 
-	// import { slide } from 'svelte/transition';
-
-	// function slideRight(node, { delay = 0, duration = 400 }) {
-	// 	const style = getComputedStyle(node);
-	// 	const transform = style.transform === 'none' ? '' : style.transform;
-
-	// 	return {
-	// 		delay,
-	// 		duration,
-	// 		css: (t) => `
-	//         transform: ${transform} translateX(${(1 - t) * 100}%)`
-	// 	};
-	// }
-
-	import { writable } from 'svelte/store';
-	import Loading from '../components/Loading.svelte';
 	let showError = writable(false); // store to control if the error is shown or not
 
 	function displayError() {
@@ -141,29 +174,39 @@
 			$showError = false;
 		}, 3000); // auto-hide after 3 seconds, adjust as needed
 	}
+
+	// let isHighlighted = false;
+	// export let isHighlighted = false;
+
+	function highlight(event) {
+		event.preventDefault();
+		setHighlight(true);
+	}
 </script>
 
 <!-- Success alert - or error alert that appears at the top of the page -->
-
-<!-- {#if  -->
-
-<!-- <button on:click={displayError}>Trigger Error</button> -->
-<!-- just an example button to trigger the error -->
-
-<!-- {#if loading}
-	<Loading />
-{/if} -->
 
 {#if showLoading}
 	<Loading />
 {/if}
 
-<div class="outerContainer">
+<div
+	class="outerContainer {highlighted ? 'highlighted' : ''}"
+	role="button"
+	bind:this={dropArea}
+	on:dragenter={() => handleDragEnter(event, increaseCounter, setHighlight)}
+	on:dragover={highlight}
+	on:dragleave={() => handleDragLeave(event, decreaseCounter, setHighlight)}
+	on:dragend={() => handleDragEnd(event, resetCounter, setHighlight)}
+	on:drop={() => handleDrop(event, resetCounter, setHighlight)}
+	tabindex="0"
+>
 	<!-- Left column -->
 	<div class="left-column">
 		<SideNav />
 	</div>
 
+	<!-- <div class="dropContainer" /> -->
 	<!-- Middle column -->
 	<div class="middleColumn">
 		<!-- Top part of the middle column -->
@@ -212,7 +255,6 @@
 	.outerContainer {
 		display: flex;
 		height: 90vh;
-		background-color: #fafafa;
 	}
 
 	.left-column {
@@ -245,6 +287,13 @@
 		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
 			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 		font-size: 14px;
+	}
+
+	/* set this to the selection  */
+	.outerContainer.highlighted {
+		opacity: 0.25;
+		/* opacity: inherit; */
+		/* Additional styles to indicate highlighting */
 	}
 
 	.error-alert {

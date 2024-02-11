@@ -1,26 +1,67 @@
+
 /* Light Theme */
 :root {
-    /* --background-color: white; */
-    --text-color: black;
-    /* ... other variables for the light theme ... */
+    --primary-color: #007ACC;
+    --secondary-color: #D4E6FB;
+    --accent-color: #D18616;
+    --background-color: #F3F3F3; /* Soft background color */
+    --text-color: #868fba; /* Dark grey text for better readability */
+    --active-text-color: rgb(42, 91, 252);
+    --error-color: #D16969; /* Soft red for errors or warnings */
+    --selection-background: #7AFFE1; /* cyan for text selection */
 }
 
-/* TODO: implement theme */
 /* Dark Theme */
-[data-theme='Dark'] {
-    background-color: black;
-    color: white;
-    /* ... other variables for the dark theme ... */
+[data-theme='dark'] {
+    --primary-color: #1E1E1E;
+    --primary-loading: ;
+    --secondary-color: #252526;
+    --accent-color: #569CD6;
+    --background-color: #1E1E1E; /* Dark grey almost black background */
+    --text-color: #868fba; /* Light grey text for dark background */
+    --active-text-color: rgb(42, 91, 252);
+    --error-color: #F48771; /* Brighter red for errors or warnings */
+    --selection-background: #FF7AE8; /* Dark blue for text selection */
 }
 
-/* THIS IS FOR LIGHT THEME */
-/* Change the background color of the highlighted text */
+[data-theme='serpent'] {
+    --primary-color: #2e7d32; /* Slightly darker green for primary elements for better contrast */
+    --secondary-color: #587c4d; /* A muted green that's closer to the background for a more subtle contrast */
+    --accent-color: #cddc39; /* Mustard yellow for a vibrant accent and outlines */
+    --background-color: #4E7942; /* Maintained the original serpent green for the background */
+    --text-color: #ffffff; /* White for readability on the dark green background */
+    --active-text-color: #cddc39;
+    --error-color: #f44336; /* A more vivid red for errors to stand out in the green environment */
+    --selection-background: #8bc34a; /* A bright lime green for text selection */
+    --outline-color: #cddc39; /* Mustard yellow for outlines */
+}
+
+/* Apply variables */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    visibility: hidden;
+}
+
+/* Other elements here that use the theme colors */
+a, .button-primary {
+    background-color: var(--accent-color);
+    color: white; /* Ensure text on accent is readable */
+}
+
+/* Errors and warnings */
+.error, .warning {
+    color: var(--error-color);
+}
+
+/* Change the background color of the highlighted text for light theme */
 ::selection {
-    background-color: #7AFFE1; 
+    background-color: var(--selection-background);
 }
 
 /* For browsers that don't support ::selection, use Mozilla's pseudo-element */
 ::-moz-selection {
-    background-color: #7AFFE1;
+    background-color: var(--selection-background);
 }
 
+/* Add styles for other elements that will use these colors */

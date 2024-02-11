@@ -13,14 +13,10 @@
 		}
 	}
 
-	// function toggleHighlightTheme(itemName) {
-	// 	if ($theme !== itemName) {
-	// 		theme.set(itemName);
-	// 	}
-
 	function toggleHighlightTheme(themeName) {
-		theme.set(themeName);
-	}
+			theme.set({ selected: themeName, actual: themeName });
+		}
+	
 
 	let isNavOpen = false;
 	let showTools = true;
@@ -28,23 +24,11 @@
 
 	// Reactively update the data-theme attribute
 	$: {
-		if (typeof window !== 'undefined') {
-			document.documentElement.setAttribute('data-theme', $theme);
+		if (typeof window !== 'undefined' && $theme) {
+			console.log('theme', $theme.actual);
+			document.documentElement.setAttribute('data-theme', $theme.actual);
 		}
 	}
-
-	// let highlightedItem = 'luxuryGoods';
-
-	// function toggleHighlight(itemName) {
-	// if (highlightedItem !== itemName) {
-	//     highlightedItem = itemName;
-	//     }
-	// }
-
-	// function toggleTheme() {
-	//     isDarkMode = !isDarkMode;
-	//     document.body.classList.toggle('dark-mode', isDarkMode);
-	// }
 </script>
 
 <!-- <button on:click={() => isNavOpen = !isNavOpen}>{isNavOpen ? 'Close' : 'Open'} Side Nav</button> -->
@@ -63,14 +47,6 @@
 	</button>
 
 	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
-	<!-- <button
-		on:click={() => toggleHighlight('ALS Header')}
-		class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
-	>
-		ALS Header
-	</button> -->
-
-	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
 	<button
 		on:click={() => toggleHighlight('ALS Header New')}
 		class="sidebar-button font-sans {$selectedItem === 'ALS Header New'
@@ -79,45 +55,48 @@
 	>
 		ALS Header
 	</button>
-
 	<button
-		on:click={() => toggleHighlight('Annotate')}
-		class="sidebar-button font-sans {$selectedItem === 'Annotate' ? 'on-selected-sidebar' : ''}"
+		on:click={() => toggleHighlight('Re-Save PDF')}
+		class="sidebar-button font-sans {$selectedItem === 'Re-Save PDF' ? 'on-selected-sidebar' : ''}"
 	>
-		Annotate
+		Re-Save PDF
 	</button>
+
+	{#if import.meta.env.VITE_ENV === 'development'}
+		<button
+			on:click={() => toggleHighlight('Annotate')}
+			class="sidebar-button font-sans disabled-icon {$selectedItem === 'Annotate'
+				? 'on-selected-sidebar'
+				: ''}"
+		>
+			Annotate
+		</button>
+	{/if}
 
 	<div class="theme-button-container">
 		<button
-			on:click={() => toggleHighlightTheme('Light')}
-			class="sidebar-button font-sans {$theme === 'Light' ? 'on-selected-sidebar' : ''}"
+			on:click={() => toggleHighlightTheme('light')}
+			class="sidebar-button font-sans {$theme.selected === 'light' ? 'on-selected-sidebar' : ''}"
 		>
 			<Sun />
 		</button>
 		<button
-			on:click={() => toggleHighlightTheme('Dark')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'Dark'
-				? 'on-selected-sidebar'
-				: ''}"
+			on:click={() => toggleHighlightTheme('dark')}
+			class="sidebar-button font-sans {$theme.selected === 'dark' ? 'on-selected-sidebar' : ''}"
 		>
 			<Moon />
 		</button>
-
-		<!-- this will be a separate page -->
 		<button
-			on:click={() => toggleHighlightTheme('Settings')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'Settings'
-				? 'on-selected-sidebar'
-				: ''}"
+			on:click={() => toggleHighlightTheme('system')}
+			class="sidebar-button font-sans {$theme.selected === 'system' ? 'on-selected-sidebar' : ''}"
 		>
 			<Settings />
 		</button>
+
 		<!-- implement this later -->
 		<button
-			on:click={() => toggleHighlightTheme('Serpent')}
-			class="sidebar-button font-sans disabled-icon {$theme === 'Serpent'
-				? 'on-selected-sidebar'
-				: ''}"
+			on:click={() => toggleHighlightTheme('serpent')}
+			class="sidebar-button font-sans {$theme.selected === 'serpent' ? 'on-selected-sidebar' : ''}"
 		>
 			<Serpent />
 		</button>
@@ -172,7 +151,6 @@
 		height: 100%; /* Use 100% of the parent's height */
 		overflow: auto;
 		border-right: 1px solid #d3d3d3;
-		background-color: #fff;
 	}
 
 	/* Centering text inside .sidebar-button */
@@ -198,8 +176,7 @@
 		vertical-align: middle;
 		/* text-align: center; */
 		/* background-color: #fff; */
-		color: rgb(var(--pure-material-primary-rgb, 115, 125, 176));
-		color: rgb(134, 143, 186);
+		color: var(--text-color);
 		font-size: 14px;
 		font-weight: 400;
 		cursor: pointer;
@@ -213,9 +190,9 @@
 	.sidenav button:hover {
 		/* background-color: rgb(255, 165, 92); */
 		/* background-color: rgb(225, 232, 240); */
-		/* border: 1px solid rgb(42, 91, 252); */
-		color: rgb(42, 91, 252);
-		/* background-color: aliceblue; */
+		/* border: 1px solid var(--active-text-color); */
+		color:var(--active-text-color);
+		
 	}
 
 	/* .sidenav button:active {
@@ -234,7 +211,7 @@
 	.sidenav button.on-selected-sidebar {
 		/* background-color: rgb(225, 232, 240); */
 		border: 1px solid transparent;
-		color: rgb(42, 91, 252);
+		color: var(--active-text-color);
 		font-weight: 500;
 	}
 
@@ -253,13 +230,12 @@
 
 	.theme-button-container button:hover {
 		padding: 10px;
-		color: rgb(167, 175, 215);
-		border: 1px solid rgb(167, 175, 215);
+		color: var(--active-text-color);
+		border: 1px solid var(--active-text-color);
 	}
 
 	.theme-button-container button.on-selected-sidebar {
-		color: rgb(42, 91, 252);
-		border: 1px solid rgb(42, 91, 252);
+		border: 1px solid var(--active-text-color);
 	}
 
 	.disabled-icon {

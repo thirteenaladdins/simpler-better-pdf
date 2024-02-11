@@ -4,6 +4,20 @@
 	import Loading from '../components/Loading.svelte';
 	import { loading } from '../store/loadingStore.js';
 	import NavigationBar from '../components/NavigationBar.svelte';
+	// import { theme } from '../store/themeStore';
+	import { theme } from '../store/themeStore';
+
+	import { onMount } from 'svelte';
+
+	// Body is initially hidden in app.css and unhidden here to avoid FOUC
+	onMount(() => {
+		// This code runs when the component is mounted in the DOM
+		document.body.style.visibility = 'visible';
+	});
+
+	$: if (typeof window !== 'undefined' && $theme) {
+		document.documentElement.setAttribute('data-theme', $theme.actual);
+	}
 </script>
 
 <svelte:head>
@@ -16,12 +30,6 @@
 		gtag('js', new Date());
 
 		gtag('config', 'G-2X85K1KEH5');
-	</script>
-
-	<script>
-		// Set the initial theme based on local storage
-		const theme = localStorage.getItem('theme') || 'Light';
-		document.documentElement.setAttribute('data-theme', theme);
 	</script>
 </svelte:head>
 

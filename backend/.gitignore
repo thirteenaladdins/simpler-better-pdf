@@ -1,50 +1,3 @@
-<<<<<<< HEAD
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-logs
-bin
-share
-include
-etc
-pyvenv.cfg
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-=======
 #official python gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -52,8 +5,12 @@ __pycache__/
 *$py.class
 
 # other 
-pdf
+bin
+share
 tmp
+etc/
+include/
+
 
 # C extensions
 *.so
@@ -119,4 +76,3 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
->>>>>>> flask-backend/siemens-image-processing
