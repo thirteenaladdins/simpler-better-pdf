@@ -25,7 +25,7 @@ from cct_processing.map_to_cct_json import map_df_to_cct_json
 from siemens import Siemens
 from als_header.pdf_add_header_fixed import add_header_footer
 from processing.file_processing import resave_pdf
-from services import process_als_header
+from services import process_als_header, process_als_header_smaller_doc
 
 from starlette.requests import Request
 
@@ -195,6 +195,12 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
 
     if option == "ALS Header New":
         processed_file = process_als_header(file_name, file_content, option)
+        return processed_file
+
+    elif option == "ALS Header 2":
+        processed_file = process_als_header_smaller_doc(
+            file_name, file_content, option)
+
         return processed_file
 
     # TODO: auto-save files for Raft
