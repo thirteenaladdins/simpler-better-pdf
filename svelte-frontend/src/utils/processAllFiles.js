@@ -151,6 +151,17 @@ const processAllFiles = async (files, option) => {
 						console.error(result.errorMessage);
 						// Continue with other files or handle error
 					}
+				} else if (processType === 'ALS Header 2') {
+					// Example of handling the return value
+					const result = handleALSHeader(dataObject);
+					if (result.success) {
+						// Process the successful result
+						return result;
+					} else {
+						// Handle the error case
+						console.error(result.errorMessage);
+						// Continue with other files or handle error
+					}
 				} else if (processType === 'Re-Save PDF') {
 					const result = handleReSavePdf(dataObject);
 

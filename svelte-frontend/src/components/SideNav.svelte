@@ -14,9 +14,8 @@
 	}
 
 	function toggleHighlightTheme(themeName) {
-			theme.set({ selected: themeName, actual: themeName });
-		}
-	
+		theme.set({ selected: themeName, actual: themeName });
+	}
 
 	let isNavOpen = false;
 	let showTools = true;
@@ -54,6 +53,12 @@
 			: ''}"
 	>
 		ALS Header
+	</button>
+	<button
+		on:click={() => toggleHighlight('ALS Header 2')}
+		class="sidebar-button font-sans {$selectedItem === 'ALS Header 2' ? 'on-selected-sidebar' : ''}"
+	>
+		ALS Header 2
 	</button>
 	<button
 		on:click={() => toggleHighlight('Re-Save PDF')}
@@ -191,8 +196,7 @@
 		/* background-color: rgb(255, 165, 92); */
 		/* background-color: rgb(225, 232, 240); */
 		/* border: 1px solid var(--active-text-color); */
-		color:var(--active-text-color);
-		
+		color: var(--active-text-color);
 	}
 
 	/* .sidenav button:active {
