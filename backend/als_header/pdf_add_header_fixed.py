@@ -185,6 +185,8 @@ def add_header_footer(file_name, input_file):
     output_stream.seek(0)
     return output_stream.getvalue()
 
+#
+
 
 def main():
     if len(sys.argv) < 2:
