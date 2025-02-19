@@ -1,4 +1,5 @@
 # fmt: off
+import time
 import os
 import logging
 import uuid
@@ -6,6 +7,8 @@ import datetime
 import base64
 import json
 import io
+import sys
+
 
 # FAST API
 from fastapi import FastAPI
@@ -63,7 +66,89 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-app.add_middleware(LoggingMiddleware)
+
+# Optionally initialize Colorama for Windows support:
+# from colorama import init, Fore, Style
+# init(autoreset=True)
+
+# Create or get a dedicated logger
+logger = logging.getLogger("access_logger")
+logger.setLevel(logging.INFO)
+logger.handlers.clear()
+
+# Define a custom formatter with ANSI color and bold codes
+# \033[1m = bold, \033[0m = reset, \033[94m = blue, \033[95m = magenta
+formatter = logging.Formatter(
+    "\n\033[1m[%(asctime)s]\033[0m \033[94m[%(levelname)s]\033[0m \033[95m[%(name)s]\033[0m %(message)s",
+    "%Y-%m-%d %H:%M:%S"
+)
+
+# Set up a stream handler that outputs to STDOUT
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+
+# Middleware to log detailed request/response information with color formatting
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    request_id = uuid.uuid4()  # Unique identifier for the request
+    client_ip = request.client.host
+    start_time = time.time()
+
+    # Build the START message with bold labels and color
+    start_message = (
+        f"\033[1;32m[{request_id}] START\033[0m\n"
+        f"   \033[1mMethod     :\033[0m {request.method}\n"
+        f"   \033[1mURL        :\033[0m {request.url}\n"
+        f"   \033[1mClient IP  :\033[0m {client_ip}\n"
+        f"   \033[1mUser-Agent :\033[0m {request.headers.get('user-agent')}\n"
+    )
+    logger.info(start_message)
+
+    response = await call_next(request)
+    duration = time.time() - start_time
+
+    # Build the END message similarly, highlighting status and duration
+    end_message = (
+        f"\033[1;31m[{request_id}] END\033[0m\n"
+        f"   \033[1mMethod     :\033[0m {request.method}\n"
+        f"   \033[1mURL        :\033[0m {request.url}\n"
+        f"   \033[1mStatus     :\033[0m {response.status_code}\n"
+        f"   \033[1mDuration   :\033[0m {duration:.2f} sec\n"
+    )
+    logger.info(end_message)
+    return response
+
+
+# app.add_middleware(LoggingMiddleware)
+
+
+# # Create or get a logger
+# logger = logging.getLogger("access_logger")
+# logger.setLevel(logging.INFO)
+
+# # Remove any existing handlers
+# logger.handlers = []
+
+# # Add a stream handler that writes to STDOUT
+# stream_handler = logging.StreamHandler(sys.stdout)
+# formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+# stream_handler.setFormatter(formatter)
+# logger.addHandler(stream_handler)
+
+# # Now use this logger in your middleware
+
+
+# @app.middleware("http")
+# async def log_requests(request: Request, call_next):
+#     logger.info(f"New request: {request.method} {request.url}")
+#     response = await call_next(request)
+#     print("Middleware triggered for:",
+#           request.method, request.url)  # Debug print
+#     return response
+
 
 # Constants
 UPLOAD_FOLDER = os.path.join(
@@ -158,7 +243,7 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
 
             json.dump(converted_file, json_file)
 
-        print(f"File saved at {filepath}")
+        # print(f"File saved at {filepath}")
 
         response_data = {
             "type": "csv",
@@ -189,7 +274,7 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
     file_content = await file.read()
     file_name = file.filename
 
-    print(file_name)
+    # print(file_name)
 
     # Processing the file based on the option provided
 
@@ -205,7 +290,7 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
 
     # TODO: auto-save files for Raft
     elif option == "Re-Save PDF":
-        print(option, flush=True)
+        # print(option, flush=True)
         processed_file = resave_pdf(file_name, file_content)
         # Convert bytes to Base64 encoded string
 

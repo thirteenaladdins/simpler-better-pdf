@@ -16,7 +16,7 @@
 	>
 		Magic Extractor
 	</div>
-	{latestTag}
+	<!-- {latestTag} -->
 </div>
 
 <style>

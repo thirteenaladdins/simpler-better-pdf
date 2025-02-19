@@ -5,7 +5,7 @@
 	import { sessionData } from '../../store/sessionStore';
 
 	// TODO: render
-	import PdfViewer from '../../components/PDFViewer.svelte';
+	import PdfViewer from '../../components/PDFViewer copy.svelte';
 
 	let sessionResponse;
 
@@ -26,8 +26,8 @@
 	<div class="left-div">
 		{#if fileType === 'text/csv'}
 			<TableDataViewer />
-		{:else if fileType === 'pdf'}
-			<!-- <PDFViewer /> -->
+		{:else if fileType === 'application/pdf'}
+			<PdfViewer pdfBlob={fileData} />
 		{:else}
 			<div class="file-not-supported">File type not supported for viewer.</div>
 		{/if}
@@ -62,9 +62,14 @@
 	}
 
 	.left-div {
+		display: flex;
+		justify-content: center;
 		flex: 4;
 		overflow: auto;
 		padding-left: 16px;
+		padding-top: 16px;
+		height: 700px; /* fixed height for demonstration */
+		overflow-y: auto;
 	}
 
 	.right-div {

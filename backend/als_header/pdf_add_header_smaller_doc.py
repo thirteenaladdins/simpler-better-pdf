@@ -101,7 +101,7 @@ def draw_image(canvas, image_data, x, y, width=None, height=None):
             print(width)
         else:
             height = width / aspect_ratio
-            print(height)
+            # print(height)
 
     page_width, page_height = A4
     center_x = page_width / 2
@@ -137,7 +137,7 @@ def add_header_footer_smaller_doc(file_name, input_file):
         reader = PdfReader(io.BytesIO(input_file))
         logging.info("PDF file read successfully")
     except Exception as e:
-        print(f"Error: {e}")
+        # print(f"Error: {e}")
         logging.error(f"Error reading PDF file: {e}")
         sys.exit(1)
 
