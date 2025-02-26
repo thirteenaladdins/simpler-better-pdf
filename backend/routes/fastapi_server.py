@@ -1,4 +1,7 @@
 # fmt: off
+
+from database.models import Base
+from database.db import engine
 import time
 import os
 import logging
@@ -8,10 +11,13 @@ import base64
 import json
 import io
 import sys
-
+from s3_tools.upload_to_s3 import upload_to_s3, fetch_file_from_s3, create_document
+from database.models import Base, Document
+from database.db import get_db
+from sqlalchemy.orm import Session
 
 # FAST API
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
@@ -48,6 +54,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+
+# Create the database tables (for SQLite, in production you might use migrations)
+Base.metadata.create_all(bind=engine)
+
 # Include the router
 app.include_router(ocr_router)
 
@@ -120,35 +130,6 @@ async def log_requests(request: Request, call_next):
     )
     logger.info(end_message)
     return response
-
-
-# app.add_middleware(LoggingMiddleware)
-
-
-# # Create or get a logger
-# logger = logging.getLogger("access_logger")
-# logger.setLevel(logging.INFO)
-
-# # Remove any existing handlers
-# logger.handlers = []
-
-# # Add a stream handler that writes to STDOUT
-# stream_handler = logging.StreamHandler(sys.stdout)
-# formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-# stream_handler.setFormatter(formatter)
-# logger.addHandler(stream_handler)
-
-# # Now use this logger in your middleware
-
-
-# @app.middleware("http")
-# async def log_requests(request: Request, call_next):
-#     logger.info(f"New request: {request.method} {request.url}")
-#     response = await call_next(request)
-#     print("Middleware triggered for:",
-#           request.method, request.url)  # Debug print
-#     return response
-
 
 # Constants
 UPLOAD_FOLDER = os.path.join(
@@ -261,7 +242,7 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
 
 
 @app.post("/api/process_pdf")
-async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form(None)):
+async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form(None), db: Session = Depends(get_db)):
     # Check if file is attached
     if file is None:
         return JSONResponse(content={"error": "No file attached in request"}, status_code=400)
@@ -286,7 +267,40 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
         processed_file = process_als_header_smaller_doc(
             file_name, file_content, option)
 
-        return processed_file
+        data = json.loads(processed_file.body)
+        # Decode base64 to bytes
+        pdf_bytes = base64.b64decode(data['url'])
+        # Upload the file bytes to S3 and get a presigned URL
+        # presigned_url = upload_to_s3(pdf_bytes)
+
+        # this returns the doc_uuid
+        doc_uuid, presigned_url = create_document(pdf_bytes)
+
+        # add data to db here
+
+        # Create a new document record in the database
+        new_document = Document(
+            filename=file_name,
+            filetype="application/pdf",
+            presigned_url=presigned_url,
+            # FIXME: replace with actual expiration time
+            # expires_at=datetime.datetime.now(
+            #     datetime.timezone.utc) + datetime.timedelta(hours=1),
+            id=doc_uuid,
+            s3_key=doc_uuid  # Replace with the actual S3 key value
+        )
+
+        db.add(new_document)
+        db.commit()
+
+        # Add the presigned_url to the data dictionary
+        data["presignedUrl"] = presigned_url
+
+        # Should I get the object key from s3 instead?
+        data["docId"] = doc_uuid
+
+        # Return a JSON response containing both processed_file data and presigned_url
+        return JSONResponse(content=data)
 
     # TODO: auto-save files for Raft
     elif option == "Re-Save PDF":
@@ -305,6 +319,29 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
 
     else:
         return JSONResponse(content={"error": "Invalid form option"}, status_code=400)
+
+
+@app.get("/api/document/{doc_id}")
+async def get_document(doc_id: str, db: Session = Depends(get_db)):
+    # Fetch the document from the database
+    doc = db.query(Document).filter(Document.id == doc_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Check if the presigned URL has expired
+    # now = datetime.datetime.now(datetime.timezone.utc)
+    # expires_in = (doc.expires_at - now).total_seconds()
+    # if expires_in <= 0:
+    #     raise HTTPException(status_code=410, detail="Presigned URL expired")
+    # Optionally, you could generate a new presigned URL here and update the document.
+    # For now, we'll just return an error.
+
+    return JSONResponse(content={
+        "doc_id": doc_id,
+        "filename": doc.filename,
+        "filetype": doc.filetype,
+        "presignedUrl": doc.presigned_url
+    })
 
 
 @app.get("/ping")

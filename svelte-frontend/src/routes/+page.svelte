@@ -153,7 +153,10 @@
 			}, delay);
 		} else {
 			setTimeout(() => {
-				goto('/results').then(() => {
+				const docId = responseData.docid;
+				console.log(responseData);
+
+				goto(`/results/${docId}`).then(() => {
 					loading.set(false);
 					showLoading = false;
 				});

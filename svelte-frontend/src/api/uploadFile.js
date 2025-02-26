@@ -35,11 +35,17 @@ const uploadFile = async (file, option) => {
 		const contentType = response.headers['content-type'];
 		const dataObject = response.data;
 		const processType = response.data.processType;
+		const presignedUrl = response.data.presignedUrl;
+		const docId = response.data.docId;
+
+		console.log('docId is:', docId);
 
 		return {
 			contentType,
 			dataObject,
-			processType
+			processType,
+			presignedUrl,
+			docId
 		};
 	} catch (error) {
 		console.error(error);

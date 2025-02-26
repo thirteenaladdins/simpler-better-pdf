@@ -5,10 +5,11 @@
 	export let data;
 	export let filetype;
 	export let filename;
+	export let presignedurl;
 
 	console.log(filename);
 	// This will run whenever `data`, `fileType`, or `fileName` changes
-	$: downloadURL = getDownloadURL();
+	$: downloadURL = presignedurl || getDownloadURL();
 
 	function getDownloadURL() {
 		console.log(filetype);

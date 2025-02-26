@@ -46,7 +46,8 @@ when the duplicate is removed then remove the notification from the top
 			const responseData = await processAllFiles(filesToUpload, selectedOption);
 
 			// const responseData = await processAllFiles(selectedFiles, selectedOption);
-			console.log(responseData);
+
+			console.log('upload success, final hurdle?', responseData);
 
 			if (responseData) {
 				dispatch('uploadSuccess', responseData);
