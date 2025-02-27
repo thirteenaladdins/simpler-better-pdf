@@ -3,12 +3,23 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 import uuid
 import pprint
+import os
+from dotenv import load_dotenv
+
+# TODO: load these from environment variables
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Constants
+S3_BUCKET_NAME = os.getenv('AWS_S3_BUCKET', 'magic-extractor')
+REGION_NAME = os.getenv('AWS_REGION', 'eu-north-1')
 
 s3_client = boto3.client(
     's3',
     region_name=REGION_NAME,
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
 )
 
 
