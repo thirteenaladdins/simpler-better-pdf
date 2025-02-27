@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Constants
-S3_BUCKET_NAME = os.getenv('AWS_S3_BUCKET', 'magic-extractor')
-REGION_NAME = os.getenv('AWS_REGION', 'eu-north-1')
+S3_BUCKET_NAME = os.getenv('AWS_S3_BUCKET')
+REGION_NAME = os.getenv('AWS_REGION')
 
 s3_client = boto3.client(
     's3',

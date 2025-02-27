@@ -8,8 +8,11 @@ ENV = os.getenv("ENV", "development")
 if ENV in ["development", "test"]:
     # Use SQLite in development or test environments
     DATABASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DATABASE_PATH = os.path.join(DATABASE_DIR, "documents.db")
+
+    DATABASE_PATH = os.path.join('/tmp', "documents.db")
     DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+
+
 else:
     # In production, use the Heroku/PostgreSQL DATABASE_URL environment variable
     DATABASE_URL = os.environ["DATABASE_URL"]
