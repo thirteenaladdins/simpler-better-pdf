@@ -3,22 +3,23 @@ import re
 from itertools import combinations
 import pandas as pd
 from utils.helpers import Helpers
-import unittest
 
 # add conversion of country of origins to 2 letter country codes
-# change output file name 
+# change output file name
 # output worksheet - give a second option to output ASM worksheet
 
 alpha = re.compile('[a-zA-Z]')
 num = re.compile('\d')
 tariff = re.compile('\d{8}')
 
+
 def extract_items(full_text):
     all_matches = re.findall(r'Item .*?Made .*?[A-Z]\n', full_text, re.DOTALL)
     return all_matches
-    
+
+
 def extract_invoice_no(path_to_pdf):
-    doc = fitz.open(stream=path_to_pdf, filetype="pdf")  
+    doc = fitz.open(stream=path_to_pdf, filetype="pdf")
     first_page = doc[0].get_text("text")
 
     split = first_page.split('\n')
@@ -28,54 +29,63 @@ def extract_invoice_no(path_to_pdf):
         invoice_no = split[index_no + 1]
         new_invoice_no = invoice_no.replace('*', '')
         return new_invoice_no
-    
+
     except ValueError:
         return "INVOICE not found in list"
-    
+
     except IndexError:
         return "No element after INVOICE in list"
 
 
 # 'TOTAL NW'
 def extract_net_weight(full_text):
-    search_net_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
+    search_net_weight = re.findall(
+        r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
 
     # TODO: fix - this does not always get the correct data
     if search_net_weight:
         net_weight = search_net_weight[0].split('\n')[-1]
-        formatted_net_weight = net_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
+        formatted_net_weight = net_weight.replace(
+            '.', '').replace(',', '.').replace('KG', ' ')
         return formatted_net_weight
     else:
         formatted_net_weight = None
-    
+
 # 'TOTAL GW'
+
+
 def extract_gross_weight(full_text):
-    search_gross_weight = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
+    search_gross_weight = re.findall(
+        r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
     # print(search_gross_weight, flush=True)
 
     # TODO: fix - this does not always get the correct data
     if search_gross_weight:
         gross_weight = search_gross_weight[0].split('\n')[-4]
-        formatted_gross_weight = gross_weight.replace('.','').replace(',', '.').replace('KG', ' ')    
+        formatted_gross_weight = gross_weight.replace(
+            '.', '').replace(',', '.').replace('KG', ' ')
         return formatted_gross_weight
-    else: 
+    else:
         formatted_gross_weight = None
 
 
 # 'TOTAL PACKAGES'
 def extract_total_packages(full_text):
 
-    search_total_packages = re.findall(r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
+    search_total_packages = re.findall(
+        r'TOT. CRTS. .*?NW.*?KG', full_text, re.DOTALL)
 
     # TODO: fix - this does not always get the correct data
     if search_total_packages:
         total_packages = search_total_packages[0].split('\n')[-7]
-        formatted_total_packages = total_packages.replace(',', '.').replace('KG', ' ')    
-        
+        formatted_total_packages = total_packages.replace(
+            ',', '.').replace('KG', ' ')
+
         return formatted_total_packages
-    else: 
+    else:
         formatted_total_packages = None
-    
+
+
 def find_value(items_list):
     # print(items_list, flush=True)
     number_array = []
@@ -83,7 +93,8 @@ def find_value(items_list):
     for value in items_list:
         if ',' in value:
             if not re.search(alpha, value):
-                number_array.append(float(value.replace('.', "").replace(',', '.')))
+                number_array.append(
+                    float(value.replace('.', "").replace(',', '.')))
 
     # value = max(number_array)
     max_value = max(number_array)
@@ -96,9 +107,10 @@ def find_value(items_list):
     else:
         # print('MAX VALUE', flush=True)
         value = max_value
-    
+
     # print('TRUE VALUE', value)
     return value
+
 
 def format_number(number):
     try:
@@ -107,6 +119,7 @@ def format_number(number):
         return replace_comma
     except:
         return number
+
 
 def extract_total_table_data(full_text):
     totals = []
@@ -142,9 +155,11 @@ def extract_total_table_data(full_text):
             continue
 
     df = pd.DataFrame(totals)
-    df.columns = ["Commodity Code", "Description", "Quantity", "Net Weight", "Value"]
+    df.columns = ["Commodity Code", "Description",
+                  "Quantity", "Net Weight", "Value"]
 
     return df
+
 
 def extract_descriptions(full_text):
     tariff_code_segment = full_text.split('\n')
@@ -160,7 +175,7 @@ def extract_descriptions(full_text):
 
     description_list = []
     all_items = re.findall(r'\d{8} .*?GBP .*?Kg', rejoined_text)
-    
+
     for item in all_items:
         split = item.split(' ')
         try:
@@ -173,44 +188,47 @@ def extract_descriptions(full_text):
 
 
 def format_items(all_items):
-    
+
     full_list = []
 
     for item in all_items:
         item_information = []
-        
+
         item_list = item.split('\n')
-        
+
         # filter a list element where the string contains a specific character
         item_list = [k for k in item_list if '%' not in k]
         # print(item_list)
         index = item_list.index('Made in')
 
         r = re.compile("\d{8}")
-        commodity_code = list(filter(r.match, item_list))[0] # Read Note below
-        
+        commodity_code = list(filter(r.match, item_list))[0]  # Read Note below
+
         value = find_value(item_list)
-        
+
         country_of_origin = item_list[index + 1]
-        
+
         item_information.append(commodity_code)
-        item_information.append(value) 
+        item_information.append(value)
         item_information.append(country_of_origin)
         full_list.append(item_information)
-        
+
     return full_list
+
 
 def filter_numbers(item_list):
     alpha = re.compile('[a-zA-Z]')
     num = re.compile('\d')
     tariff = re.compile('tariff')
     filtered_list = []
-    
+
     for item in item_list:
         if not re.search(alpha, item) and re.search(num, item) and not re.search(tariff, item):
-            filtered_list.append(item.replace(' ', '').replace('_', '').replace('.', '').replace(',', '.'))
-    
+            filtered_list.append(item.replace(' ', '').replace(
+                '_', '').replace('.', '').replace(',', '.'))
+
     return filtered_list
+
 
 def find_quantity_in_list(item_list, value):
 
@@ -225,15 +243,14 @@ def find_quantity_in_list(item_list, value):
     def parse_discount(discount_str):
         # Convert comma to dot and remove % sign, then split on slash
         return [float(d.replace(',', '.')) for d in discount_str.replace('%', '').split('/')]
-    
+
     def apply_all_discounts(value, discounts):
         if not discounts:
             return value
-        
+
         discount = discounts[0]
         discounted_value = apply_discount(value, discount / 100)
         return apply_all_discounts(discounted_value, discounts[1:])
-
 
     def find_quantity_and_unit_price(numbers, total_value, full_list):
 
@@ -254,15 +271,15 @@ def find_quantity_in_list(item_list, value):
                 if '.' not in string_a:
                     quantity = string_a
                     return quantity
-                
+
                 else:
                     quantity = string_b
                     return quantity
                 # if the strings are exact then return
-                
+
         # If direct multiplication didn't give the expected total_value, consider the discounts
         discounts = [item for item in full_list if '%' in item]
-        
+
         if discounts:
             discount_values = parse_discount(discounts[0])
             # print("discounts", discount_values)
@@ -270,26 +287,28 @@ def find_quantity_in_list(item_list, value):
             # for each combination of the values, apply the discounts
             for a, b in combinations(numbers, 2):
                 product = float(a) * float(b)
-                discounted_value = apply_all_discounts(product, discount_values)
-                
+                discounted_value = apply_all_discounts(
+                    product, discount_values)
+
                 if approximate_equal(total_value, discounted_value):
                     # here - remove the final value from a and b
                     # retain only the integer
                     if '.' not in a:
                         # print('a', a)
                         return a
-                    
+
                     else:
                         # print('b', b)
                         return b
-                
+
         return None
 
     final_list = []
 
     for item in item_list:
         new_list = item.split('\n')
-        full_list = [k for k in new_list if not re.fullmatch(r'\d{8}', k)] # retain discounts for later use
+        full_list = [k for k in new_list if not re.fullmatch(
+            r'\d{8}', k)]  # retain discounts for later use
         item_list_to_process = [k for k in full_list if '%' not in k]
 
         value = find_value(item_list_to_process)
@@ -305,9 +324,10 @@ def find_quantity_in_list(item_list, value):
         # print('Processed items:', remove_duplicates)
         remove_leading_zeroes = [i for i in remove_duplicates if i[0] != '0']
 
-        potential_quantity = find_quantity_and_unit_price(remove_leading_zeroes, float(value), full_list)
+        potential_quantity = find_quantity_and_unit_price(
+            remove_leading_zeroes, float(value), full_list)
 
-        if potential_quantity: 
+        if potential_quantity:
             final_list.append(potential_quantity)
 
     return final_list
@@ -323,15 +343,16 @@ def match_descriptions(all_items, descriptions):
             if tariff == description[0]:
                 fetch_description = descriptions[x]
                 description_only = fetch_description[1:]
-                
+
                 joined_desc = ' '.join(description_only)
-                
+
                 # insert description into item
                 item.append(joined_desc)
-                
-                final_list.append(item)    
-                
+
+                final_list.append(item)
+
     return final_list
+
 
 def extract_luxury_goods_data(file):
     item_list = []
@@ -351,7 +372,7 @@ def extract_luxury_goods_data(file):
 
     total_cartons = extract_total_packages(full_text)
     # print(total_net_weight, total_gross_weight, total_cartons)
-    
+
     formatted_items = format_items(all_matches)
     print("formatted_items", formatted_items)
     for item in formatted_items:
@@ -362,14 +383,14 @@ def extract_luxury_goods_data(file):
 
     quantity = find_quantity_in_list(all_matches, 1)
     print('quantity', quantity)
-    
+
     add_descriptions = match_descriptions(formatted_items, descriptions_list)
-    
+
     # add the quantity items to the original list
     for i, j in zip(add_descriptions, quantity):
         i.append(j)
         item_list.append(i)
-        
+
     print("item_list:", item_list)
 
     df = pd.DataFrame(item_list)
@@ -380,31 +401,34 @@ def extract_luxury_goods_data(file):
     df.at[0, 'Total Cartons'] = total_cartons
 
     new_columns = ["Commodity Code", "Value", "Country of Origin", "Invoice", "Description",
-        "Quantity", "Total Net Weight", "Total Gross Weight", "Total Cartons"]
-    
+                   "Quantity", "Total Net Weight", "Total Gross Weight", "Total Cartons"]
+
     # Rename the columns
     if len(new_columns) == len(df.columns):
         df.columns = new_columns
     else:
         # df.columns = new_columns
-        print(f"Length mismatch: DataFrame has {len(df.columns)} columns, but you're trying to assign {len(new_columns)} new column names.")
+        print(
+            f"Length mismatch: DataFrame has {len(df.columns)} columns, but you're trying to assign {len(new_columns)} new column names.")
 
-    
     # Calculate the pro-rated weights
     if 'Value' in df.columns:
         total_value = df['Value'].sum()
 
-        pro_rated_net_weight = round((float(df.at[0, 'Total Net Weight']) / total_value) * df['Value'], 3)
-        pro_rated_gross_weight = round((float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value'], 3)
-
+        pro_rated_net_weight = round(
+            (float(df.at[0, 'Total Net Weight']) / total_value) * df['Value'], 3)
+        pro_rated_gross_weight = round(
+            (float(df.at[0, 'Total Gross Weight']) / total_value) * df['Value'], 3)
 
         # Insert the pro-rated weight columns at loc 6 and 7
-        df.insert(loc=6, column='Pro-rated Net Weight', value=pro_rated_net_weight)
-        df.insert(loc=7, column='Pro-rated Gross Weight', value=pro_rated_gross_weight)
+        df.insert(loc=6, column='Pro-rated Net Weight',
+                  value=pro_rated_net_weight)
+        df.insert(loc=7, column='Pro-rated Gross Weight',
+                  value=pro_rated_gross_weight)
 
     # remove this as the value is not always calculated correctly
     # df.drop(['Quantity'], axis=1, inplace=True)
-    
+
     # df.drop("Quantity")
     # print(df)
     return df

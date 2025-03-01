@@ -1,7 +1,4 @@
 # fmt: off
-
-from database.models import Base
-from database.db import engine
 import time
 import os
 import logging
@@ -9,12 +6,7 @@ import uuid
 import datetime
 import base64
 import json
-import io
 import sys
-from s3_tools.upload_to_s3 import upload_to_s3, fetch_file_from_s3, create_document
-from database.models import Base, Document
-from database.db import get_db
-from sqlalchemy.orm import Session
 
 # FAST API
 from fastapi import FastAPI, Depends
@@ -22,17 +14,13 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
-from routes.fastapi_ocr import ocr_router
 
 # LOGGING
-from logging_utils.logger import LoggingMiddleware, log_processed_data
-from logging_utils.database_handler import DatabaseLogHandler
+# from logging_utils.logger import LoggingMiddleware, log_processed_data
+# from logging_utils.database_handler import DatabaseLogHandler
 
 # PROCESSING
-from luxury_goods import extract_luxury_goods_data
-from cct_processing.map_to_cct_json import map_df_to_cct_json
-from siemens import Siemens
-from als_header.pdf_add_header_fixed import add_header_footer
+from processing.luxury_goods import extract_luxury_goods_data
 from processing.file_processing import resave_pdf
 from services import process_als_header, process_als_header_smaller_doc
 
@@ -55,11 +43,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# Create the database tables (for SQLite, in production you might use migrations)
-Base.metadata.create_all(bind=engine)
-
-# Include the router
-app.include_router(ocr_router)
 
 # TODO: adjust origins for test and prod
 origins = ["http://localhost:5173",  # Replace with your local client's address
@@ -204,7 +187,6 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
     elif option == "Luxury Goods":
         # Adjust function to handle bytes if necessary
         processed_file = extract_luxury_goods_data(file_content)
-        converted_file = map_df_to_cct_json(processed_file)
 
         folder = 'tmp'
         # generate file name
@@ -219,13 +201,7 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
         # Construct the full file path
         filepath = os.path.join(folder, filename)
 
-        # Write the data to a JSON file
-        with open(filepath, 'w') as json_file:
-
-            json.dump(converted_file, json_file)
-
-        # print(f"File saved at {filepath}")
-
+        # Save the processed data to a JSON file
         response_data = {
             "type": "csv",
             # Assuming processed_file is a Pandas DataFrame
@@ -242,7 +218,7 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
 
 
 @app.post("/api/process_pdf")
-async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form(None), db: Session = Depends(get_db)):
+async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form(None)):
     # Check if file is attached
     if file is None:
         return JSONResponse(content={"error": "No file attached in request"}, status_code=400)
@@ -261,7 +237,42 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
 
     if option == "ALS Header New":
         processed_file = process_als_header(file_name, file_content, option)
-        return processed_file
+
+        data = json.loads(processed_file.body)
+        # Decode base64 to bytes
+        pdf_bytes = base64.b64decode(data['url'])
+
+        doc_uuid = str(uuid.uuid4())
+
+        # Construct the full file path
+        folder = '/tmp'
+
+        # generate file name
+
+        filename = f'{doc_uuid}.pdf'
+        filepath = os.path.join(folder, filename)
+
+        print(filename)
+
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        # Ensure pdf_bytes is not empty
+        if not pdf_bytes:
+            raise HTTPException(
+                status_code=500, detail="Failed to process PDF content")
+
+        # Write the PDF bytes to the file
+        with open(filepath, 'wb') as f:
+            f.write(pdf_bytes)
+
+        print(f"File written to: {filepath}")
+
+        if not os.path.exists(filepath):
+            print("File does not exist after writing!")
+
+        data["docId"] = doc_uuid
+        return JSONResponse(content=data)
 
     elif option == "ALS Header 2":
         processed_file = process_als_header_smaller_doc(
@@ -270,36 +281,38 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
         data = json.loads(processed_file.body)
         # Decode base64 to bytes
         pdf_bytes = base64.b64decode(data['url'])
-        # Upload the file bytes to S3 and get a presigned URL
-        # presigned_url = upload_to_s3(pdf_bytes)
 
-        # this returns the doc_uuid
-        doc_uuid, presigned_url = create_document(pdf_bytes)
+        doc_uuid = str(uuid.uuid4())
 
-        # add data to db here
+        # Construct the full file path
+        folder = '/tmp'
 
-        # Create a new document record in the database
-        new_document = Document(
-            filename=file_name,
-            filetype="application/pdf",
-            presigned_url=presigned_url,
-            # FIXME: replace with actual expiration time
-            # expires_at=datetime.datetime.now(
-            #     datetime.timezone.utc) + datetime.timedelta(hours=1),
-            id=doc_uuid,
-            s3_key=doc_uuid  # Replace with the actual S3 key value
-        )
+        # generate file name
 
-        db.add(new_document)
-        db.commit()
+        filename = f'{doc_uuid}.pdf'
+        filepath = os.path.join(folder, filename)
 
-        # Add the presigned_url to the data dictionary
-        data["presignedUrl"] = presigned_url
+        print(filename)
 
-        # Should I get the object key from s3 instead?
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        # Ensure pdf_bytes is not empty
+        if not pdf_bytes:
+            raise HTTPException(
+                status_code=500, detail="Failed to process PDF content")
+
+        # Write the PDF bytes to the file
+        with open(filepath, 'wb') as f:
+            f.write(pdf_bytes)
+
+        print(f"File written to: {filepath}")
+
+        if not os.path.exists(filepath):
+            print("File does not exist after writing!")
+
         data["docId"] = doc_uuid
 
-        # Return a JSON response containing both processed_file data and presigned_url
         return JSONResponse(content=data)
 
     # TODO: auto-save files for Raft
@@ -322,26 +335,16 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
 
 
 @app.get("/api/document/{doc_id}")
-async def get_document(doc_id: str, db: Session = Depends(get_db)):
-    # Fetch the document from the database
-    doc = db.query(Document).filter(Document.id == doc_id).first()
-    if not doc:
-        raise HTTPException(status_code=404, detail="Document not found")
+async def get_document(doc_id: str):
+    # Construct the full file path. Adjust the directory as needed.
+    filepath = os.path.join("/tmp", f"{doc_id}.pdf")
 
-    # Check if the presigned URL has expired
-    # now = datetime.datetime.now(datetime.timezone.utc)
-    # expires_in = (doc.expires_at - now).total_seconds()
-    # if expires_in <= 0:
-    #     raise HTTPException(status_code=410, detail="Presigned URL expired")
-    # Optionally, you could generate a new presigned URL here and update the document.
-    # For now, we'll just return an error.
-
-    return JSONResponse(content={
-        "doc_id": doc_id,
-        "filename": doc.filename,
-        "filetype": doc.filetype,
-        "presignedUrl": doc.presigned_url
-    })
+    # Return the file as a response with the appropriate media type
+    return FileResponse(
+        path=filepath,
+        media_type="application/pdf",
+        filename=f"{doc_id}.pdf"
+    )
 
 
 @app.get("/ping")

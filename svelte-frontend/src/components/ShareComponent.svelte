@@ -6,7 +6,7 @@
 	export let data;
 	export let filetype;
 	export let filename;
-	export let presignedurl;
+	// export let presignedurl;
 
 	// --- Share Functionality ---
 	let shareURL = '';
@@ -40,14 +40,14 @@
 			copyLink();
 		}
 	}
-
-	// --- Download URL Computation ---
-	$: downloadURL = presignedurl || getDownloadURL();
-
 	function getDownloadURL() {
 		const downloadBlob = data instanceof Blob ? data : new Blob([data], { type: filetype });
 		return URL.createObjectURL(downloadBlob);
 	}
+
+	// --- Download URL Computation ---
+	// $: downloadURL = presignedurl || getDownloadURL();
+	$: downloadURL = getDownloadURL();
 </script>
 
 <div class="action-container">

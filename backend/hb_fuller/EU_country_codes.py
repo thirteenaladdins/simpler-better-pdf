@@ -1,4 +1,0 @@
-EU_countries = [
-    
-]
-

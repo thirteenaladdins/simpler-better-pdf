@@ -124,7 +124,7 @@ def add_header_footer_smaller_doc(file_name, input_file):
 
     # input image file, then convert, then import into this script?
     # try:
-    encoded_image_path = os.path.join(als_header_dir, 'als_logo.txt')
+    encoded_image_path = os.path.join(als_header_dir, 'output.txt')
     with open(encoded_image_path, 'r') as f:
         encoded_image_data = f.read()
         # add prefix to image

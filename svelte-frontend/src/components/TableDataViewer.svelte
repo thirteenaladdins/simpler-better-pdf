@@ -144,7 +144,7 @@
 
 	.summaries {
 		display: flex;
-		height: 100%;
+		/* height: 100%; */
 		gap: 10px;
 		padding: 16px;
 		font-size: 14px;
@@ -153,7 +153,8 @@
 	}
 
 	.highlighted-row {
-		background-color: #ffe58f !important; /* Use any color you prefer for highlighting. The !important is to override any other background color styles. */
+		background-color: #ffe58f !important;
+		/* Use any color you prefer for highlighting. The !important is to override any other background color styles. */
 	}
 
 	tbody tr::before {

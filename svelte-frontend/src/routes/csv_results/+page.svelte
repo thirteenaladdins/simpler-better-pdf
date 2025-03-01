@@ -1,9 +1,7 @@
 <script>
-	import TableDataViewer from '../../../components/TableDataViewer.svelte';
-	import DownloadSection from '../../../components/DownloadSection.svelte';
-	// import PdfViewer from '../../../components/PDFViewer copy.svelte';
-	import { sessionData } from '../../../store/sessionStore';
-	import ShareComponent from '../../../components/ShareComponent.svelte';
+	import TableDataViewer from '../../components/TableDataViewer.svelte';
+	import DownloadSection from '../../components/DownloadSection.svelte';
+	import { sessionData } from '../../store/sessionStore';
 
 	// Use the data returned from the load function.
 	export let data;
@@ -30,17 +28,13 @@
 	<div class="left-div">
 		{#if fileType === 'text/csv'}
 			<TableDataViewer />
-		{:else if fileType === 'application/pdf'}
-			<!-- Pass the blob from the load function to the PDF viewer -->
-			<!-- <PdfViewer pdfBlob={docBlob} /> -->
-			<embed src={pdfURL} type="application/pdf" width="100%" height="760px" />
 		{:else}
 			<div class="file-not-supported">File type not supported for viewer.</div>
 		{/if}
 	</div>
 
 	<div class="right-div">
-		<ShareComponent data={fileData} filetype={fileType} filename={fileName} />
+		<DownloadSection />
 	</div>
 </div>
 
@@ -62,7 +56,7 @@
 	.left-div {
 		flex: 4;
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
 		overflow: auto;
 		height: 750px;
 		overflow-y: auto;
