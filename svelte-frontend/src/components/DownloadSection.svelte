@@ -20,6 +20,7 @@
 	$: fileType = sessionResponse?.filetype;
 	// $: fileName = formatFileName(sessionResponse?.filename);
 	$: fileName = sessionResponse?.filename;
+	$: presignedUrl = sessionResponse?.presignedurl;
 
 	// function formatFileName2(originalFileName) {
 	// 	// check if the file
@@ -37,14 +38,12 @@
 <!-- TODO: move this to the right side  -->
 <div class="download-section">
 	<!-- <DownloadButton data={fileData} filename={fileName} filetype={fileType} /> -->
-	<DownloadButton data={fileData} filename={fileName} filetype={fileType} />
-
-	<!-- Transmit data -->
-	{#if import.meta.env.VITE_ENV === 'development'}
-		<button class="send">
-			<SendIcon /> Send to ASM
-		</button>
-	{/if}
+	<DownloadButton
+		data={fileData}
+		filename={fileName}
+		filetype={fileType}
+		presignedurl={presignedUrl}
+	/>
 
 	<button class="refresh" on:click={() => refreshPage()}>
 		<RefreshIcon /> Start Over

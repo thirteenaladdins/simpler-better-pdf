@@ -70,7 +70,9 @@ function handleALSHeader(dataObject) {
 			success: true,
 			data: blob,
 			filetype: 'application/pdf',
-			filename: dataObject.fileName
+			filename: dataObject.fileName,
+			presignedurl: dataObject.presignedUrl,
+			docid: dataObject.docId
 		};
 	} catch (error) {
 		console.error(`Error in handleALSHeader: ${error}`);
@@ -118,7 +120,7 @@ const processAllFiles = async (files, option) => {
 		try {
 			const responseData = await uploadFile(file, option);
 
-			console.log(responseData.processType);
+			console.log('processAllFiles', responseData);
 
 			if (responseData.error) {
 				errors.push(`Error with file ${file.name}: ${responseData.error}`);

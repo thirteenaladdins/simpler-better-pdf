@@ -151,9 +151,19 @@
 					showLoading = false;
 				});
 			}, delay);
+		} else if ($selectedItem === 'Luxury Goods') {
+			setTimeout(() => {
+				goto('/csv_results').then(() => {
+					loading.set(false);
+					showLoading = false;
+				});
+			}, delay);
 		} else {
 			setTimeout(() => {
-				goto('/results').then(() => {
+				const docId = responseData.docid;
+				console.log(responseData);
+
+				goto(`/results/${docId}`).then(() => {
 					loading.set(false);
 					showLoading = false;
 				});
