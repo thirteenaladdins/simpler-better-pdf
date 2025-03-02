@@ -1,19 +1,13 @@
 <script>
 	import TableDataViewer from '../../../components/TableDataViewer.svelte';
-	import DownloadSection from '../../../components/DownloadSection.svelte';
-	// import PdfViewer from '../../../components/PDFViewer copy.svelte';
 	import { sessionData } from '../../../store/sessionStore';
 	import ShareComponent from '../../../components/ShareComponent.svelte';
 
-	// Use the data returned from the load function.
 	export let data;
-	const { docBlob } = data;
+	const { docBlob, docUrl } = data;
 
-	// If needed, create an object URL for preview or downloading.
-	let pdfURL = '';
-	if (docBlob) {
-		pdfURL = URL.createObjectURL(docBlob);
-	}
+	// Use the permanent URL for the download link
+	let pdfURL = docUrl;
 
 	// (Optional) You can still use sessionData for other file info.
 	let sessionResponse;
@@ -22,7 +16,7 @@
 	});
 
 	$: fileData = sessionResponse?.data;
-	$: fileType = sessionResponse?.filetype;
+	$: fileType = sessionResponse?.filetype || 'application/pdf';
 	$: fileName = sessionResponse?.filename;
 </script>
 

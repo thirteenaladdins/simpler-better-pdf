@@ -18,7 +18,7 @@ export function getBaseUrl() {
 			cachedBaseUrl = import.meta.env.VITE_BASE_URL_PRODUCTION;
 			break;
 		default:
-			cachedBaseUrl = 'https://als-toolkit-518aa93f7ddc.herokuapp.com';
+			cachedBaseUrl = 'https://als-toolkit-test-199b8323b120.herokuapp.com/';
 	}
 
 	return cachedBaseUrl;

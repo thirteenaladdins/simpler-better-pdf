@@ -136,26 +136,6 @@ def home():
     return "Magic Extractor Deployed"
 
 
-@app.get("/api/fetch_file/{filename:path}")
-async def fetch_file(filename: str):
-    als_header_dir = os.path.join(os.getcwd(), 'als_header')
-    file_path = os.path.join(als_header_dir, filename)
-
-    if not os.path.exists(file_path):
-        print(f"File not found: {file_path}")
-        raise HTTPException(status_code=404, detail="File not found")
-
-    print(f"File path: {file_path}")
-
-    return FileResponse(file_path)
-
-# TODO: update this to process_file
-# what is the difference between process_file and process_pdf
-# not clear
-
-# returns CSV
-
-
 @app.post("/api/process_file")
 async def process_file(file: UploadFile = File(...), option: Optional[str] = Form(None)):
     # Check if file is attached
@@ -171,20 +151,7 @@ async def process_file(file: UploadFile = File(...), option: Optional[str] = For
     file_name = file.filename
 
     # Processing the file based on the option provided
-    if option == "Siemens Regex":
-        # Make sure this function can handle bytes
-        processed_file = Siemens.extract_siemens(file_content)
-        response_data = {
-            "type": "csv",
-            # Assuming processed_file is a Pandas DataFrame
-            "data": processed_file.to_json(orient="records"),
-            "processType": "Siemens Regex"
-        }
-
-        # log_processed_data(file.filename, option, response_data)
-        return JSONResponse(content=response_data)
-
-    elif option == "Luxury Goods":
+    if option == "Luxury Goods":
         # Adjust function to handle bytes if necessary
         processed_file = extract_luxury_goods_data(file_content)
 
@@ -266,6 +233,15 @@ async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form
         with open(filepath, 'wb') as f:
             f.write(pdf_bytes)
 
+        with open(filepath, 'wb') as f:
+            f.write(pdf_bytes)
+
+            if os.path.exists(filepath):
+                logger.info(
+                    f"File successfully written to: {filepath}, size: {os.path.getsize(filepath)} bytes")
+            else:
+                logger.error("File does not exist after writing!")
+
         print(f"File written to: {filepath}")
 
         if not os.path.exists(filepath):
@@ -339,11 +315,16 @@ async def get_document(doc_id: str):
     # Construct the full file path. Adjust the directory as needed.
     filepath = os.path.join("/tmp", f"{doc_id}.pdf")
 
+    if not os.path.exists(filepath):
+        logger.error(f"File not found for doc_id: {doc_id}")
+        raise HTTPException(status_code=404, detail="File not found")
+
     # Return the file as a response with the appropriate media type
     return FileResponse(
         path=filepath,
         media_type="application/pdf",
-        filename=f"{doc_id}.pdf"
+        # filename=f"{doc_id}.pdf",
+        headers={"Content-Disposition": f"inline; filename={doc_id}.pdf"}
     )
 
 
