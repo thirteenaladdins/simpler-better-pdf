@@ -10,17 +10,12 @@ import sys
 
 # FAST API
 from fastapi import FastAPI, Depends
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
 
-# LOGGING
-# from logging_utils.logger import LoggingMiddleware, log_processed_data
-# from logging_utils.database_handler import DatabaseLogHandler
-
 # PROCESSING
-from processing.luxury_goods import extract_luxury_goods_data
 from processing.file_processing import resave_pdf
 from services import process_als_header, process_als_header_smaller_doc
 
@@ -31,12 +26,6 @@ from typing import Optional
 from dotenv import load_dotenv
 
 # fmt: on
-
-# TODO: equivalent
-# from werkzeug.utils import secure_filename
-# TODO: fastAPI equivalent?
-# from routes.ocr import ocr_blueprint
-# TODO: add secret key generation?
 
 # Load the .env file
 load_dotenv()
@@ -131,57 +120,103 @@ except OSError as e:
     logging.error(f"Error creating directory {UPLOAD_FOLDER}: {str(e)}")
 
 
-@app.get('/')
+# @app.get('/')
+# def home():
+@app.get('/', response_class=HTMLResponse)
 def home():
-    return "Magic Extractor Deployed"
-
-
-@app.post("/api/process_file")
-async def process_file(file: UploadFile = File(...), option: Optional[str] = Form(None)):
-    # Check if file is attached
-    if file is None:
-        return JSONResponse(content={"error": "No file attached in request"}, status_code=400)
-
-    # Check if form option is provided
-    if option is None:
-        return JSONResponse(content={"error": "Missing form option"}, status_code=400)
-
-    # Read file content
-    file_content = await file.read()
-    file_name = file.filename
-
-    # Processing the file based on the option provided
-    if option == "Luxury Goods":
-        # Adjust function to handle bytes if necessary
-        processed_file = extract_luxury_goods_data(file_content)
-
-        folder = 'tmp'
-        # generate file name
-
-        myuuid = uuid.uuid4()
-        # UUID
-        filename = f'VECTORAI_LUXURY_GOODS_{myuuid}.json'
-        # save data to file
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-        # Construct the full file path
-        filepath = os.path.join(folder, filename)
-
-        # Save the processed data to a JSON file
-        response_data = {
-            "type": "csv",
-            # Assuming processed_file is a Pandas DataFrame
-            "data": processed_file.to_json(orient="records"),
-            "processType": "Luxury Goods"
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Simpler Better PDF Backend</title>
+      <p>Simpler Better PDF Backend</p>
+      <style>
+        html, body {
+          height: 100%;
+          margin: 0;
+          background-color: #242F3F;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          font-family: sans-serif;
         }
-
-        # log_processed_data(file.filename, option, response_data)
-
-        return JSONResponse(content=response_data)
-
-    else:
-        return JSONResponse(content={"error": "Invalid form option"}, status_code=400)
+        p {
+            color: #fff;
+        }
+        .loader {
+          display: inline-block;
+          width: 50px;
+          height: 50px;
+          position: relative;
+          border: 4px solid #fff;
+          border-radius: 50%;
+          animation: loader-rotate 2s infinite ease;
+        }
+        .loader-inner {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 4px;
+          background-color: #fff;
+          animation: loader-fill 2s infinite ease-in;
+        }
+        /* Bottom line: positioned at the bottom */
+        .loader-inner.bottom {
+          bottom: 0;
+        }
+        /* Top line: positioned at the top with a delay */
+        .loader-inner.top {
+          top: 0;
+          animation-delay: 1s;
+        }
+        @keyframes loader-rotate {
+          0% {
+            transform: rotate(0deg);
+          }
+          25% {
+            transform: rotate(180deg);
+          }
+          50% {
+            transform: rotate(180deg);
+          }
+          75% {
+            transform: rotate(360deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes loader-fill {
+          0% {
+            height: 0%;
+          }
+          25% {
+            height: 0%;
+          }
+          50% {
+            height: 100%;
+          }
+          75% {
+            height: 100%;
+          }
+          100% {
+            height: 0%;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="loader">
+        <div class="loader-inner bottom"></div>
+        <div class="loader-inner top"></div>
+      </div>
+    </body>
+    </html>
+ """
 
 
 @app.post("/api/process_pdf")

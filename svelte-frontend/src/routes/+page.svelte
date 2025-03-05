@@ -2,6 +2,7 @@
 	import { getBaseUrl } from '../utils/config.js';
 
 	const baseUrl = getBaseUrl();
+	console.log('Base URL:', baseUrl);
 
 	export async function load({ fetch }) {
 		// Place server-side logic here, such as data fetching
@@ -122,9 +123,6 @@
 				}
 			} catch (error) {
 				console.error('Error pinging server:', error);
-				// handleError(
-				// 	'Failed to connect to the server. Please check your internet connection and try again.'
-				// );
 			}
 		});
 	}
@@ -144,31 +142,16 @@
 
 		const elapsedTime = Date.now() - startTime;
 		const delay = Math.max(0, 1500 - elapsedTime);
-		if ($selectedItem === 'Annotate') {
-			setTimeout(() => {
-				goto('/pdf').then(() => {
-					loading.set(false);
-					showLoading = false;
-				});
-			}, delay);
-		} else if ($selectedItem === 'Luxury Goods') {
-			setTimeout(() => {
-				goto('/csv_results').then(() => {
-					loading.set(false);
-					showLoading = false;
-				});
-			}, delay);
-		} else {
-			setTimeout(() => {
-				const docId = responseData.docid;
-				console.log(responseData);
 
-				goto(`/results/${docId}`).then(() => {
-					loading.set(false);
-					showLoading = false;
-				});
-			}, delay);
-		}
+		setTimeout(() => {
+			const docId = responseData.docid;
+			console.log(responseData);
+
+			goto(`/results/${docId}`).then(() => {
+				loading.set(false);
+				showLoading = false;
+			});
+		}, delay);
 	}
 
 	function handleError(event) {
