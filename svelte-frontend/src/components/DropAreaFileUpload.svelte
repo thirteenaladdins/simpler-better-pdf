@@ -10,7 +10,7 @@ add file count at the top as well
 when the duplicate is removed then remove the notification from the top
 -->
 
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import UploadIcon from '../icons/upload.svg';
 	import FileIcon from '../components/FileIcon.svelte';
@@ -61,7 +61,7 @@ when the duplicate is removed then remove the notification from the top
 
 	let fileInput;
 
-	let selectedFiles = [];
+	let selectedFiles: any[] = [];
 	// Subscribe to selectedFiles store
 
 	// this wiill be the single source of
@@ -176,7 +176,7 @@ when the duplicate is removed then remove the notification from the top
 	<!-- after success, then load the component -->
 
 	<button
-		on:click={handleFileUpload(selectedFiles, $selectedItem)}
+		on:click={() => handleFileUpload(selectedFiles, $selectedItem)}
 		class="upload-button"
 		disabled={selectedFiles.length === 0}
 	>

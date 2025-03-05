@@ -30,27 +30,12 @@
 	}
 </script>
 
-<!-- <button on:click={() => isNavOpen = !isNavOpen}>{isNavOpen ? 'Close' : 'Open'} Side Nav</button> -->
-
-<!-- maybe the toggle is what I want -->
-<!-- <div class="sidenav" class:active={isNavOpen}> -->
-
 <div class="sidenav">
 	<span class="sidebar-title font-sans">TOOLS</span>
-	<!-- <span class="sidebar-title font-sans">Extraction</span> -->
-	<button
-		on:click={() => toggleHighlight('Luxury Goods')}
-		class="sidebar-button font-sans {$selectedItem === 'Luxury Goods' ? 'on-selected-sidebar' : ''}"
-	>
-		Luxury Goods
-	</button>
 
-	<!-- <span class="sidebar-title font-sans">Miscelleanous</span> -->
 	<button
 		on:click={() => toggleHighlight('ALS Header New')}
-		class="sidebar-button font-sans {$selectedItem === 'ALS Header New'
-			? 'on-selected-sidebar'
-			: ''}"
+		class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
 	>
 		ALS Header
 	</button>
@@ -60,23 +45,6 @@
 	>
 		ALS Header 2
 	</button>
-	<button
-		on:click={() => toggleHighlight('Re-Save PDF')}
-		class="sidebar-button font-sans {$selectedItem === 'Re-Save PDF' ? 'on-selected-sidebar' : ''}"
-	>
-		Re-Save PDF
-	</button>
-
-	{#if import.meta.env.VITE_ENV === 'development'}
-		<button
-			on:click={() => toggleHighlight('Annotate')}
-			class="sidebar-button font-sans disabled-icon {$selectedItem === 'Annotate'
-				? 'on-selected-sidebar'
-				: ''}"
-		>
-			Annotate
-		</button>
-	{/if}
 
 	<div class="theme-button-container">
 		<button
@@ -98,7 +66,6 @@
 			<Settings />
 		</button>
 
-		<!-- implement this later -->
 		<button
 			on:click={() => toggleHighlightTheme('serpent')}
 			class="sidebar-button font-sans {$theme.selected === 'serpent' ? 'on-selected-sidebar' : ''}"
@@ -136,14 +103,6 @@
 			Noto Color Emoji;
 	}
 
-	.sidebar-hidden {
-		visibility: hidden;
-	}
-
-	.sidebar-item {
-		list-style: none;
-	}
-
 	.sidenav {
 		display: flex;
 		padding-top: 16px;
@@ -155,7 +114,8 @@
 		/* justify-content: space-between;  */
 		height: 100%; /* Use 100% of the parent's height */
 		overflow: auto;
-		border-right: 1px solid #d3d3d3;
+		border-right: 2px solid;
+		border-right-color: var(--accent-color);
 	}
 
 	/* Centering text inside .sidebar-button */
@@ -193,16 +153,8 @@
 	}
 
 	.sidenav button:hover {
-		/* background-color: rgb(255, 165, 92); */
-		/* background-color: rgb(225, 232, 240); */
-		/* border: 1px solid var(--active-text-color); */
 		color: var(--active-text-color);
 	}
-
-	/* .sidenav button:active {
-    background-color: rgb(225, 232, 240);
-    color: rgb(42,91,252);
-} */
 
 	.sidebar-title {
 		font-size: 0.75rem;

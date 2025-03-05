@@ -34,8 +34,7 @@
 		height: 100%;
 		color: var(--text-color);
 		font-weight: bold;
-		background-color: rgba(255, 255, 255, 0.5);
-		/* background-color: var(--background-color); */
+		background-color: rgba(255, 255, 255, 0.2);
 		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
 			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 		font-size: 14px;

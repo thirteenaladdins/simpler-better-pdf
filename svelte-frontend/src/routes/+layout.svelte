@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-2X85K1KEH5"></script>
+	<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-2X85K1KEH5"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
 		function gtag() {
@@ -30,7 +30,7 @@
 		gtag('js', new Date());
 
 		gtag('config', 'G-2X85K1KEH5');
-	</script>
+	</script> -->
 </svelte:head>
 
 <!-- Add version to the top left and link to github -->
