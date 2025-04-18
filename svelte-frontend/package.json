@@ -15,21 +15,27 @@
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/kit": "^2.17.3",
+		"@tsconfig/svelte": "^5.0.4",
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"prettier": "^2.8.0",
+		"rollup-plugin-copy": "^3.5.0",
 		"svelte": "^5.22.4",
 		"svelte-check": "^3.4.3",
+		"svelte-feather-icons": "^4.2.0",
 		"typescript": "^5.0.0",
 		"vite": "^6.2.0",
 		"vitest": "^3.0.7"
 	},
 	"type": "module",
 	"dependencies": {
+		"@nutrient-sdk/viewer": "^1.2.0",
 		"axios": "^1.5.0",
 		"jszip": "^3.10.1",
 		"papaparse": "^5.4.1",
-		"pdfjs-dist": "^4.10.38",
+		"pdf-lib": "^1.17.1",
+		"pdfjs-dist": "^5.1.91",
+		"svelte-icons": "^2.1.0",
 		"tesseract.js": "^4.1.2"
 	}
 }

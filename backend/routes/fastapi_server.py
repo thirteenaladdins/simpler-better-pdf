@@ -221,128 +221,115 @@ def home():
 
 @app.post("/api/process_pdf")
 async def process_pdf(file: UploadFile = File(...), option: Optional[str] = Form(None)):
-    # Check if file is attached
-    if file is None:
-        return JSONResponse(content={"error": "No file attached in request"}, status_code=400)
+    try:
+        # Check if file is attached
+        if file is None:
+            return JSONResponse(content={"error": "No file attached in request"}, status_code=400)
 
-    # Check if form option is provided
-    if option is None:
-        return JSONResponse(content={"error": "Missing form option"}, status_code=400)
+        # Check if form option is provided
+        if option is None:
+            return JSONResponse(content={"error": "Missing form option"}, status_code=400)
 
-    # Read file content
-    file_content = await file.read()
-    file_name = file.filename
+        # Read file content
+        file_content = await file.read()
+        file_name = file.filename
 
-    # print(file_name)
+        # Validate file content
+        if not file_content:
+            return JSONResponse(content={"error": "File is empty"}, status_code=400)
 
-    # Processing the file based on the option provided
+        # Process based on option
+        if option == "ALS Header":
+            try:
+                processed_file = process_als_header(
+                    file_name, file_content, option)
+                data = json.loads(processed_file.body)
+                pdf_bytes = base64.b64decode(data['url'])
 
-    if option == "ALS Header New":
-        processed_file = process_als_header(file_name, file_content, option)
+                if not pdf_bytes:
+                    raise HTTPException(
+                        status_code=500, detail="Failed to process PDF content")
 
-        data = json.loads(processed_file.body)
-        # Decode base64 to bytes
-        pdf_bytes = base64.b64decode(data['url'])
+                # Generate unique ID and file path
+                doc_uuid = str(uuid.uuid4())
+                folder = '/tmp'
+                filename = f'{doc_uuid}.pdf'
+                filepath = os.path.join(folder, filename)
 
-        doc_uuid = str(uuid.uuid4())
+                # Ensure directory exists
+                os.makedirs(folder, exist_ok=True)
 
-        # Construct the full file path
-        folder = '/tmp'
+                # Write file once
+                with open(filepath, 'wb') as f:
+                    f.write(pdf_bytes)
 
-        # generate file name
+                if not os.path.exists(filepath):
+                    raise HTTPException(
+                        status_code=500, detail="Failed to save processed PDF")
 
-        filename = f'{doc_uuid}.pdf'
-        filepath = os.path.join(folder, filename)
+                data["docId"] = doc_uuid
+                return JSONResponse(content=data)
+            except ValueError as e:
+                return JSONResponse(content={"error": str(e)}, status_code=400)
+            except Exception as e:
+                logger.error(f"Error processing PDF: {str(e)}")
+                return JSONResponse(content={"error": "Failed to process PDF"}, status_code=500)
 
-        print(filename)
+        elif option == "ALS Header 2":
+            try:
+                processed_file = process_als_header_smaller_doc(
+                    file_name, file_content, option)
+                data = json.loads(processed_file.body)
+                pdf_bytes = base64.b64decode(data['url'])
 
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+                if not pdf_bytes:
+                    raise HTTPException(
+                        status_code=500, detail="Failed to process PDF content")
 
-        # Ensure pdf_bytes is not empty
-        if not pdf_bytes:
-            raise HTTPException(
-                status_code=500, detail="Failed to process PDF content")
+                doc_uuid = str(uuid.uuid4())
+                folder = '/tmp'
+                filename = f'{doc_uuid}.pdf'
+                filepath = os.path.join(folder, filename)
 
-        # Write the PDF bytes to the file
-        with open(filepath, 'wb') as f:
-            f.write(pdf_bytes)
+                os.makedirs(folder, exist_ok=True)
 
-        with open(filepath, 'wb') as f:
-            f.write(pdf_bytes)
+                with open(filepath, 'wb') as f:
+                    f.write(pdf_bytes)
 
-            if os.path.exists(filepath):
-                logger.info(
-                    f"File successfully written to: {filepath}, size: {os.path.getsize(filepath)} bytes")
-            else:
-                logger.error("File does not exist after writing!")
+                if not os.path.exists(filepath):
+                    raise HTTPException(
+                        status_code=500, detail="Failed to save processed PDF")
 
-        print(f"File written to: {filepath}")
+                data["docId"] = doc_uuid
+                return JSONResponse(content=data)
+            except ValueError as e:
+                return JSONResponse(content={"error": str(e)}, status_code=400)
+            except Exception as e:
+                logger.error(f"Error processing PDF: {str(e)}")
+                return JSONResponse(content={"error": "Failed to process PDF"}, status_code=500)
 
-        if not os.path.exists(filepath):
-            print("File does not exist after writing!")
+        elif option == "Re-Save PDF":
+            try:
+                processed_file = resave_pdf(file_name, file_content)
+                if processed_file is None:
+                    raise HTTPException(
+                        status_code=500, detail="Failed to resave PDF")
+                encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
+                return JSONResponse(content={
+                    "type": "application/pdf",
+                    "url": encoded_pdf,
+                    "processType": option,
+                    "fileName": file_name
+                })
+            except Exception as e:
+                logger.error(f"Error resaving PDF: {str(e)}")
+                return JSONResponse(content={"error": "Failed to resave PDF"}, status_code=500)
 
-        data["docId"] = doc_uuid
-        return JSONResponse(content=data)
-
-    elif option == "ALS Header 2":
-        processed_file = process_als_header_smaller_doc(
-            file_name, file_content, option)
-
-        data = json.loads(processed_file.body)
-        # Decode base64 to bytes
-        pdf_bytes = base64.b64decode(data['url'])
-
-        doc_uuid = str(uuid.uuid4())
-
-        # Construct the full file path
-        folder = '/tmp'
-
-        # generate file name
-
-        filename = f'{doc_uuid}.pdf'
-        filepath = os.path.join(folder, filename)
-
-        print(filename)
-
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-        # Ensure pdf_bytes is not empty
-        if not pdf_bytes:
-            raise HTTPException(
-                status_code=500, detail="Failed to process PDF content")
-
-        # Write the PDF bytes to the file
-        with open(filepath, 'wb') as f:
-            f.write(pdf_bytes)
-
-        print(f"File written to: {filepath}")
-
-        if not os.path.exists(filepath):
-            print("File does not exist after writing!")
-
-        data["docId"] = doc_uuid
-
-        return JSONResponse(content=data)
-
-    # TODO: auto-save files for Raft
-    elif option == "Re-Save PDF":
-        # print(option, flush=True)
-        processed_file = resave_pdf(file_name, file_content)
-        # Convert bytes to Base64 encoded string
-
-        encoded_pdf = base64.b64encode(processed_file).decode('utf-8')
-        response_data = {
-            "type": "application/pdf",
-            "url": encoded_pdf,
-            "processType": option,
-            "fileName": file_name
-        }
-        return JSONResponse(content=response_data)
-
-    else:
-        return JSONResponse(content={"error": "Invalid form option"}, status_code=400)
+        else:
+            return JSONResponse(content={"error": "Invalid form option"}, status_code=400)
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        return JSONResponse(content={"error": "An unexpected error occurred"}, status_code=500)
 
 
 @app.get("/api/document/{doc_id}")

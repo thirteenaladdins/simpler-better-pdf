@@ -1,15 +1,16 @@
 <script>
 	import { selectedItem } from '../store/selectedItemStore.js';
 	import { theme } from '../store/themeStore.js';
-
-	import Moon from '../icons/moon.svelte';
-	import Sun from '../icons/sun.svelte';
+	import { editLayerStore } from '../store/editTextStore.js';
 	import Serpent from '../icons/serpent.svelte';
-	import Settings from '../icons/settings.svelte';
+	import { TypeIcon, SunIcon, MoonIcon, SettingsIcon } from 'svelte-feather-icons';
 
 	function toggleHighlight(itemName) {
 		if ($selectedItem !== itemName) {
 			selectedItem.set(itemName);
+			if (itemName === 'edit text') {
+				editLayerStore.toggle();
+			}
 		}
 	}
 
@@ -24,180 +25,172 @@
 	// Reactively update the data-theme attribute
 	$: {
 		if (typeof window !== 'undefined' && $theme) {
-			console.log('theme', $theme.actual);
 			document.documentElement.setAttribute('data-theme', $theme.actual);
 		}
 	}
 </script>
 
-<div class="sidenav">
-	<span class="sidebar-title font-sans">TOOLS</span>
+<div class="sidenav font-sans">
+	<span class="sidebar-title">TOOLS</span>
+
+	<div class="tool-container">
+		<button
+			on:click={() => {
+				toggleHighlight('edit text');
+				editLayerStore.toggle();
+			}}
+			class="sidebar-button {$editLayerStore.isActive ? 'on-selected-sidebar' : ''}"
+		>
+			<TypeIcon size="24" />
+		</button>
+	</div>
+
+	<span class="sidebar-title">LEGACY TOOLS</span>
 
 	<button
-		on:click={() => toggleHighlight('ALS Header New')}
-		class="sidebar-button font-sans {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
+		on:click={() => toggleHighlight('ALS Header')}
+		class="sidebar-button {$selectedItem === 'ALS Header' ? 'on-selected-sidebar' : ''}"
 	>
 		ALS Header
 	</button>
 	<button
 		on:click={() => toggleHighlight('ALS Header 2')}
-		class="sidebar-button font-sans {$selectedItem === 'ALS Header 2' ? 'on-selected-sidebar' : ''}"
+		class="sidebar-button {$selectedItem === 'ALS Header 2' ? 'on-selected-sidebar' : ''}"
 	>
 		ALS Header 2
 	</button>
 
+	<span class="sidebar-title">THEMES</span>
+
 	<div class="theme-button-container">
 		<button
 			on:click={() => toggleHighlightTheme('light')}
-			class="sidebar-button font-sans {$theme.selected === 'light' ? 'on-selected-sidebar' : ''}"
+			class="sidebar-button {$theme.selected === 'light' ? 'on-selected-sidebar' : ''}"
 		>
-			<Sun />
+			<SunIcon />
 		</button>
 		<button
 			on:click={() => toggleHighlightTheme('dark')}
-			class="sidebar-button font-sans {$theme.selected === 'dark' ? 'on-selected-sidebar' : ''}"
+			class="sidebar-button {$theme.selected === 'dark' ? 'on-selected-sidebar' : ''}"
 		>
-			<Moon />
+			<MoonIcon />
+		</button>
+		<button
+			on:click={() => toggleHighlightTheme('serpent')}
+			class="sidebar-button {$theme.selected === 'serpent' ? 'on-selected-sidebar' : ''}"
+		>
+			<Serpent />
 		</button>
 		<button
 			on:click={() => toggleHighlightTheme('system')}
-			class="sidebar-button font-sans {$theme.selected === 'system' ? 'on-selected-sidebar' : ''}"
+			class="sidebar-button {$theme.selected === 'system' ? 'on-selected-sidebar' : ''}"
 		>
-			<Settings />
-		</button>
-
-		<button
-			on:click={() => toggleHighlightTheme('serpent')}
-			class="sidebar-button font-sans {$theme.selected === 'serpent' ? 'on-selected-sidebar' : ''}"
-		>
-			<Serpent />
+			<SettingsIcon />
 		</button>
 	</div>
 </div>
 
 <style>
-	/* Small devices (landscape phones, 576px and up) */
-	/* @media only screen and (max-width: 576px) {  
-  .sidebar-list {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-} */
-
-	/* Medium devices (tablets, 768px and up) The navbar toggle appears at this breakpoint */
-	/* @media (min-width: 768px) {
-  
-} */
-
-	/* Large devices (desktops, 992px and up) */
-	/* @media only screen and (min-width: 992px) {
-} */
-
-	/* Extra large devices (large desktops, 1200px and up) */
-	/* @media (min-width: 1200px) {} */
-
+	/***** BASE FONT *****/
 	.font-sans {
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
-			Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+		font-family:
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			Segoe UI,
+			Roboto,
+			Helvetica Neue,
+			Arial,
+			Noto Sans,
+			sans-serif,
+			Apple Color Emoji,
+			Segoe UI Emoji,
+			Segoe UI Symbol,
 			Noto Color Emoji;
 	}
 
+	/***** SIDENAV CONTAINER *****/
 	.sidenav {
+		/* Layout */
 		display: flex;
-		padding-top: 16px;
-		width: 126px;
-		/* background-color: #E7491D; */
-		/* background-color: rgb(255, 117, 4); */
-		/* border-right: 1px solid black; */
-		flex-direction: column; /* Stacks children vertically */
-		/* justify-content: space-between;  */
-		height: 100%; /* Use 100% of the parent's height */
-		overflow: auto;
-		border-right: 2px solid;
-		border-right-color: var(--accent-color);
+		flex-direction: column;
+		/* 
+		  If you want this to be more of a sidebar:
+		  width: 240px;
+		  or 100% if it's part of a mobile layout.
+		*/
+		padding: 16px;
+		margin: 0 auto; /* Center horizontally if you want, else remove or adjust */
+
+		/* Visuals */
+		border: 2px solid var(--accent-color);
+		border-radius: 10px;
+		background-color: transparent; /* or var(--bg-color) if you want a background */
+
+		/* Gap for spacing between child elements (modern browsers) */
+		gap: 16px;
+		width: fit-content; /* Shrinks container to its content's width */
 	}
 
-	/* Centering text inside .sidebar-button */
-	.sidebar-button {
-		/* ... (your existing styles inside this class) ... */
-		line-height: 36px;
-	}
-
-	/* Style the settings button similar to .sidebar-button */
-	.sidenav button {
-		display: inline-block;
-		list-style: none;
-		border: 1px solid transparent;
-		border-radius: 4px;
-		/* background-color: transparent; */
-		background-color: transparent;
-		padding: 0 10px;
-		margin: 4px;
-		/* margin-top: 10px; */
-		/* min-width: 8rem; */
-		/* height: 36px; */
-		line-height: 36px;
-		vertical-align: middle;
-		/* text-align: center; */
-		/* background-color: #fff; */
-		color: var(--text-color);
-		font-size: 14px;
-		font-weight: 400;
-		cursor: pointer;
-		transition: box-shadow 0.2s;
-		text-decoration: none; /* To remove the underline from the anchor tag */
-		display: flex;
-		justify-content: left;
-		align-items: center; /* center vertically */
-	}
-
-	.sidenav button:hover {
-		color: var(--active-text-color);
-	}
-
+	/***** HEADINGS / TITLES *****/
 	.sidebar-title {
 		font-size: 0.75rem;
-		padding: 0 10px;
-		margin: 4px;
 		color: rgb(167, 175, 215);
+		margin: 0; /* Reset default heading margins */
 	}
 
-	/* if sidebar links clicked */
-	.sidenav button.on-selected-sidebar {
-		/* background-color: rgb(225, 232, 240); */
-		border: 1px solid transparent;
-		color: var(--active-text-color);
-		font-weight: 500;
-	}
-
+	/***** TOOL & THEME CONTAINER *****/
+	.tool-container,
 	.theme-button-container {
 		display: flex;
-		width: 100%;
 		flex-wrap: wrap;
-		margin-top: auto;
-		margin-bottom: 10px;
+		/* Creates spacing between buttons in modern browsers */
+		gap: 8px;
 	}
 
-	.theme-button-container button {
-		padding: 10px;
-		border: 1px solid transparent;
+	/***** BUTTON STYLES *****/
+	/* The .sidebar-button class can hold most of your shared button styles */
+	.sidebar-button {
+		display: flex;
+		align-items: center;
+		justify-content: center; /* or left if you prefer icons left-aligned */
+		gap: 8px; /* space between icon & text if you have text in future */
+
+		/* Spacing inside the button */
+		padding: 8px 12px;
+
+		/* Visuals */
+		font-size: 14px;
+		font-weight: 400;
+		color: var(--text-color);
+		background-color: transparent;
+		border: 1px solid var(--accent-color);
+		border-radius: 4px;
+		cursor: pointer;
+		transition:
+			background-color 0.2s,
+			color 0.2s,
+			border-color 0.2s;
 	}
 
-	.theme-button-container button:hover {
-		padding: 10px;
+	/* Hover state */
+	.sidebar-button:hover {
 		color: var(--active-text-color);
-		border: 1px solid var(--active-text-color);
+		border-color: var(--active-text-color);
 	}
 
-	.theme-button-container button.on-selected-sidebar {
-		border: 1px solid var(--active-text-color);
+	/***** SELECTED STATE *****/
+	.sidebar-button.on-selected-sidebar {
+		border-color: var(--accent-color);
+		font-weight: 500;
+		background-color: var(--button-bg-color);
+		/* color: var(--text-color); */
+		color: #fff;
 	}
 
-	.disabled-icon {
-		filter: grayscale(100%);
-		opacity: 0.6; /* Optional: to reduce the opacity for a more "disabled" look */
-		pointer-events: none; /* Disables any mouse interactions */
-		cursor: not-allowed; /* Indicates the item is not clickable */
-	}
+	/***** ANY EXTRA STATES (FOCUS, ACTIVE, ETC.) *****/
+	/* .sidebar-button:focus {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--accent-color);
+	} */
 </style>

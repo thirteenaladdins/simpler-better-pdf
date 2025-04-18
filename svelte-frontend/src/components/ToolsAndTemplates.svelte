@@ -1,5 +1,7 @@
 <!-- ToolsAndTemplates.svelte -->
 <script>
+	import SideNav from './SideNav.svelte';
+
 	function dispatch(eventName, detail) {
 		const event = new CustomEvent(eventName, { detail });
 		document.dispatchEvent(event);
@@ -30,7 +32,6 @@
 	{#if activeTab === 'tools'}
 		<div class="tools-tab">
 			<!-- Future: insert text, highlight, draw, etc. -->
-			<p>Basic Tools Here</p>
 		</div>
 	{:else}
 		<div class="templates-tab">
@@ -40,6 +41,7 @@
 		</div>
 	{/if}
 </div>
+<SideNav />
 
 <style>
 	.tools-and-templates {

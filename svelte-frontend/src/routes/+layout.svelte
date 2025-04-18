@@ -3,7 +3,6 @@
 	import '../app.css';
 	import Loading from '../components/Loading.svelte';
 	import { loading } from '../store/loadingStore.js';
-	import NavigationBar from '../components/NavigationBar.svelte';
 	// import { theme } from '../store/themeStore';
 	import { theme } from '../store/themeStore';
 
@@ -32,9 +31,6 @@
 		gtag('config', 'G-2X85K1KEH5');
 	</script> -->
 </svelte:head>
-
-<!-- Add version to the top left and link to github -->
-<NavigationBar />
 
 {#if $loading}
 	<Loading />

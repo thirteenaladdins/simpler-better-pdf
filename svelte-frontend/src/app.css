@@ -9,20 +9,28 @@
     --active-text-color: rgb(42, 91, 252);
     --error-color: #D16969; /* Soft red for errors or warnings */
     --selection-background: #7AFFE1; /* cyan for text selection */
+
+    /* Button Specific */
+    --button-bg-color: #D18616;       /* Dark grey button background */
+    --button-hover-bg-color: rgba(86, 156, 214, 0.2); /* A tinted accent for hover */
 }
 
-/* Dark Theme */
 [data-theme='dark'] {
-    --primary-color: #1E1E1E;
-    --primary-loading: ;
-    --secondary-color: #252526;
-    --accent-color: #569CD6;
-    --background-color: #1E1E1E; /* Dark grey almost black background */
-    --text-color: #868fba; /* Light grey text for dark background */
-    --active-text-color: rgb(42, 91, 252);
-    --error-color: #F48771; /* Brighter red for errors or warnings */
-    --selection-background: #FF7AE8; /* Dark blue for text selection */
-}
+    /* Core Colors */
+    --primary-color: #1E1E1E;          /* Dark background */
+    --secondary-color: #252526;        /* Slightly lighter than primary */
+    --accent-color: #569CD6;           /* Blue accent */
+    --background-color: #1E1E1E;        /* Main background */
+    --text-color: #D4D4D4;             /* Light grey for general text */
+    --active-text-color: #2A5BFC;       /* Brighter blue for active states */
+    --error-color: #F48771;            /* Error/warning red */
+    --selection-background: #3A75C4;   /* Deep blue for text selection */
+    
+    /* Button Specific */
+    --button-bg-color: #569CD6;        /* Dark grey button background */
+    --button-hover-bg-color: rgba(86, 156, 214, 0.2); /* A tinted accent for hover */
+  }
+
 
 [data-theme='serpent'] {
     --primary-color: #2e7d32; /* Slightly darker green for primary elements for better contrast */

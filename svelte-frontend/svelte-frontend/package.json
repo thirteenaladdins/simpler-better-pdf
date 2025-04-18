@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@nutrient-sdk/viewer": "^1.2.0"
+  }
+}

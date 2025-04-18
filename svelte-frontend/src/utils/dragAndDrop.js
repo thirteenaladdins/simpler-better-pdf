@@ -18,10 +18,14 @@ export function handleDrop(event, resetCounter, setHighlight) {
 	const filesFromDrop = Array.from(event.dataTransfer.files);
 
 	// Update the Svelte store with the new files and update file count
-	selectedFilesStore.update((currentFiles) => {
-		const updatedFiles = [...currentFiles, ...filesFromDrop];
-		fileCount.set(updatedFiles.length); // Update fileCount store with the length of updatedFiles
-		const { filesWithDuplicates, duplicatesCount } = markDuplicates(updatedFiles);
+	selectedFilesStore.update(() => {
+		// Just use the first file if multiple files are dropped
+		const newFile = filesFromDrop.length > 0 ? [filesFromDrop[0]] : [];
+		fileCount.set(newFile.length); // Update fileCount with 1 or 0
+		
+		// Check if file is a duplicate with empty array since we're replacing
+		const { filesWithDuplicates, duplicatesCount } = markDuplicates(newFile);
+		
 		if (duplicatesCount > 0) {
 			duplicateError.set('One or more files is a duplicate marked in red below.');
 		} else {

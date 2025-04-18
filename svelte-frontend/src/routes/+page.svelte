@@ -1,66 +1,29 @@
-<script context="module">
-	import { getBaseUrl } from '../utils/config.js';
-
-	const baseUrl = getBaseUrl();
-	console.log('Base URL:', baseUrl);
-
-	export async function load({ fetch }) {
-		// Place server-side logic here, such as data fetching
-		const baseUrl = getBaseUrl();
-		let serverAwake = false;
-		let showSuccessMessage = false;
-
-		try {
-			const response = await fetch(`${baseUrl}/ping`);
-			const data = await response.json();
-			if (data.message === 'pong') {
-				serverAwake = true;
-				showSuccessMessage = true;
-			}
-		} catch (error) {
-			console.error('Error pinging server:', error);
-		}
-		return {
-			props: { serverAwake, showSuccessMessage }
-		};
-	}
-</script>
-
 <script>
+	import { getBaseUrl } from '../utils/config';
 	import { goto } from '$app/navigation';
 	import { sessionData } from '../store/sessionStore.js';
-	// import { version } from '../utils/version.js';
 	import { onMount, onDestroy } from 'svelte';
 	import { loading } from '../store/loadingStore.js';
 	import { duplicateError } from '../store/duplicateErrorStore.js';
-
-	// this is used for duplicates at the moment should I change this?
 	import { errorMessage } from '../store/errorMessageStore.js';
-
 	import SideNav from '../components/SideNav.svelte';
 	import DropAreaFileUpload from '../components/DropAreaFileUpload.svelte';
 	import { selectedItem } from '../store/selectedItemStore.js';
-	// import Footer from "../components/Footer.svelte";
-
 	import { fileCount } from '../store/fileCountStore.js';
 	import { writable } from 'svelte/store';
 	import Loading from '../components/Loading.svelte';
-
-	// HANDLE DRAG AND DROP
 	import {
 		handleDragEnter,
 		handleDragLeave,
 		handleDragEnd,
 		handleDrop
 	} from '../utils/dragAndDrop';
-
 	import {
 		setHighlight,
 		increaseCounter,
 		decreaseCounter,
 		resetCounter
 	} from '../utils/dragState.js';
-
 	import { isHighlighted } from '../utils/dragState.js';
 
 	let highlighted;
@@ -68,6 +31,8 @@
 	isHighlighted.subscribe((value) => {
 		highlighted = value;
 	});
+
+	const baseUrl = getBaseUrl();
 
 	console.log(import.meta.env);
 	console.log('Base URL:', baseUrl);
@@ -79,8 +44,6 @@
 
 	let isError;
 	let dropArea;
-
-	// let isDuplicate;
 
 	errorMessage.subscribe((value) => (isError = value));
 
@@ -95,15 +58,16 @@
 				} else {
 					dots = 1;
 				}
-			}, 500); // Change the interval as per your requirement
+			}, 500);
 		});
+
+		// onMount(() => {});
 	}
 
 	onDestroy(() => {
-		clearInterval(interval); // Cleanup to avoid memory leaks
+		clearInterval(interval);
 	});
 
-	// add this to a separate file or remove it altogether
 	if (typeof window != undefined) {
 		onMount(async () => {
 			try {
@@ -117,7 +81,7 @@
 
 					setTimeout(() => {
 						showSuccessMessage = false;
-					}, 2000); // Message will disappear after 2 seconds
+					}, 2000);
 				} else {
 					console.error('Ping failed!');
 				}
@@ -139,37 +103,40 @@
 		uploadSuccessful = true;
 		responseData = event.detail;
 		sessionData.set(responseData);
+		console.log('handle success', responseData);
 
 		const elapsedTime = Date.now() - startTime;
 		const delay = Math.max(0, 1500 - elapsedTime);
 
 		setTimeout(() => {
 			const docId = responseData.docid;
-			console.log(responseData);
+			console.log('Navigating to results page with docId:', docId);
 
-			goto(`/results/${docId}`).then(() => {
-				loading.set(false);
-				showLoading = false;
-			});
+			goto(`/results/${docId}`)
+				.then(() => {
+					console.log('Navigation successful');
+					loading.set(false);
+					showLoading = false;
+				})
+				.catch((error) => {
+					console.error('Navigation error:', error);
+				});
 		}, delay);
 	}
 
 	function handleError(event) {
 		let error = event.detail.message || 'An error occurred.';
-		errorMessage.set(error); // This sets the error in the store which should trigger the alert to show
+		errorMessage.set(error);
 	}
 
-	let showError = writable(false); // store to control if the error is shown or not
+	let showError = writable(false);
 
 	function displayError() {
 		$showError = true;
 		setTimeout(() => {
 			$showError = false;
-		}, 3000); // auto-hide after 3 seconds, adjust as needed
+		}, 3000);
 	}
-
-	// let isHighlighted = false;
-	// export let isHighlighted = false;
 
 	function highlight(event) {
 		event.preventDefault();
@@ -199,7 +166,6 @@
 		<SideNav />
 	</div>
 
-	<!-- <div class="dropContainer" /> -->
 	<!-- Middle column -->
 	<div class="middleColumn">
 		<!-- Top part of the middle column -->
@@ -277,13 +243,25 @@
 	}
 
 	.server-message-wrapper {
-		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+		font-family:
+			Open Sans,
+			-apple-system,
+			BlinkMacSystemFont,
+			Segoe UI,
+			Roboto,
+			Oxygen,
+			Ubuntu,
+			Cantarell,
+			Fira Sans,
+			Droid Sans,
+			Helvetica Neue,
+			sans-serif;
 		font-size: 14px;
 	}
 
 	/* set this to the selection  */
 	.outerContainer.highlighted {
+		background-color: var(--accent-color);
 		opacity: 0.25;
 		/* opacity: inherit; */
 		/* Additional styles to indicate highlighting */
@@ -301,8 +279,19 @@
 		z-index: 1000;
 		transform: translateY(-100%);
 		transition: transform 0.3s ease-in-out;
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue,
-			Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+		font-family:
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			Segoe UI,
+			Roboto,
+			Helvetica Neue,
+			Arial,
+			Noto Sans,
+			sans-serif,
+			Apple Color Emoji,
+			Segoe UI Emoji,
+			Segoe UI Symbol,
 			Noto Color Emoji; /* now matching the navbar font */
 		font-size: 14px; /* adjust if necessary to match navbar text size */
 	}

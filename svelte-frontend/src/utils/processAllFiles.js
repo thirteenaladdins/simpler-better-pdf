@@ -14,19 +14,19 @@ import JSZip from 'jszip';
  * @param {boolean} isFirstFile - Indicates if it's the first file.
  */
 
-function handleLuxuryGoods(responseData, responses, isFirstFile) {
-	if (processType === 'Luxury Goods') {
-		const parsedData = parseJsonData(JSON.parse(responseData.dataObject.data)).split('\r\n');
+// function handleLuxuryGoods(responseData, responses, isFirstFile) {
+// 	if (processType === 'Luxury Goods') {
+// 		const parsedData = parseJsonData(JSON.parse(responseData.dataObject.data)).split('\r\n');
 
-		if (isFirstFile) {
-			responses.push(...parsedData);
-			isFirstFile = false;
-		} else {
-			responses.push(...parsedData.slice(1));
-		}
-		filetype = 'text/csv';
-	}
-}
+// 		if (isFirstFile) {
+// 			responses.push(...parsedData);
+// 			isFirstFile = false;
+// 		} else {
+// 			responses.push(...parsedData.slice(1));
+// 		}
+// 		filetype = 'text/csv';
+// 	}
+// }
 
 /**
  * Decodes a PDF from a base64 encoded string.
@@ -142,7 +142,7 @@ const processAllFiles = async (files, option) => {
 						responses.push(...parsedData.slice(1));
 					}
 					filetype = 'text/csv';
-				} else if (processType === 'ALS Header New') {
+				} else if (processType === 'ALS Header') {
 					// Example of handling the return value
 					const result = handleALSHeader(dataObject);
 					if (result.success) {

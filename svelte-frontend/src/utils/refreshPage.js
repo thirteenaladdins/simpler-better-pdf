@@ -2,7 +2,7 @@
 import { goto } from '$app/navigation';
 
 async function refreshPage() {
-	await goto('/');
+	await goto('/editor');
 	location.reload();
 }
 

@@ -1,19 +1,20 @@
-<!-- change the UI - the upload button should be separate -->
 <!-- 
-removing any of the duplicates should make remove the red colour when no duplicates remain
-start backwards from the list 
+TODO: change this page slightly - 
 
-space all icons evenly in the box
-fit five icons in the view
-check file types on drag and drop - limit to only pdf
-add file count at the top as well
-when the duplicate is removed then remove the notification from the top
+remove border
+make the drop area full size of the container
+drop area should change to pdf viewer after upload with new tools
+should apply the als logo with old view
+remove file viewer 
+
+
+
 -->
-
-<script lang="ts">
+<script>
 	import { createEventDispatcher } from 'svelte';
 	import UploadIcon from '../icons/upload.svg';
 	import FileIcon from '../components/FileIcon.svelte';
+	import PdfViewer from './PdfViewer.svelte';
 	import processAllFiles from '../utils/processAllFiles';
 
 	const dispatch = createEventDispatcher();
@@ -26,6 +27,10 @@ when the duplicate is removed then remove the notification from the top
 	import { duplicateError } from '../store/duplicateErrorStore';
 	import { selectedFilesStore } from '../utils/dragAndDrop';
 
+	// New props to handle PDF viewing state
+	export let showPdfViewer = false;
+	export let uploadedPdfFile = null;
+
 	// UTILITY FUNCTIONS
 	import { markDuplicates } from '../utils/markDuplicates';
 
@@ -37,31 +42,63 @@ when the duplicate is removed then remove the notification from the top
 	});
 
 	// FILE UPLOAD
+	// TODO: change this so it only uploads a single file and not multiple
 	async function handleFileUpload(selectedFiles, selectedOption) {
 		try {
 			loading.set(true);
 
-			const filesToUpload = selectedFiles.map((wrapper) => wrapper.file);
+			// Just get the first file (there should only be one now)
+			const fileToUpload = selectedFiles[0]?.file;
 
-			const responseData = await processAllFiles(filesToUpload, selectedOption);
+			if (!fileToUpload) {
+				dispatch('uploadFailed', { message: 'No file selected for upload' });
+				loading.set(false);
+				return;
+			}
 
-			// const responseData = await processAllFiles(selectedFiles, selectedOption);
+			// Validate file type
+			if (fileToUpload.type !== 'application/pdf') {
+				dispatch('uploadFailed', { message: 'Please upload a valid PDF file' });
+				loading.set(false);
+				return;
+			}
 
-			console.log('upload success, final hurdle?', responseData);
+			// Validate file size (8MB limit)
+			if (fileToUpload.size > 8 * 1024 * 1024) {
+				dispatch('uploadFailed', { message: 'File size must be less than 8MB' });
+				loading.set(false);
+				return;
+			}
 
-			if (responseData) {
-				dispatch('uploadSuccess', responseData);
-			} else {
-				dispatch('uploadFailed', { message: 'Unexpected response from server' });
+			// Store the file for display and show it immediately
+			uploadedPdfFile = fileToUpload;
+			showPdfViewer = true;
+
+			// Process the file in the background
+			try {
+				const responseData = await processAllFiles([fileToUpload], selectedOption);
+				if (responseData) {
+					dispatch('uploadSuccess', {
+						...responseData,
+						pdfFile: uploadedPdfFile
+					});
+				}
+			} catch (error) {
+				// Don't show error to user if background processing fails
+				console.error('Background processing failed:', error);
+			} finally {
+				// Always clear loading state
+				loading.set(false);
 			}
 		} catch (error) {
 			dispatch('uploadFailed', error);
+			loading.set(false);
 		}
 	}
 
 	let fileInput;
 
-	let selectedFiles: any[] = [];
+	let selectedFiles = [];
 	// Subscribe to selectedFiles store
 
 	// this wiill be the single source of
@@ -72,7 +109,9 @@ when the duplicate is removed then remove the notification from the top
 
 	let dropArea;
 
-	function onClickHandler() {
+	function onClickHandler(event) {
+		// Stop propagation to prevent parent handlers from also triggering
+		if (event) event.stopPropagation();
 		fileInput.click();
 	}
 
@@ -81,19 +120,22 @@ when the duplicate is removed then remove the notification from the top
 	// Does this work for all cases?
 	function handleFiles(event) {
 		const filesFromInput = Array.from(event.target.files);
-		selectedFilesStore.update((currentFiles) => {
-			const updatedFiles = [
-				...currentFiles,
-				...filesFromInput.map((file) => ({
-					file,
-					metadata: {
-						/* Initial metadata setup */
-					}
-				}))
-			];
-			return markDuplicates(updatedFiles).filesWithDuplicates;
+		selectedFilesStore.update(() => {
+			// Replace with new file instead of appending
+			const newFiles = filesFromInput.map((file) => ({
+				file,
+				metadata: {
+					/* Initial metadata setup */
+				}
+			}));
+			return markDuplicates(newFiles).filesWithDuplicates;
 		});
 		event.target.value = ''; // Reset the file input
+
+		// Automatically upload the file
+		if (filesFromInput.length > 0) {
+			handleFileUpload([{ file: filesFromInput[0] }], $selectedItem);
+		}
 	}
 
 	function removeFile(index) {
@@ -116,73 +158,66 @@ when the duplicate is removed then remove the notification from the top
 	}
 </script>
 
-<div class="file-upload-container font-sans">
-	<p class="title">File Upload</p>
-	<button class="browse-button" on:click={onClickHandler}>Browse</button>
-	<div
-		role="button"
-		bind:this={dropArea}
-		class="drop-area-full {selectedFiles.length > 0 ? 'file-selected' : ''} {isHighlighted
-			? 'highlighted'
-			: ''}"
-		tabindex="0"
-	>
-		<input
-			bind:this={fileInput}
-			multiple
-			type="file"
-			accept="application/pdf"
-			style="display: none;"
-			on:change={handleFiles}
-		/>
-
-		{#if selectedFiles.length === 0}
-			<img
-				src={UploadIcon}
-				alt="Drop your files here"
-				class="pointer-events-none select-none drop-icon"
+{#if !showPdfViewer}
+	<div class="file-upload-container font-sans">
+		<p class="title">File Upload</p>
+		<button class="browse-button" on:click={onClickHandler}>Browse</button>
+		<div
+			role="button"
+			bind:this={dropArea}
+			class="drop-area-full {selectedFiles.length > 0 ? 'file-selected' : ''} {isHighlighted
+				? 'highlighted'
+				: ''}"
+			tabindex="0"
+			on:click={(event) => {
+				// Only trigger file input if clicking directly on the drop area (not on child elements)
+				if (event.currentTarget === event.target) {
+					onClickHandler(event);
+				}
+			}}
+			on:keydown={(e) => e.key === 'Enter' && onClickHandler(e)}
+		>
+			<input
+				bind:this={fileInput}
+				type="file"
+				accept="application/pdf"
+				style="display: none;"
+				on:change={handleFiles}
 			/>
-			<div class="pointer-events-none select-none text-sm">
-				Click to choose a file or drag it here
+
+			{#if selectedFiles.length === 0}
+				<img
+					src={UploadIcon}
+					alt="Drop your files here"
+					class="pointer-events-none select-none drop-icon"
+				/>
+				<div class="pointer-events-none select-none text-sm">
+					Click to choose a file or drag it here
+				</div>
+			{/if}
+
+			<div class="file-list">
+				{#each selectedFiles as fileWrapper, index (index)}
+					<FileIcon
+						filename={fileWrapper.file.name}
+						size={fileWrapper.file.size}
+						type={fileWrapper.file.type}
+						isDuplicate={fileWrapper.metadata.isDuplicate}
+						on:remove={() => removeFile(index)}
+					/>
+				{/each}
 			</div>
-		{/if}
-
-		<!-- so here check the list for isDuplicate if the file name already exists -->
-		<!-- <div class="file-list">
-			{#each selectedFiles as file, index (index)}
-				<FileIcon
-					filename={file.name}
-					size={file.size}
-					type={file.type}
-					isDuplicate={file.isDuplicate}
-					on:remove={() => removeFile(index)}
-				/>
-			{/each}
-		</div> -->
-
-		<div class="file-list">
-			{#each selectedFiles as fileWrapper, index (index)}
-				<FileIcon
-					filename={fileWrapper.file.name}
-					size={fileWrapper.file.size}
-					type={fileWrapper.file.type}
-					isDuplicate={fileWrapper.metadata.isDuplicate}
-					on:remove={() => removeFile(index)}
-				/>
-			{/each}
 		</div>
 	</div>
-
-	<!-- after success, then load the component -->
-
-	<button
-		on:click={() => handleFileUpload(selectedFiles, $selectedItem)}
-		class="upload-button"
-		disabled={selectedFiles.length === 0}
-	>
-		Upload
-	</button>
-</div>
+{:else}
+	<div class="pdf-viewer-container">
+		{#if uploadedPdfFile}
+			<PdfViewer pdfFile={uploadedPdfFile} />
+		{:else}
+			<div class="loading-pdf">Loading PDF viewer...</div>
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.file-upload-container {
@@ -192,9 +227,22 @@ when the duplicate is removed then remove the notification from the top
 		align-items: center;
 		height: 25rem;
 		width: 40rem;
-		border: 2px solid var(--accent-color);
+		/* border: 2px solid var(--accent-color); */
 		border-radius: 10px;
-		background-color: var(--secondary-color);
+		/* background-color: var(--secondary-color); */
+	}
+
+	.pdf-viewer-container {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.pdf-embed {
+		border-radius: 5px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 	}
 
 	.drop-area-full {
@@ -211,17 +259,29 @@ when the duplicate is removed then remove the notification from the top
 		overflow-y: auto;
 		overflow-wrap: normal;
 		word-break: normal;
-		border: 2px dashed var(--accent-color);
+		/* border: 2px dashed var(--accent-color); */
 		border-radius: 10px; /* Added for rounded borders */
 		/* background-color: #f5f7fd;  */
 		/* Light background color for better contrast */
 		transition: background-color 0.3s; /* Smooth transition for hover effect */
+		cursor: pointer; /* Indicate the area is clickable */
+		position: relative; /* For proper pointer-events handling */
+		z-index: 1;
 	}
 
-	/* .drop-area-full:hover {
-		background-color: var(--selection-background); 
-		cursor: pointer;
-	} */
+	.drop-area-full > * {
+		pointer-events: none; /* Make all direct children ignore pointer events */
+	}
+
+	/* Allow pointer events for specific elements that need interaction */
+	.file-list {
+		pointer-events: auto;
+	}
+
+	/* Ensure remove buttons in FileIcon work */
+	:global(.file-list button) {
+		pointer-events: auto;
+	}
 
 	.drop-area-full.file-selected {
 		/* Override or remove certain styles when a file is selected */
@@ -269,15 +329,7 @@ when the duplicate is removed then remove the notification from the top
 	}
 
 	.upload-button {
-		margin: 10px;
-		border-radius: 2px;
-		padding: 2px 6px;
-		font-weight: 400;
-		cursor: pointer;
-	}
-
-	.upload-button:disabled {
-		cursor: not-allowed;
+		display: none;
 	}
 
 	.title {
@@ -285,8 +337,19 @@ when the duplicate is removed then remove the notification from the top
 	}
 
 	.font-sans {
-		font-family: Open Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu,
-			Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+		font-family:
+			Open Sans,
+			-apple-system,
+			BlinkMacSystemFont,
+			Segoe UI,
+			Roboto,
+			Oxygen,
+			Ubuntu,
+			Cantarell,
+			Fira Sans,
+			Droid Sans,
+			Helvetica Neue,
+			sans-serif;
 	}
 
 	:global(body[data-theme='Serpent'] .drop-area-full) {

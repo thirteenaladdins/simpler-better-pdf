@@ -1,9 +1,22 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
+import { sveltekit } from "@sveltejs/kit/vite";
+import { defineConfig } from "vite";
+import copy from "rollup-plugin-copy";
 
 export default defineConfig({
-	plugins: [sveltekit()],
-	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}']
-	}
+  plugins: [
+    copy({
+      targets: [
+        {
+          src: "node_modules/@nutrient-sdk/viewer/dist/nutrient-viewer-lib",
+          dest: "static/",
+        },
+      ],
+	  optimizeDeps: {
+		include: ['pdfjs-dist/build/pdf'],
+	  },
+      hook: "buildStart",
+    }),
+    sveltekit(),
+  ],
 });
+

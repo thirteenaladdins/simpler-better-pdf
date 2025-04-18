@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@nutrient-sdk/viewer": "^1.2.0",
+    "pdfjs-dist": "^5.1.91"
+  }
+}

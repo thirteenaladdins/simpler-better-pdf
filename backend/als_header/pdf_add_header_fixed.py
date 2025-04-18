@@ -118,46 +118,37 @@ als_header_dir = os.path.join(os.getcwd(), 'als_header')
 
 
 def add_header_footer(file_name, input_file):
-
-    # Create a PdfFileWriter object to write the output file
-    writer = PdfWriter()
-
-    # input image file, then convert, then import into this script?
-    # try:
-    encoded_image_path = os.path.join(als_header_dir, 'output.txt')
-    with open(encoded_image_path, 'r') as f:
-        encoded_image_data = f.read()
-        # add prefix to image
-        encoded_image_data = 'data:image/png;base64,' + encoded_image_data
-    # except Exception as e:
-    #     print(f"Error: {e}")
-    #     sys.exit(1)
-
     try:
+        # Validate input file
+        if not input_file:
+            raise ValueError("No input file provided")
+
+        # Create a PdfFileWriter object to write the output file
+        writer = PdfWriter()
+
+        # Read the encoded image once
+        encoded_image_path = os.path.join(als_header_dir, 'output.txt')
+        with open(encoded_image_path, 'r') as f:
+            encoded_image_data = 'data:image/png;base64,' + f.read()
+
+        # Try to read the PDF
         reader = PdfReader(io.BytesIO(input_file))
+
+        # Validate PDF content
+        if len(reader.pages) == 0:
+            raise ValueError("PDF file is empty")
+
         logging.info("PDF file read successfully")
-    except Exception as e:
-        print(f"Error: {e}")
-        logging.error(f"Error reading PDF file: {e}")
-        sys.exit(1)
 
-    # Loop through each page of the input file
-    for page_num in range(len(reader.pages)):
-        # Get the current page
-        page = reader.pages[page_num]
-
-        # Create a canvas object to draw the footer and header
-        temp_pdf_path = f"temp_{page_num}.pdf"
-        canvas_obj = canvas.Canvas(temp_pdf_path, pagesize=A4)
-
-        # Get the page width and height
+        # Create a single canvas for all pages
+        packet = io.BytesIO()
+        canvas_obj = canvas.Canvas(packet, pagesize=A4)
         page_width, page_height = A4
 
         # Draw the footer text at the bottom center of the page
         canvas_obj.setFont("OpenSans", 8)
 
         adjustment = 10
-        # page_width and page_height are being passed in here
         draw_image(canvas_obj, encoded_image_data,
                    page_width, page_height - adjustment, 220, 180)
 
@@ -169,21 +160,28 @@ def add_header_footer(file_name, input_file):
 
         # Save the canvas object
         canvas_obj.save()
+        packet.seek(0)
 
-        # Merge the canvas object with the current page
-        watermark = PdfReader(temp_pdf_path)
-        page.merge_page(watermark.pages[0])
+        # Create watermark once
+        watermark = PdfReader(packet)
 
-        # Add the modified page to the output file
-        writer.add_page(page)
-        os.remove(temp_pdf_path)
+        # Process all pages
+        for page in reader.pages:
+            # Merge the watermark with the current page
+            page.merge_page(watermark.pages[0])
+            writer.add_page(page)
 
-    output_stream = io.BytesIO()
-    writer.write(output_stream)
+        # Write the modified content to an in-memory binary stream
+        output_stream = io.BytesIO()
+        writer.write(output_stream)
+        output_stream.seek(0)
 
-    # Getting the PDF data from the BytesIO stream
-    output_stream.seek(0)
-    return output_stream.getvalue()
+        return output_stream.getvalue()
+
+    except Exception as e:
+        error_msg = f"Error processing PDF: {str(e)}"
+        logging.error(error_msg)
+        raise ValueError(error_msg)
 
 #
 
