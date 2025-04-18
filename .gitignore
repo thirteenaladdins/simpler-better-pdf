@@ -46,6 +46,11 @@ yarn-error.log*
 *.dll
 *.so
 *.dylib
+*.wasm
+
+# Large files and directories
+svelte-frontend/public/nutrient-viewer-lib/
+**/*.wasm
 
 # Testing
 coverage/
